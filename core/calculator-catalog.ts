@@ -1,0 +1,48 @@
+export const calculatorCatalog = [
+  {
+    id: "profit",
+    title: "Profit Calculator",
+    hinglishTitle: "Profit Calculator",
+    href: "/meesho-profit-calculator",
+    description: "See contribution after settlement, product cost, packaging and ads.",
+    formula: "Settlement − known variable costs",
+    tone: "blue",
+  },
+  {
+    id: "rto",
+    title: "RTO Loss",
+    hinglishTitle: "RTO Loss",
+    href: "/meesho-rto-calculator",
+    description: "Convert your RTO rate and observed loss into a rupee impact.",
+    formula: "Orders × RTO rate × loss per RTO",
+    tone: "red",
+  },
+  {
+    id: "break-even",
+    title: "Break-even Price",
+    hinglishTitle: "Break-even Price",
+    href: "/meesho-break-even-price",
+    description: "Find the minimum selling price supported by your own costs.",
+    formula: "Required economics ÷ retained rate",
+    tone: "green",
+  },
+  {
+    id: "acos",
+    title: "Max ACoS",
+    hinglishTitle: "Max ACoS",
+    href: "/meesho-acos-calculator",
+    description: "See the maximum ad-cost percentage your margin can sustain.",
+    formula: "Pre-ad contribution ÷ ad sales",
+    tone: "amber",
+  },
+  {
+    id: "roas",
+    title: "Break-even ROAS",
+    hinglishTitle: "Break-even ROAS",
+    href: "/meesho-ads-break-even-roas",
+    description: "Find the minimum return on ad spend needed to avoid a loss.",
+    formula: "Ad sales ÷ pre-ad contribution",
+    tone: "violet",
+  },
+] as const;
+

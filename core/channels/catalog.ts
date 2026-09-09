@@ -1,0 +1,486 @@
+export type ChannelPriority = "P0" | "P1" | "P2" | "P3";
+export type ChannelSupportState =
+  | "live-file"
+  | "live-api"
+  | "planned-api"
+  | "planned-file"
+  | "partner-only"
+  | "discovery";
+
+export type DataAcquisitionCode = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+
+export type SalesChannelDefinition = {
+  id: string;
+  label: string;
+  group:
+    | "marketplace"
+    | "storefront"
+    | "social"
+    | "quick-commerce"
+    | "b2b"
+    | "food"
+    | "cross-border"
+    | "government";
+  priority: ChannelPriority;
+  support: ChannelSupportState;
+  acquisition: readonly DataAcquisitionCode[];
+  region: "IN" | "GLOBAL" | "IN+GLOBAL";
+  analyzerEnabled: boolean;
+  note: string;
+};
+
+/**
+ * Product-facing channel catalogue.
+ *
+ * Important:
+ * - `analyzerEnabled` means SellerHisab can safely interpret that channel today.
+ * - A planned/partner/discovery row is NOT a claim that a public API exists.
+ * - Restricted channels stay file/partner-first until written approval and fixtures exist.
+ */
+export const SALES_CHANNELS = {
+  meesho: {
+    id: "meesho",
+    label: "Meesho",
+    group: "marketplace",
+    priority: "P0",
+    support: "live-file",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: true,
+    note: "Current file-first connector. No public general seller API is assumed.",
+  },
+  "amazon-in": {
+    id: "amazon-in",
+    label: "Amazon India",
+    group: "marketplace",
+    priority: "P0",
+    support: "live-file",
+    acquisition: ["A", "C", "D", "E"],
+    region: "IN",
+    analyzerEnabled: true,
+    note: "Orders + Settlement Flat File V2 analysis is live; SP-API/Ads API sync still requires seller authorization and approved scopes.",
+  },
+  flipkart: {
+    id: "flipkart",
+    label: "Flipkart",
+    group: "marketplace",
+    priority: "P0",
+    support: "live-file",
+    acquisition: ["A", "B", "C", "D"],
+    region: "IN",
+    analyzerEnabled: true,
+    note: "Orders + settlement/P&L file analysis is live; seller/API sync remains authorization or partner dependent.",
+  },
+  shopify: {
+    id: "shopify",
+    label: "Shopify",
+    group: "storefront",
+    priority: "P0",
+    support: "live-file",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: true,
+    note: "Orders CSV + Shopify Payments balance-transactions analysis is live; Admin API sync remains optional and authorization-dependent.",
+  },
+  woocommerce: {
+    id: "woocommerce",
+    label: "WooCommerce",
+    group: "storefront",
+    priority: "P1",
+    support: "live-api",
+    acquisition: ["B", "C"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: false,
+    note: "Live merchant-authorized REST API wc/v3 read sync. File analyzer support is intentionally separate and not claimed.",
+  },
+  shopsy: {
+    id: "shopsy",
+    label: "Shopsy",
+    group: "marketplace",
+    priority: "P1",
+    support: "planned-file",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Treat as a distinct channel alias; validate files/approved route first.",
+  },
+  snapdeal: {
+    id: "snapdeal",
+    label: "Snapdeal",
+    group: "marketplace",
+    priority: "P1",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Planned official seller API/file connector after fixture validation.",
+  },
+  ondc: {
+    id: "ondc",
+    label: "ONDC",
+    group: "marketplace",
+    priority: "P1",
+    support: "partner-only",
+    acquisition: ["B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Integrate through approved Seller NP/TSP; ONDC is a network, not one marketplace.",
+  },
+  "amazon-global": {
+    id: "amazon-global",
+    label: "Amazon Global Selling",
+    group: "cross-border",
+    priority: "P1",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "GLOBAL",
+    analyzerEnabled: false,
+    note: "Extend the Amazon adapter with region, currency, tax and FX layers.",
+  },
+  whatsapp: {
+    id: "whatsapp",
+    label: "WhatsApp Business",
+    group: "social",
+    priority: "P1",
+    support: "planned-api",
+    acquisition: ["B", "C", "D", "E"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: false,
+    note: "Official business APIs only; never scrape private chats.",
+  },
+  myntra: {
+    id: "myntra",
+    label: "Myntra",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Design-partner files first; approved connector later.",
+  },
+  ajio: {
+    id: "ajio",
+    label: "AJIO",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "File-first/approved partner route.",
+  },
+  jiomart: {
+    id: "jiomart",
+    label: "JioMart",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Seller-file import first; approved partner route later.",
+  },
+  nykaa: {
+    id: "nykaa",
+    label: "Nykaa",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Curated/partner route; validate seller fixtures before launch claims.",
+  },
+  "nykaa-fashion": {
+    id: "nykaa-fashion",
+    label: "Nykaa Fashion",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "File-first/approved connector after design-partner validation.",
+  },
+  blinkit: {
+    id: "blinkit",
+    label: "Blinkit",
+    group: "quick-commerce",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Approved brand/vendor feed only.",
+  },
+  zepto: {
+    id: "zepto",
+    label: "Zepto",
+    group: "quick-commerce",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Approved feed/file import only.",
+  },
+  instamart: {
+    id: "instamart",
+    label: "Swiggy Instamart",
+    group: "quick-commerce",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Approved partner/feed integration only.",
+  },
+  bigbasket: {
+    id: "bigbasket",
+    label: "BigBasket",
+    group: "quick-commerce",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Approved partner/file route.",
+  },
+  "instagram-facebook": {
+    id: "instagram-facebook",
+    label: "Instagram / Facebook Commerce",
+    group: "social",
+    priority: "P2",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: false,
+    note: "Official Meta APIs and app-review permissions only.",
+  },
+  indiamart: {
+    id: "indiamart",
+    label: "IndiaMART",
+    group: "b2b",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Lead/quote workflow, not a retail settlement connector.",
+  },
+  udaan: {
+    id: "udaan",
+    label: "Udaan",
+    group: "b2b",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "B2B commerce file-first/approved commercial route.",
+  },
+  gem: {
+    id: "gem",
+    label: "GeM",
+    group: "government",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Dedicated document/order/payment workflow; official integration only.",
+  },
+  etsy: {
+    id: "etsy",
+    label: "Etsy",
+    group: "cross-border",
+    priority: "P2",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "GLOBAL",
+    analyzerEnabled: false,
+    note: "Planned OAuth/API connector after India seller eligibility validation.",
+  },
+  ebay: {
+    id: "ebay",
+    label: "eBay",
+    group: "cross-border",
+    priority: "P2",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "GLOBAL",
+    analyzerEnabled: false,
+    note: "Planned official selling API connector.",
+  },
+  "custom-store": {
+    id: "custom-store",
+    label: "Custom website",
+    group: "storefront",
+    priority: "P1",
+    support: "planned-api",
+    acquisition: ["A", "B", "C"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: false,
+    note: "SellerHisab ingestion API/webhooks plus CSV/JSON templates.",
+  },
+  dukaan: {
+    id: "dukaan",
+    label: "Dukaan",
+    group: "storefront",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["A", "B", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "CSV/manual route first; do not promise API support until verified.",
+  },
+  "tata-cliq": {
+    id: "tata-cliq",
+    label: "Tata CLiQ",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Restricted partner route; validate exports before connector launch.",
+  },
+  firstcry: {
+    id: "firstcry",
+    label: "FirstCry",
+    group: "marketplace",
+    priority: "P2",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Partner route; field-level fixtures required.",
+  },
+  pepperfry: {
+    id: "pepperfry",
+    label: "Pepperfry",
+    group: "marketplace",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["A", "B", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Discovery backlog; current seller route/report fields need validation.",
+  },
+  limeroad: {
+    id: "limeroad",
+    label: "LimeRoad",
+    group: "marketplace",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["B", "D", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Discovery backlog only.",
+  },
+  zomato: {
+    id: "zomato",
+    label: "Zomato",
+    group: "food",
+    priority: "P3",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Separate restaurant economics adapter; do not force into retail semantics.",
+  },
+  "swiggy-food": {
+    id: "swiggy-food",
+    label: "Swiggy Food",
+    group: "food",
+    priority: "P3",
+    support: "partner-only",
+    acquisition: ["A", "B", "D", "E"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Separate restaurant vertical/approved integration.",
+  },
+  tradeindia: {
+    id: "tradeindia",
+    label: "TradeIndia",
+    group: "b2b",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["A", "B", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Lead/email/file workflow; API support is not assumed.",
+  },
+  walmart: {
+    id: "walmart",
+    label: "Walmart Marketplace",
+    group: "cross-border",
+    priority: "P3",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "GLOBAL",
+    analyzerEnabled: false,
+    note: "Approved cross-border connector after seller demand and eligibility.",
+  },
+  "amazon-business": {
+    id: "amazon-business",
+    label: "Amazon Business",
+    group: "b2b",
+    priority: "P2",
+    support: "planned-api",
+    acquisition: ["A", "B", "C", "D", "E"],
+    region: "IN+GLOBAL",
+    analyzerEnabled: false,
+    note: "Extend Amazon connector with B2B order/invoice semantics.",
+  },
+  "flipkart-wholesale": {
+    id: "flipkart-wholesale",
+    label: "Flipkart Wholesale",
+    group: "b2b",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["B", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Discovery backlog; current seller/program participation and data route require validation.",
+  },
+  noon: {
+    id: "noon",
+    label: "Noon",
+    group: "cross-border",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["A", "B", "D", "E", "G"],
+    region: "GLOBAL",
+    analyzerEnabled: false,
+    note: "Discovery backlog; regional seller/API route requires validation.",
+  },
+  tira: {
+    id: "tira",
+    label: "Tira",
+    group: "marketplace",
+    priority: "P3",
+    support: "discovery",
+    acquisition: ["B", "E", "G"],
+    region: "IN",
+    analyzerEnabled: false,
+    note: "Do not promise seller integration until current onboarding/data route is verified.",
+  },
+} as const satisfies Record<string, SalesChannelDefinition>;
+
+export type SalesChannelId = keyof typeof SALES_CHANNELS;
+export type AnalysisChannelId = SalesChannelId | "unknown";
+
+export function isSalesChannelId(value: string): value is SalesChannelId {
+  return Object.prototype.hasOwnProperty.call(SALES_CHANNELS, value);
+}
+
+export function channelLabel(channelId: AnalysisChannelId | undefined): string {
+  if (!channelId || channelId === "unknown") return "Unknown channel";
+  return SALES_CHANNELS[channelId].label;
+}
+
+export function enabledAnalyzerChannels(): SalesChannelDefinition[] {
+  return Object.values(SALES_CHANNELS).filter((channel) => channel.analyzerEnabled);
+}

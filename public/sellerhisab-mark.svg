@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">SellerHisab mark</title>
+  <desc id="desc">A rupee ledger with a verified check.</desc>
+  <path d="M64 52c10-14 20 14 30 0s20 14 30 0 20 14 30 0 20 14 30 0 20 14 30 0v150H64V52Z" fill="#FFFFFF" stroke="#102044" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"/>
+  <g fill="none" stroke="#102044" stroke-linecap="round" stroke-linejoin="round" stroke-width="10">
+    <path d="M88 88h56M88 110h51"/>
+    <path d="M96 88h18c28 0 28 40 0 40H96l36 37"/>
+  </g>
+  <path d="M160 88h38M160 117h38" fill="none" stroke="#1769F3" stroke-linecap="round" stroke-width="10"/>
+  <path d="M160 146h29" fill="none" stroke="#0B9B6E" stroke-linecap="round" stroke-width="10"/>
+  <path d="M40 198h160v39H76c-22 0-36-14-36-36v-3Z" fill="#1769F3"/>
+  <circle cx="215" cy="207" r="45" fill="#0B9B6E" stroke="#FFFFFF" stroke-width="9"/>
+  <path d="m193 207 15 15 29-32" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+</svg>

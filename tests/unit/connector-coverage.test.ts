@@ -1,0 +1,11 @@
+import {it,expect,vi} from 'vitest';
+import {initialCheckpoint,coverageFor,financeCoverageConfirmed} from '@/core/connectors/coverage';
+import {reconcileCashPayouts} from '@/core/cash/reconciliation';
+import {assertPaise} from '@/core/money';
+const provider=vi.hoisted(()=>({woo:vi.fn()}));
+vi.mock('@/server/connectors/providers',()=>({woocommerceApiGet:provider.woo}));
+import {fetchConnectorPage} from '@/server/connectors/pages';
+import type {OwnedConnection,StoredConnectorCredential} from '@/server/connectors/store';
+it('persists fixed historical coverage across 30-day slices',()=>{const c=initialCheckpoint(365,Date.parse('2026-09-08'));expect(Date.parse(c.end)-Date.parse(c.start)).toBe(365*86400000);expect(Date.parse(c.sliceEnd)-Date.parse(c.sliceStart)).toBe(30*86400000);expect(financeCoverageConfirmed(coverageFor(c))).toBe(false);});
+it('continues WooCommerce beyond the former 500 row ceiling',async()=>{provider.woo.mockResolvedValue(Array.from({length:100},(_,i)=>({id:i,status:'completed',currency:'INR',line_items:[]})));const c=initialCheckpoint(30);const connection={id:'c',connectorId:'woocommerce-v1'} as OwnedConnection;for(let page=1;page<=12;page++){const result=await fetchConnectorPage({} as StoredConnectorCredential,connection,c);expect(result.next).toBe(String(page+1));c.cursor=result.next;}expect(provider.woo).toHaveBeenCalledTimes(12);});
+it('blocks confirmed bank matches from partial connector evidence',()=>{const r=reconcileCashPayouts({expectedPayouts:[{id:'p',expectedAmountPaise:assertPaise(10000),currency:'INR',externalReference:'REF123456',sourceCoverageComplete:false}],bankTransactions:[{id:'b',amountPaise:assertPaise(10000),currency:'INR',direction:'credit',bookedAt:'2026-01-01',reference:'REF123456'}]});expect(r.matches[0].status).toBe('pending');expect(r.matchedPayoutPaise).toBe(0);});

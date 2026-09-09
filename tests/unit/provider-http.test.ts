@@ -1,0 +1,8 @@
+import {vi,it,expect,afterEach} from 'vitest';
+import {providerFetch,retryAfterMs} from '@/server/provider-http';
+afterEach(()=>vi.unstubAllGlobals());
+it('never retries an unsafe POST on timeout',async()=>{const f=vi.fn().mockRejectedValue(new Error('timeout'));vi.stubGlobal('fetch',f);await expect(providerFetch('https://provider.invalid',{method:'POST'})).rejects.toThrow();expect(f).toHaveBeenCalledTimes(1);});
+it('retries safe GET after 503',async()=>{const f=vi.fn().mockResolvedValueOnce(new Response('',{status:503})).mockResolvedValue(new Response('{}'));vi.stubGlobal('fetch',f);expect((await providerFetch('https://provider.invalid')).status).toBe(200);expect(f).toHaveBeenCalledTimes(2);});
+it('honors a long Retry-After by returning a durable retry delay',async()=>{vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response('',{status:429,headers:{'retry-after':'120'}})));await expect(providerFetch('https://provider.invalid')).rejects.toMatchObject({retryAfterMs:120000});expect(retryAfterMs('bad')).toBe(0);expect(retryAfterMs('Wed, 01 Jan 2025 00:00:10 GMT',Date.parse('2025-01-01T00:00:00Z'))).toBe(10000);});
+
+it('retains Retry-After on exhausted safe reads and never retries unsafe 503',async()=>{const f=vi.fn().mockResolvedValue(new Response('',{status:429,headers:{'retry-after':'9'}}));vi.stubGlobal('fetch',f);await expect(providerFetch('https://provider.invalid',{}, {attempts:1})).rejects.toMatchObject({status:429,retryAfterMs:9000});expect(f).toHaveBeenCalledTimes(1);f.mockReset().mockResolvedValue(new Response('',{status:503}));expect((await providerFetch('https://provider.invalid',{method:'POST'})).status).toBe(503);expect(f).toHaveBeenCalledTimes(1);});

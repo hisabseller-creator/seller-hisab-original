@@ -1,0 +1,11 @@
+import {getPublicSeoSettings} from './seo-settings';
+import type {Metadata} from 'next';
+import {notFound,permanentRedirect} from 'next/navigation';
+import {BlogArticle} from '@/components/blog-article';
+import {getPublishedBlogPost,resolveSeoRedirect} from '@/server/blog';
+import {availableBlogLocales,blogLanguageAlternates,localeBlogPath,localizedBlogPost} from '@/core/blog-locales';
+import {absoluteUrl} from '@/core/seo';
+type Props={params:Promise<{locale:string;slug:string}>};
+async function load(params:Props['params']){const {locale,slug}=await params;if(locale!=='hi'&&locale!=='en')notFound();if(!(await getPublicSeoSettings()).future.localeUrlsEnabled)notFound();const source=await getPublishedBlogPost(slug);if(!source){const moved=await resolveSeoRedirect('/blog/'+slug);if(moved)permanentRedirect(moved.toPath);notFound();}const post=localizedBlogPost(source,locale);if(!post)notFound();return {source,post,locale:locale as "hi"|"en"};}
+export async function generateMetadata({params}:Props):Promise<Metadata>{const {source,post,locale}=await load(params);return {title:post.seoTitle||post.title,description:post.seoDescription||post.subtitle,alternates:{canonical:post.canonicalUrl,languages:blogLanguageAlternates(source)},robots:{index:post.indexable,follow:post.follow},openGraph:{type:'article',locale:locale+'_IN',url:post.canonicalUrl,title:post.seoTitle||post.title,description:post.seoDescription||post.subtitle,images:post.imageUrl?[post.imageUrl]:undefined}};}
+export default async function Page({params}:Props){const {source,post,locale}=await load(params);const structured={'@context':'https://schema.org','@type':post.contentType==='news'?'NewsArticle':'BlogPosting',headline:post.title,description:post.subtitle,inLanguage:locale+'-IN',datePublished:post.publishedAt??post.createdAt,dateModified:post.updatedAt,mainEntityOfPage:absoluteUrl(post.canonicalUrl),image:post.imageUrl?absoluteUrl(post.imageUrl):undefined,author:{'@type':'Organization',name:post.authorName,url:absoluteUrl(post.authorUrl)}};return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structured).replace(/</g,'\\u003c')}}/><BlogArticle post={post} articleLocale={locale} localeLinks={availableBlogLocales(source).map(l=>({locale:l,href:localeBlogPath(source,l)}))}/></>;}

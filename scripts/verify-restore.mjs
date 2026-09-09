@@ -1,0 +1,15 @@
+import {DatabaseSync} from 'node:sqlite';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const file=process.argv[2];if(!file||!fs.existsSync(file))throw Error('Usage: node scripts/verify-restore.mjs <non-production-restored.sqlite>');
+const db=new DatabaseSync(file,{readOnly:true});
+assert.equal(db.prepare('PRAGMA integrity_check').get().integrity_check,'ok');
+assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(),[]);
+const counts={};
+for(const table of ['users','tenants','payments','entitlements','commerce_ledger_entries','connector_sync_jobs','billing_event_jobs'])counts[table]=db.prepare('SELECT COUNT(*) AS n FROM '+table).get().n;
+const mismatches=db.prepare('SELECT COUNT(*) AS n FROM commerce_ledger_entries le JOIN data_imports di ON di.id=le.source_import_id WHERE le.tenant_id<>di.tenant_id').get().n;
+assert.equal(mismatches,0,'Restored ledger crosses tenant boundaries');
+const missingAccess=db.prepare("SELECT COUNT(*) AS n FROM payments p LEFT JOIN entitlements e ON e.payment_id=p.id AND e.status='active' WHERE p.status='paid' AND p.product='action_report' AND e.id IS NULL").get().n;
+console.log(JSON.stringify({status:'integrity_pass',checkedAt:new Date().toISOString(),counts,paidWithoutAccess:missingAccess,providerReconciliation:'REQUIRED before reopening billing',rtoRpoEvidence:'Record incident/drill timestamps separately'},null,2));
+db.close();
+if(missingAccess)process.exitCode=2;

@@ -1,0 +1,1219 @@
+{
+  "authority": "Ordered immutable drizzle/*.sql; schema.ts mirrors relational definitions. Never generate against stale drizzle/meta snapshots.",
+  "objects": [
+    {
+      "type": "table",
+      "name": "billing_trial_claims",
+      "tableName": "billing_trial_claims",
+      "sql": "CREATE TABLE `billing_trial_claims` (\n  `id` text PRIMARY KEY NOT NULL,\n  `user_id` text NOT NULL,\n  `subscription_id` text NOT NULL,\n  `provider_subscription_id` text NOT NULL,\n  `plan` text NOT NULL,\n  `trial_days` integer NOT NULL,\n  `trial_started_at` text,\n  `trial_ends_at` integer NOT NULL,\n  `status` text NOT NULL DEFAULT 'checkout_pending',\n  `auto_pay_status` text NOT NULL DEFAULT 'pending',\n  `checkout_email` text,\n  `checkout_phone` text,\n  `provider_last_status` text,\n  `first_charge_payment_id` text,\n  `converted_at` text,\n  `failed_at` text,\n  `cancelled_at` text,\n  `created_at` text NOT NULL,\n  `updated_at` text NOT NULL,\n  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE restrict,\n  FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions`(`id`) ON UPDATE no action ON DELETE restrict\n)"
+    },
+    {
+      "type": "table",
+      "name": "connector_sync_jobs",
+      "tableName": "connector_sync_jobs",
+      "sql": "CREATE TABLE `connector_sync_jobs` (\n  `id` text PRIMARY KEY NOT NULL,\n  `tenant_id` text NOT NULL,\n  `connection_id` text NOT NULL,\n  `requested_by_user_id` text,\n  `days` integer NOT NULL DEFAULT 30,\n  `status` text NOT NULL DEFAULT 'queued',\n  `attempt_count` integer NOT NULL DEFAULT 0,\n  `max_attempts` integer NOT NULL DEFAULT 5,\n  `next_attempt_at` text NOT NULL,\n  `processing_started_at` text,\n  `last_error_code` text,\n  `last_error_message` text,\n  `created_at` text NOT NULL,\n  `updated_at` text NOT NULL,\n  `completed_at` text, logical_key text, checkpoint_json text, coverage_json text, lease_token text,\n  FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE cascade,\n  FOREIGN KEY (`connection_id`) REFERENCES `connector_connections`(`id`) ON UPDATE no action ON DELETE cascade,\n  FOREIGN KEY (`requested_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE set null\n)"
+    },
+    {
+      "type": "table",
+      "name": "payments",
+      "tableName": "payments",
+      "sql": "CREATE TABLE `payments` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`provider_order_id` text NOT NULL,\n\t`provider_payment_id` text,\n\t`analysis_id` text NOT NULL,\n\t`user_id` text,\n\t`product` text NOT NULL,\n\t`provider` text NOT NULL,\n\t`amount_paise` integer NOT NULL,\n\t`currency` text DEFAULT 'INR' NOT NULL,\n\t`status` text NOT NULL,\n\t`created_at` text NOT NULL,\n\t`updated_at` text NOT NULL, `provider_status` text, `provider_verified_at` text, reconciliation_checked_at text,\n\tFOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE set null\n)"
+    },
+    {
+      "type": "table",
+      "name": "subscriptions",
+      "tableName": "subscriptions",
+      "sql": "CREATE TABLE `subscriptions` (\n\t`id` text PRIMARY KEY NOT NULL,\n\t`user_id` text NOT NULL,\n\t`provider_subscription_id` text NOT NULL,\n\t`provider` text NOT NULL,\n\t`plan` text NOT NULL,\n\t`status` text NOT NULL,\n\t`current_period_end` integer,\n\t`created_at` text NOT NULL,\n\t`updated_at` text NOT NULL, `provider_plan_id` text, `cancel_at_period_end` integer NOT NULL DEFAULT 0, `ended_at` integer, `provider_verified_at` text, reconciliation_checked_at text,\n\tFOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade\n)"
+    },
+    {
+      "type": "trigger",
+      "name": "action_outcome_same_tenant_insert",
+      "tableName": "action_outcomes",
+      "sql": "CREATE TRIGGER `action_outcome_same_tenant_insert`\nBEFORE INSERT ON `action_outcomes`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `action_recommendations` ar\n  WHERE ar.id = NEW.action_id AND ar.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'action_outcome_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "action_outcome_same_tenant_update",
+      "tableName": "action_outcomes",
+      "sql": "CREATE TRIGGER `action_outcome_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`action_id` ON `action_outcomes`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `action_recommendations` ar\n  WHERE ar.id = NEW.action_id AND ar.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'action_outcome_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "action_workflows_same_tenant_insert",
+      "tableName": "action_workflows",
+      "sql": "CREATE TRIGGER `action_workflows_same_tenant_insert`\nBEFORE INSERT ON `action_workflows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `action_recommendations` ar\n  WHERE ar.id = NEW.action_id AND ar.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'action_workflow_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "action_workflows_same_tenant_update",
+      "tableName": "action_workflows",
+      "sql": "CREATE TRIGGER `action_workflows_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`action_id` ON `action_workflows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `action_recommendations` ar\n  WHERE ar.id = NEW.action_id AND ar.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'action_workflow_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "ad_row_same_tenant_insert",
+      "tableName": "ad_performance_rows",
+      "sql": "CREATE TRIGGER `ad_row_same_tenant_insert`\nBEFORE INSERT ON `ad_performance_rows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'ads_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "ad_row_same_tenant_update",
+      "tableName": "ad_performance_rows",
+      "sql": "CREATE TRIGGER `ad_row_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`source_import_id` ON `ad_performance_rows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'ads_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "bank_transaction_same_tenant_insert",
+      "tableName": "bank_transactions",
+      "sql": "CREATE TRIGGER `bank_transaction_same_tenant_insert`\nBEFORE INSERT ON `bank_transactions`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'bank_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "bank_transaction_same_tenant_update",
+      "tableName": "bank_transactions",
+      "sql": "CREATE TRIGGER `bank_transaction_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`source_import_id` ON `bank_transactions`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'bank_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "cash_match_same_tenant_insert",
+      "tableName": "cash_matches",
+      "sql": "CREATE TRIGGER `cash_match_same_tenant_insert`\nBEFORE INSERT ON `cash_matches`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1\n  FROM `bank_transactions` bt\n  JOIN `commerce_ledger_entries` le ON le.id = NEW.expected_ledger_entry_id\n  WHERE bt.id = NEW.bank_transaction_id\n    AND bt.tenant_id = NEW.tenant_id\n    AND le.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'cash_match_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "cash_match_same_tenant_update",
+      "tableName": "cash_matches",
+      "sql": "CREATE TRIGGER `cash_match_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`bank_transaction_id`,`expected_ledger_entry_id` ON `cash_matches`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1\n  FROM `bank_transactions` bt\n  JOIN `commerce_ledger_entries` le ON le.id = NEW.expected_ledger_entry_id\n  WHERE bt.id = NEW.bank_transaction_id\n    AND bt.tenant_id = NEW.tenant_id\n    AND le.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'cash_match_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "channel_listing_same_tenant_insert",
+      "tableName": "channel_listings",
+      "sql": "CREATE TRIGGER `channel_listing_same_tenant_insert`\nBEFORE INSERT ON `channel_listings`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `channel_accounts` ca\n  WHERE ca.id = NEW.channel_account_id AND ca.tenant_id = NEW.tenant_id\n)\nOR (\n  NEW.product_variant_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `product_variants` pv\n    WHERE pv.id = NEW.product_variant_id AND pv.tenant_id = NEW.tenant_id\n  )\n)\nBEGIN\n  SELECT RAISE(ABORT, 'channel_listing_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "inventory_row_same_tenant_insert",
+      "tableName": "inventory_position_rows",
+      "sql": "CREATE TRIGGER `inventory_row_same_tenant_insert`\nBEFORE INSERT ON `inventory_position_rows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'inventory_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "inventory_row_same_tenant_update",
+      "tableName": "inventory_position_rows",
+      "sql": "CREATE TRIGGER `inventory_row_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`source_import_id` ON `inventory_position_rows`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `data_imports` di\n  WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'inventory_import_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "ledger_same_tenant_insert",
+      "tableName": "commerce_ledger_entries",
+      "sql": "CREATE TRIGGER `ledger_same_tenant_insert`\nBEFORE INSERT ON `commerce_ledger_entries`\nFOR EACH ROW\nWHEN (\n  NEW.legal_entity_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `legal_entities` le\n    WHERE le.id = NEW.legal_entity_id AND le.tenant_id = NEW.tenant_id\n  )\n) OR (\n  NEW.channel_account_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `channel_accounts` ca\n    WHERE ca.id = NEW.channel_account_id AND ca.tenant_id = NEW.tenant_id\n  )\n) OR (\n  NEW.source_import_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `data_imports` di\n    WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n  )\n)\nBEGIN\n  SELECT RAISE(ABORT, 'ledger_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "ledger_same_tenant_update",
+      "tableName": "commerce_ledger_entries",
+      "sql": "CREATE TRIGGER `ledger_same_tenant_update`\nBEFORE UPDATE OF `tenant_id`,`legal_entity_id`,`channel_account_id`,`source_import_id` ON `commerce_ledger_entries`\nFOR EACH ROW\nWHEN (\n  NEW.legal_entity_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `legal_entities` le\n    WHERE le.id = NEW.legal_entity_id AND le.tenant_id = NEW.tenant_id\n  )\n) OR (\n  NEW.channel_account_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `channel_accounts` ca\n    WHERE ca.id = NEW.channel_account_id AND ca.tenant_id = NEW.tenant_id\n  )\n) OR (\n  NEW.source_import_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `data_imports` di\n    WHERE di.id = NEW.source_import_id AND di.tenant_id = NEW.tenant_id\n  )\n)\nBEGIN\n  SELECT RAISE(ABORT, 'ledger_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "product_variant_same_tenant_insert",
+      "tableName": "product_variants",
+      "sql": "CREATE TRIGGER `product_variant_same_tenant_insert`\nBEFORE INSERT ON `product_variants`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `master_products` mp\n  WHERE mp.id = NEW.master_product_id AND mp.tenant_id = NEW.tenant_id\n)\nBEGIN\n  SELECT RAISE(ABORT, 'product_variant_tenant_mismatch');\nEND"
+    },
+    {
+      "type": "trigger",
+      "name": "sku_alias_same_tenant_insert",
+      "tableName": "sku_aliases",
+      "sql": "CREATE TRIGGER `sku_alias_same_tenant_insert`\nBEFORE INSERT ON `sku_aliases`\nFOR EACH ROW\nWHEN NOT EXISTS (\n  SELECT 1 FROM `product_variants` pv\n  WHERE pv.id = NEW.product_variant_id AND pv.tenant_id = NEW.tenant_id\n)\nOR NOT EXISTS (\n  SELECT 1 FROM `channel_accounts` ca\n  WHERE ca.id = NEW.channel_account_id AND ca.tenant_id = NEW.tenant_id\n)\nOR (\n  NEW.channel_listing_id IS NOT NULL AND NOT EXISTS (\n    SELECT 1 FROM `channel_listings` cl\n    WHERE cl.id = NEW.channel_listing_id AND cl.tenant_id = NEW.tenant_id\n  )\n)\nBEGIN\n  SELECT RAISE(ABORT, 'sku_alias_tenant_mismatch');\nEND"
+    }
+  ],
+  "foreignKeys": {
+    "account_deletion_receipts": [],
+    "action_outcomes": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "action_recommendations",
+        "from": "action_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "action_recommendations": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "action_workflows": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "completed_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "rejected_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "users",
+        "from": "approved_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "seq": 0,
+        "table": "users",
+        "from": "requested_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 4,
+        "seq": 0,
+        "table": "users",
+        "from": "assigned_to_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 5,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 6,
+        "seq": 0,
+        "table": "action_recommendations",
+        "from": "action_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "ad_performance_rows": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "data_imports",
+        "from": "source_import_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "ad_preferences": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "alerts": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "seller_profiles",
+        "from": "profile_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "analyses": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "seller_profiles",
+        "from": "profile_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "audit_events": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "bank_transactions": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "data_imports",
+        "from": "source_import_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "benchmark_preferences": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "updated_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "billing_audit_events": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "subscriptions",
+        "from": "subscription_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "payments",
+        "from": "payment_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "billing_event_jobs": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "webhook_events",
+        "from": "event_id",
+        "to": "provider_event_id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "billing_trial_claims": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "subscriptions",
+        "from": "subscription_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "RESTRICT",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "RESTRICT",
+        "match": "NONE"
+      }
+    ],
+    "billing_trial_settings": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "updated_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "blog_posts": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "updated_by",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "cash_matches": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "commerce_ledger_entries",
+        "from": "expected_ledger_entry_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "bank_transactions",
+        "from": "bank_transaction_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "cash_preferences": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "channel_accounts": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "legal_entities",
+        "from": "legal_entity_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "channel_listings": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "product_variants",
+        "from": "product_variant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "commerce_ledger_entries": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "data_imports",
+        "from": "source_import_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "legal_entities",
+        "from": "legal_entity_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_connections": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_credentials": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "connector_connections",
+        "from": "connection_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_notifications": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "connector_sync_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "connector_connections",
+        "from": "connection_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_oauth_states": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_page_receipts": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "connector_sync_jobs",
+        "from": "job_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_sync_jobs": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "requested_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "connector_connections",
+        "from": "connection_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "connector_sync_runs": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "connector_connections",
+        "from": "connection_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "contact_requests": [],
+    "data_imports": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "entitlements": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "payments",
+        "from": "payment_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "RESTRICT",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "inventory_position_rows": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "data_imports",
+        "from": "source_import_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "inventory_preferences": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "ledger_entry_revisions": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "legal_entities": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "master_products": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "otp_challenges": [],
+    "payment_intents": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "RESTRICT",
+        "match": "NONE"
+      }
+    ],
+    "payments": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "product_variants": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "master_products",
+        "from": "master_product_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "rate_limits": [],
+    "saved_costs": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "seller_profiles",
+        "from": "profile_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "seller_profiles": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "seo_redirects": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "updated_by",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "sessions": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "site_settings": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "updated_by",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      }
+    ],
+    "sku_aliases": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "approved_by",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "channel_listings",
+        "from": "channel_listing_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 2,
+        "seq": 0,
+        "table": "channel_accounts",
+        "from": "channel_account_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 3,
+        "seq": 0,
+        "table": "product_variants",
+        "from": "product_variant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 4,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "subscription_payment_events": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "subscriptions",
+        "from": "subscription_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "subscriptions": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "support_request_events": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "actor_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "contact_requests",
+        "from": "support_request_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "tenant_members": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "tenants": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "owner_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "users": [],
+    "webhook_events": [],
+    "workspace_invites": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "users",
+        "from": "invited_by_user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "SET NULL",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "tenants",
+        "from": "tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ],
+    "workspace_preferences": [
+      {
+        "id": 0,
+        "seq": 0,
+        "table": "tenants",
+        "from": "active_tenant_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      },
+      {
+        "id": 1,
+        "seq": 0,
+        "table": "users",
+        "from": "user_id",
+        "to": "id",
+        "on_update": "NO ACTION",
+        "on_delete": "CASCADE",
+        "match": "NONE"
+      }
+    ]
+  }
+}

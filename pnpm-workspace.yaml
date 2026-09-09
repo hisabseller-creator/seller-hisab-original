@@ -1,0 +1,16 @@
+allowBuilds:
+  core-js: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  workerd: true
+
+# Patched transitive versions required by the advisory gate; validate vinext build.
+overrides:
+  undici: 7.29.0
+  ws: 8.21.0
+  sharp: 0.35.0
+  esbuild: 0.28.1
+
+patchedDependencies:
+  image-size@2.0.2: patches/image-size@2.0.2.patch

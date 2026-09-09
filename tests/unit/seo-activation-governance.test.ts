@@ -1,0 +1,8 @@
+import {it,expect,vi,beforeEach} from 'vitest';
+import {testDatabase} from '../helpers/d1';
+import {DEFAULT_SEO_SETTINGS,parseSeoSettings} from '@/core/seo-settings';
+const state=vi.hoisted(()=>({db:null as D1Database|null}));vi.mock('@/server/runtime',()=>({getD1:()=>state.db}));
+import {seoSettingsSnapshot,savePublicSeoSettings,SeoSettingsConflict,seoSettingsImpact} from '@/server/seo-settings';
+beforeEach(()=>{const db=testDatabase();state.db=db.d1;db.sqlite.exec("INSERT INTO users(id,email,created_at) VALUES('admin','fixture@example.invalid','2026')");});
+it('same-page URLs stay default even for legacy hreflang-ready settings',()=>{expect(DEFAULT_SEO_SETTINGS.future.localeUrlsEnabled).toBe(false);const legacy=structuredClone(DEFAULT_SEO_SETTINGS) as unknown as {future:Record<string,unknown>};delete legacy.future.localeUrlsEnabled;expect(parseSeoSettings(legacy).future.localeUrlsEnabled).toBe(false);});
+it('concurrent SEO changes require renewed review and cannot add a false audit entry',async()=>{const original=await seoSettingsSnapshot();const changed=structuredClone(DEFAULT_SEO_SETTINGS);changed.future.localeUrlsEnabled=true;await savePublicSeoSettings(changed,'admin',original.revision);await expect(savePublicSeoSettings(DEFAULT_SEO_SETTINGS,'admin',original.revision)).rejects.toBeInstanceOf(SeoSettingsConflict);expect((await state.db!.prepare('SELECT COUNT(*) AS n FROM audit_events').first<{n:number}>())?.n).toBe(1);expect(seoSettingsImpact(DEFAULT_SEO_SETTINGS,changed)).toContain('future.localeUrlsEnabled: false → true');const current=await seoSettingsSnapshot();await savePublicSeoSettings(DEFAULT_SEO_SETTINGS,'admin',current.revision);expect((await seoSettingsSnapshot()).settings.future.localeUrlsEnabled).toBe(false);});

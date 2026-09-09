@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+if(process.env.SELLERHISAB_TEST!=='1')throw Error('Local test mode required');
+const config=JSON.parse(fs.readFileSync('wrangler.test.jsonc','utf8'));
+if(config.name!=='sellerhisab-local-tests'||config.d1_databases[0].database_id!=='00000000-0000-0000-0000-000000000001')throw Error('Unsafe test configuration');
+const quote=v=>"'"+String(v).replaceAll("'","''")+"'";
+const title='ऑनलाइन विक्रेता के लिए वास्तविक लाभ और भुगतान का पूरा हिसाब समझने की विस्तृत मार्गदर्शिका';
+const subtitle='हिंदी में लंबे शब्दों, शीर्षकों और वित्तीय तालिका का स्थानीय परीक्षण।';
+const html='<h2>भुगतान और वास्तविक लाभ की जाँच</h2><p>'+subtitle.repeat(8)+'</p><table><caption>उदाहरण वित्तीय रिकॉर्ड</caption><thead><tr>'+['ऑर्डर पहचान','बिक्री मूल्य','मार्केटप्लेस शुल्क','वापसी शुल्क','अपेक्षित भुगतान','वास्तविक बैंक भुगतान'].map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+Array.from({length:8},(_,i)=>'<tr><td>ORDER-LONG-IDENTIFIER-'+i+'</td><td>₹1,250</td><td>₹150</td><td>₹0</td><td>₹1,100</td><td>₹1,100</td></tr>').join('')+'</tbody></table><h2>अगला कदम</h2><p>'+subtitle.repeat(5)+'</p>';
+const fields={id:'local-browser-fixture',slug:'local-hindi-fixture',title,subtitle,tag:'Guide',html_content:html,html_content_en:'<h2>Understand your payment</h2><p>Local English translation for language and canonical verification.</p>',locale_metadata_json:JSON.stringify({hi:{title,subtitle,seoTitle:title,seoDescription:subtitle},en:{title:'A detailed guide to actual seller profit and payments',subtitle:'Local English fixture for translation tests.',seoTitle:'Seller profit guide',seoDescription:'Local English fixture for translation tests.'}}),status:'published',created_at:'2026-09-08T00:00:00.000Z',updated_at:'2026-09-08T00:00:00.000Z',published_at:'2026-09-08T00:00:00.000Z',indexable:1};
+fs.mkdirSync('.wrangler',{recursive:true});const file='.wrangler/browser-fixture.sql';fs.writeFileSync(file,'INSERT INTO blog_posts('+Object.keys(fields).join(',')+') VALUES('+Object.values(fields).map(quote).join(',')+') ON CONFLICT(id) DO UPDATE SET '+Object.keys(fields).filter(k=>k!=='id').map(k=>k+'=excluded.'+k).join(',')+';','utf8');
+const result=spawnSync(process.execPath,['node_modules/wrangler/bin/wrangler.js','d1','execute','DB','--local','--config','wrangler.test.jsonc','--file',file],{stdio:'inherit',env:process.env});if(result.status)process.exit(result.status);

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" role="img" aria-labelledby="title desc">
+  <title id="title">SellerHisab</title>
+  <desc id="desc">SellerHisab logo with a rupee ledger and verified check.</desc>
+  <g id="ledger-mark">
+    <path d="M82 88c11-15 22 15 33 0s22 15 33 0 22 15 33 0 22 15 33 0 22 15 33 0v142H82V88Z" fill="#FFFFFF" stroke="#102044" stroke-linecap="round" stroke-linejoin="round" stroke-width="13"/>
+    <g fill="none" stroke="#102044" stroke-linecap="round" stroke-linejoin="round" stroke-width="11">
+      <path d="M108 120h59M108 143h54"/>
+      <path d="M116 120h20c29 0 29 42 0 42h-20l38 39"/>
+    </g>
+    <path d="M182 120h40M182 151h40" fill="none" stroke="#1769F3" stroke-linecap="round" stroke-width="11"/>
+    <path d="M182 182h31" fill="none" stroke="#0B9B6E" stroke-linecap="round" stroke-width="11"/>
+    <path d="M55 220h170v39H91c-22 0-36-14-36-36v-3Z" fill="#1769F3"/>
+    <circle cx="235" cy="225" r="42" fill="#0B9B6E" stroke="#FFFFFF" stroke-width="9"/>
+    <path d="m215 225 14 14 27-30" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+  </g>
+  <text x="315" y="197" font-family="DejaVu Sans, Arial, sans-serif" font-size="98" font-weight="700" letter-spacing="-5" fill="#102044">Seller<tspan fill="#1769F3">Hisab</tspan></text>
+</svg>

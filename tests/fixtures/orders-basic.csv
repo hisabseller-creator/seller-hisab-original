@@ -1,0 +1,5 @@
+Order Status,Selling Price,Supplier SKU,Sub Order Number,Order ID,Order Date,Extra Column
+Delivered,649,SKU-BLUE-M,SO-1001,O-501,2026-08-01,ignored
+RTO,399,SKU-BOX-6,SO-1002,O-502,2026-08-01,ignored
+Customer Return,549,SKU-SANDAL-6,SO-1003,O-503,2026-08-01,ignored
+Shipped,299,SKU-PENDING,SO-1004,O-504,2026-08-01,ignored

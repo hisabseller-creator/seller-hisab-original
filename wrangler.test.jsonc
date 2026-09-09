@@ -1,0 +1,60 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sellerhisab-local-tests",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "vars": {
+    "APP_ENV": "test",
+    "ENTITLEMENT_SECRET": "test-entitlement-secret-32-characters-minimum",
+    "SESSION_SECRET": "test-session-secret-value-32-characters-minimum"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sellerhisab-local-tests",
+      "database_id": "00000000-0000-0000-0000-000000000001",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BLOG_MEDIA",
+      "bucket_name": "sellerhisab-local-tests"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "BILLING_QUEUE",
+        "queue": "local-billing"
+      },
+      {
+        "binding": "CONNECTOR_QUEUE",
+        "queue": "local-connectors"
+      },
+      {
+        "binding": "BILLING_DLQ",
+        "queue": "local-billing-dlq"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "local-billing",
+        "max_batch_size": 1,
+        "max_retries": 8,
+        "max_concurrency": 2,
+        "dead_letter_queue": "local-billing-dlq"
+      },
+      {
+        "queue": "local-connectors",
+        "max_batch_size": 1,
+        "max_retries": 8,
+        "max_concurrency": 2,
+        "dead_letter_queue": "local-connectors-dlq"
+      }
+    ]
+  }
+}

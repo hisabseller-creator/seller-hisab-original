@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SellerHisab">
+  <rect x="36" y="36" width="440" height="440" rx="124" fill="#1769F3"/>
+  <path d="M139 116c0-19 15-34 34-34h166c19 0 34 15 34 34v278l-39-26-39 26-39-26-39 26-39-26-39 26V116Z" fill="#FFFFFF"/>
+  <g fill="none" stroke="#1769F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="20">
+    <path d="M191 160h130M191 204h119"/>
+    <path d="M205 160h50c63 0 63 89 0 89h-50l95 97"/>
+  </g>
+  <circle cx="383" cy="378" r="63" fill="#0B9B6E" stroke="#FFFFFF" stroke-width="16"/>
+  <path d="m352 378 21 21 41-45" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="17"/>
+</svg>

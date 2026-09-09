@@ -1,0 +1,7 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
+import { PublicShell } from "@/components/public-shell";
+import { ContactForm } from "@/components/contact-form";
+export const metadata: Metadata = { title: "Contact Support", description: "Contact SellerHisab support without sharing raw seller credentials or unnecessary customer data.", alternates: { canonical: "/contact" } };
+export default function ContactPage() { return <PublicShell><main className="min-h-[70vh] bg-[#F6F8FB] px-4 py-14 sm:px-6 md:py-20 lg:px-10"><div className="mx-auto max-w-3xl"><p className="eyebrow">Contact</p><h1 className="mt-4 text-4xl font-extrabold tracking-[-.045em] text-slate-950">Let’s sort it out.</h1><p className="mt-5 text-lg leading-8 text-slate-600">Submit a request for a parser issue, payment recovery or account help. You do not need to attach the raw report.</p><div className="mt-6 flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs leading-5 text-emerald-950"><ShieldCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" />Include the analysis reference, parser version or payment ID. Never send a password, OTP, customer phone/address or raw report rows.</div><div className="mt-8"><ContactForm /></div><Link className="mt-6 inline-flex text-sm font-bold text-blue-700 hover:underline" href="/help">Read supported report help</Link></div></main></PublicShell>; }

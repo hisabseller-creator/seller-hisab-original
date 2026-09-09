@@ -1,0 +1,11 @@
+# pnpm is the canonical package manager for this project.
+package-lock.json export-ignore
+
+# Local and generated artifacts are never part of a source handoff.
+.sites-runtime export-ignore
+.wrangler export-ignore
+dist export-ignore
+node_modules export-ignore
+test-results export-ignore
+playwright-report export-ignore
+tsconfig.tsbuildinfo export-ignore

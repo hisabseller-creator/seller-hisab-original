@@ -1,0 +1,318 @@
+{
+  "recordedAt": "2026-09-09T03:04:23.363Z",
+  "sourceScope": "F15-F20 achievable source-side COMPLETE",
+  "remoteMigrationsApplied": false,
+  "productionDeployed": false,
+  "unit": {
+    "tests": 315,
+    "files": 72,
+    "status": "passed",
+    "checkpoint": "Final backend/parser checkpoint; later changes scoped to release provenance, auth illustration, browser/config and documentation"
+  },
+  "typecheck": "passed",
+  "lint": {
+    "errors": 0,
+    "warnings": 6
+  },
+  "build": "passed after reduced-motion fix",
+  "schema": {
+    "tables": 56,
+    "migrations": 23,
+    "immutableHistory": true,
+    "freshReplay": true,
+    "populatedUpgrade": true
+  },
+  "compatibility": {
+    "supported": 14,
+    "partial": 0,
+    "issues": 0
+  },
+  "browser": {
+    "fullRun": {
+      "startTime": "2026-09-09T02:53:10.846Z",
+      "duration": 538320.742,
+      "expected": 57,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 1
+    },
+    "targetedRecheck": {
+      "startTime": "2026-09-09T03:03:06.662Z",
+      "duration": 60849.92,
+      "expected": 13,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "finalDistinctCases": 60,
+    "unresolvedCases": 0,
+    "projects": [
+      "chromium",
+      "webkit"
+    ],
+    "comparison": "Saved Windows baselines, no update flag during final comparison, maxDiffPixels 200; see report for initial failures",
+    "cases": [
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 320|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 320|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 640|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 640|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 1280|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 1280|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 320|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 320|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 640|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 640|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/app keyboard/reflow/axe 1280|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "critical-accessibility.spec.ts|/analyze keyboard/reflow/axe 1280|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|login loading and provider error states 320|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|login loading and provider error states 1280|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|auth illustration respects motion preference and remains accessible when CDN fails|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|login loading and provider error states 320|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|login loading and provider error states 1280|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "loading-error-states.spec.ts|auth illustration respects motion preference and remains accessible when CDN fails|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 320|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 360|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 390|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 412|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 768|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 1280|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|same-page bilingual URLs remain canonical until deliberate growth activation|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 320|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 360|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 390|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 412|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 768|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|Hindi article reflow 1280|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "localized-article.spec.ts|same-page bilingual URLs remain canonical until deliberate growth activation|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 320|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 360|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 390|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 412|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 768|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 1280|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|keyboard focus remains visible on authentication route|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|critical API mutations remain private|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 320|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 360|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 390|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 412|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 768|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|public reflow and accessibility 1280|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|keyboard focus remains visible on authentication route|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "mobile-accessibility.spec.ts|critical API mutations remain private|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|landing explains the real product without a public demo path|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|valid payment report produces a free result and source-backed audit trail|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|free result stays limited without invoking a real payment provider|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|unknown format fails closed and preserves the wizard|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|account screen exposes password login, mobile registration and mobile password reset|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|landing explains the real product without a public demo path|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|valid payment report produces a free result and source-backed audit trail|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|free result stays limited without invoking a real payment provider|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|unknown format fails closed and preserves the wizard|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "product-flow.spec.ts|account screen exposes password login, mobile registration and mobile password reset|webkit",
+        "status": "expected"
+      },
+      {
+        "name": "runtime-diagnostics.spec.ts|critical routes have no browser runtime errors|chromium",
+        "status": "expected"
+      },
+      {
+        "name": "runtime-diagnostics.spec.ts|critical routes have no browser runtime errors|webkit",
+        "status": "expected"
+      }
+    ]
+  },
+  "workersKdf": {
+    "ok": true,
+    "version": "v2",
+    "localHashAndVerifyMs": 1466
+  },
+  "sourceCredentialScan": {
+    "files": 477,
+    "status": "passed",
+    "fullGitHistoryScan": "CI configured; not executed locally because ZIP lacks .git"
+  },
+  "sbomPackages": 486,
+  "external": [
+    "Cloudflare queue/alert activation",
+    "Provider sandbox/app/scope verification",
+    "Search Console ownership/measurement",
+    "Legal applicability and policy ownership",
+    "Independent admin second-factor operational decision",
+    "VAPT",
+    "Actual Time Travel restore drill",
+    "Hosted CI execution"
+  ]
+}

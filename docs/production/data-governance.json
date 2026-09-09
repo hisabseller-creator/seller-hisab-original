@@ -1,0 +1,135 @@
+{
+  "version": "2026-09-readiness-v1",
+  "legalStatus": "External legal verification required; durations below are engineering policy proposals, not legal conclusions.",
+  "owner": "Account owner must assign privacy/security/finance contacts before release",
+  "categories": [
+    {
+      "category": "browser-local raw reports",
+      "purpose": "Local finance analysis",
+      "storage": "Seller browser only",
+      "retention": "Seller controlled; no new raw upload storage",
+      "export": "Existing local files",
+      "deletion": "Browser storage/file controls",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "account identity and authentication",
+      "purpose": "Access and recovery",
+      "storage": "D1 users/sessions/OTP",
+      "retention": "Active account; sessions expire; operational cleanup exists",
+      "deletion": "Existing soft deletion/anonymization and session revocation",
+      "export": "Profile only; password hashes/session credentials excluded",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "connector credentials",
+      "purpose": "Read-only marketplace sync",
+      "storage": "AES-GCM encrypted D1 credential store",
+      "retention": "Until disconnect or owner workspace deletion",
+      "deletion": "Delete encrypted credential, cancel jobs; rotate compromised provider keys",
+      "export": "Never export encrypted or plaintext secrets",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "normalized seller financial records",
+      "purpose": "Evidence-based reconciliation",
+      "storage": "Tenant-scoped D1",
+      "retention": "Owner/account lifecycle; statutory hold periods require counsel",
+      "deletion": "Owner workspace cascade after shared-owner safeguards",
+      "export": "Explicit column allowlists with nested secret stripping",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "payments/trials/audits/deletion receipts",
+      "purpose": "Entitlement, dispute, reconciliation and deletion evidence",
+      "storage": "D1",
+      "retention": "External finance/legal verification; no invented automatic purge",
+      "deletion": "Retain documented justified fields, anonymize user profile",
+      "export": "Account-linked non-secret references",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "billing outbox",
+      "purpose": "Durable provider event reconciliation",
+      "storage": "D1 projected provider references + Queue IDs",
+      "retention": "Projection erased after completion; failed evidence retained for replay/review",
+      "deletion": "Operational policy review; no raw webhook contact/card fields",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "logs and Web Vitals",
+      "purpose": "Security/reliability/performance",
+      "storage": "Cloudflare native logs",
+      "retention": "Dashboard owner config; legal assessment required for CERT-In applicability",
+      "export": "Not part of seller portability; access controlled",
+      "deletion": "Provider retention settings; no raw seller reports or credential payloads",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    },
+    {
+      "category": "public content/media",
+      "purpose": "Editorial publication",
+      "storage": "D1/R2",
+      "retention": "Until editorial deletion/retention policy",
+      "deletion": "Existing content and R2 lifecycle",
+      "export": "Public content",
+      "accountableOwner": "ASSIGN: privacy owner with security/finance reviewer"
+    }
+  ],
+  "processors": [
+    {
+      "name": "Cloudflare",
+      "services": [
+        "Workers",
+        "D1",
+        "R2",
+        "Queues",
+        "Logs"
+      ],
+      "contractStatus": "Owner verify DPA/subprocessors/regions/retention",
+      "accountableOwner": "ASSIGN: vendor owner",
+      "reviewCadence": "Quarterly and before scope/region/subprocessor changes"
+    },
+    {
+      "name": "Razorpay",
+      "services": [
+        "Payments",
+        "Subscriptions",
+        "Webhooks"
+      ],
+      "contractStatus": "Owner + counsel verify payment retention and roles",
+      "accountableOwner": "ASSIGN: vendor owner",
+      "reviewCadence": "Quarterly and before scope/region/subprocessor changes"
+    },
+    {
+      "name": "MSG91",
+      "services": [
+        "Mobile OTP"
+      ],
+      "contractStatus": "Owner verify DPA, domain restrictions and OTP log retention",
+      "accountableOwner": "ASSIGN: vendor owner",
+      "reviewCadence": "Quarterly and before scope/region/subprocessor changes"
+    },
+    {
+      "name": "Amazon / Shopify / Flipkart / merchant WooCommerce host",
+      "services": [
+        "Read-only connector APIs"
+      ],
+      "contractStatus": "Owner verify app approvals, scopes, revocation and provider terms",
+      "accountableOwner": "ASSIGN: vendor owner",
+      "reviewCadence": "Quarterly and before scope/region/subprocessor changes"
+    },
+    {
+      "name": "Legacy AWS S3",
+      "services": [
+        "Historical fallback surface"
+      ],
+      "contractStatus": "Verify actual usage and rollback need before retirement",
+      "accountableOwner": "ASSIGN: vendor owner",
+      "reviewCadence": "Quarterly and before scope/region/subprocessor changes"
+    }
+  ],
+  "largeExports": {
+    "policy": "Current explicit 100,000-row limit fails closed. No measured account-size evidence warrants new R2 seller-data storage in this task.",
+    "reviewTrigger": "A legitimate account export exceeds the guard or measured memory/time budget; then implement paginated tenant-bound export with approval for storage/retention."
+  }
+}

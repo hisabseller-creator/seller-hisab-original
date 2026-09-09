@@ -1,0 +1,5 @@
+Sub Order Number,Order ID,Supplier SKU,Order Status,Selling Price,Net Settlement Amount,Settlement Date
+SO-1001,O-501,SKU-BLUE-M,Delivered,649,548,2026-08-02
+SO-1002,O-502,SKU-BOX-6,RTO,399,-76,2026-08-03
+SO-1003,O-503,SKU-SANDAL-6,Customer Return,549,-126,2026-08-04
+SO-1004,O-504,SKU-PENDING,Shipped,299,0,2026-08-05

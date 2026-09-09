@@ -1,0 +1,22 @@
+{
+  "dist/detector.cjs": "754ec45b79c4db17810065680fbefb745a4473e59775aa71c268ca4ef1a3b261",
+  "dist/detector.mjs": "b3e1e26137a229781871f033ec497386764766635a4e0cd6d41dea0ad13c811d",
+  "dist/fromFile.cjs": "d5e60c783a13956d1adca02d4ddfc63dc727102bf25b816485febf699bc24f76",
+  "dist/fromFile.mjs": "c6abfa5eae66071c5db5c3b8aef52c21bb8ffd95ea4be17a6dad964c3bfe7e0b",
+  "dist/index.cjs": "60fb506e04bec7fcef6cdc30b840b3bf53270a587be0415f48061b71e52ef9bb",
+  "dist/index.mjs": "7ebc984ee98a897297657be9393dbe0928c62b9df22e2d092982ac70d3963e8c",
+  "dist/lookup.cjs": "a54e89f28a14d2844b1c4cc630c1ed8c0783d70b6660167dbe257f482e667e08",
+  "dist/lookup.mjs": "d8e3c78ead3fda85b6ac3c68ae8336922271a70dc3acbdcfee89df279f6bb6b5",
+  "dist/types/heif.cjs": "127346a1e66a4320053cd2c6105209d3b2ef28a5d4269d05260c2728a96f8ee1",
+  "dist/types/heif.mjs": "99776e0a0e406aae2688e51c3660fb8794c8af6a88ed4359bdc47c34e5772305",
+  "dist/types/icns.cjs": "52389b92902befda6e3ccc488df496ed147ec676f79ed922f5c052b81992ea81",
+  "dist/types/icns.mjs": "1fd711fa987647858606fe20895cb73485ffac37fdfc010a50a71054bf414db3",
+  "dist/types/index.cjs": "1806a0b4a6e4ea39c6caaf05439876bacdff4e0214ae5890106a513a09b234e1",
+  "dist/types/index.mjs": "e69b3fda72fb131e473218969f48271ac4d5dfe2cb4db07cce6e2f462269a39d",
+  "dist/types/jp2.cjs": "d462261c7310e5565651a3a10e8300c0f079467d75df85ce61313c73b38c41ec",
+  "dist/types/jp2.mjs": "cdac795e1f7e94f975f29d253af7bf139702b438217951e4764d0130e4824bda",
+  "dist/types/jxl.cjs": "0c8652497ab0bdbe91810472ae72af02d64c2b89b520b4970b4bfd39831138b9",
+  "dist/types/jxl.mjs": "2b54afcf307d289f03ef8ff88c61d1c0db42a40629a43081c6a2ece4bbed37fd",
+  "dist/types/utils.cjs": "9ae5088c8fb1805cba5442be832bc4078f6b49dd78cab819e56e852df9c0f6ea",
+  "dist/types/utils.mjs": "dcb0ebd32d14e98ba79eaf3330ec84b6d4f32f33821fcbd55304be747c308d4d"
+}

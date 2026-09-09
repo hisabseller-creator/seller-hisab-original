@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import {DatabaseSync} from 'node:sqlite';
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import {spawnSync} from 'node:child_process';import {createHash} from 'node:crypto';
+it('verifies a disposable restored database read-only and reports unreconciled paid access',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'sellerhisab-restore-test-')),file=path.join(dir,'restore.sqlite');
+ try{const db=new DatabaseSync(file);for(const f of fs.readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())db.exec(fs.readFileSync(path.join('drizzle',f),'utf8'));db.close();const hash=()=>createHash('sha256').update(fs.readFileSync(file)).digest('hex');const before=hash();const good=spawnSync(process.execPath,['scripts/verify-restore.mjs',file],{encoding:'utf8'});expect(good.status,good.stderr).toBe(0);expect(hash()).toBe(before);const changed=new DatabaseSync(file);changed.exec("INSERT INTO payments(id,analysis_id,provider_order_id,product,provider,amount_paise,currency,status,created_at,updated_at) VALUES('p','a','order_fixture','action_report','razorpay',4900,'INR','paid','2026','2026')");changed.close();const needsReview=spawnSync(process.execPath,['scripts/verify-restore.mjs',file],{encoding:'utf8'});expect(needsReview.status).toBe(2);expect(JSON.parse(needsReview.stdout).paidWithoutAccess).toBe(1);}finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

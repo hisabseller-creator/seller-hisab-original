@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "measurementWindowDays": 28,
+  "reviewCadence": "Weekly reliability and error-budget review; monthly capacity review; quarterly DR/security/provider compatibility drill",
+  "owners": {
+    "primary": "ASSIGN",
+    "backup": "ASSIGN",
+    "alertDestination": "CONFIGURE"
+  },
+  "signals": [
+    {
+      "name": "API availability",
+      "target": "99.9%",
+      "warning": "5xx > 1% for 5 minutes",
+      "critical": "5xx > 5% for 5 minutes"
+    },
+    {
+      "name": "API latency",
+      "target": "p95 < 1500 ms excluding durable background processing"
+    },
+    {
+      "name": "Webhook processing age",
+      "target": "p95 < 10 minutes",
+      "critical": "oldest pending > 15 minutes or dead_letter > 0"
+    },
+    {
+      "name": "Connector queue",
+      "target": "oldest interactive job < 15 minutes",
+      "critical": "dead_letter > 0 or no checkpoint progress > 30 minutes"
+    },
+    {
+      "name": "Connector completeness",
+      "target": "No confirmed finance result from partial coverage",
+      "warning": "partial coverage rate > 10%; distinguish missing scopes from provider outage"
+    },
+    {
+      "name": "D1 capacity",
+      "warning": "70% of configured per-database size or query/write budget",
+      "critical": "85%; owner must populate current plan limits",
+      "measurements": [
+        "database bytes",
+        "rows read/written",
+        "query duration",
+        "CPU errors"
+      ]
+    },
+    {
+      "name": "R2",
+      "warning": "Unexpected object growth or storage error rate > 1%",
+      "measurements": [
+        "stored bytes",
+        "object count",
+        "operation errors"
+      ]
+    },
+    {
+      "name": "Core Web Vitals",
+      "target": "p75 LCP <=2500ms; INP <=200ms; CLS <=0.1",
+      "cohorts": [
+        "route category",
+        "mobile/desktop"
+      ]
+    }
+  ],
+  "errorBudgetPolicy": "Freeze nonessential releases when the 28-day availability budget is exhausted; prioritize mitigation and a reviewed recovery plan."
+}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">SellerHisab</title>
+  <desc id="desc">Know your real seller margin, risk and next action.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f7fbff"/>
+      <stop offset="0.55" stop-color="#eef4ff"/>
+      <stop offset="1" stop-color="#ecfbf5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="42" fill="url(#bg)"/>
+  <rect x="62" y="62" width="1076" height="506" rx="38" fill="#fff" fill-opacity=".72" stroke="#d9e7ff"/>
+  <circle cx="180" cy="192" r="72" fill="#1769F3"/>
+  <path d="M143 198l26 26 51-58" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="285" y="210" fill="#102044" font-family="Inter,Arial,sans-serif" font-size="70" font-weight="800">Seller</text>
+  <text x="500" y="210" fill="#1769F3" font-family="Inter,Arial,sans-serif" font-size="70" font-weight="800">Hisab</text>
+  <text x="112" y="340" fill="#102044" font-family="Inter,Arial,sans-serif" font-size="50" font-weight="800">Know your real margin.</text>
+  <text x="112" y="410" fill="#52637f" font-family="Inter,Arial,sans-serif" font-size="28">Profit • returns • settlements • SKU decisions</text>
+  <rect x="112" y="465" width="235" height="58" rx="29" fill="#0B9B6E"/>
+  <text x="156" y="503" fill="#fff" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700">sellerhisab.com</text>
+</svg>

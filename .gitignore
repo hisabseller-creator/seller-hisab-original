@@ -1,0 +1,153 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/playwright-report/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+.dev.vars
+
+# vercel
+.vercel
+
+# typescript
+next-env.d.ts
+/dist/
+/.wrangler/
+/.sites-runtime/
+/outputs/
+/work/
+*.tsbuildinfo
+
+# local patch/backup artifacts
+/_patch_backups/
+/_backup_before_*/
+*.bak
+*.before-*
+/wrangler.before-*.jsonc
+
+# local one-off patch instructions are not source
+/APPLY_*.md
+# ============================================================
+# SELLERHISAB PRIVATE / LOCAL FILES - NEVER COMMIT
+# ============================================================
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!.dev.vars.sample
+*.secret
+*.secrets
+# Keys / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+# Dependencies
+node_modules/
+.pnpm-store/
+# Build / cache
+.next/
+dist/
+build/
+out/
+coverage/
+.turbo/
+.vite/
+.vinext/
+.cache/
+# Cloudflare local data
+.wrangler/
+.dev.vars
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+.d1/
+# Logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Backups / temp
+backup/
+backups/
+Backup/
+Backups/
+*.bak
+*.tmp
+*.temp
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+# IDE local state
+.idea/
+.vscode/*.log
+
+/.playwright-browsers/
+/artifacts/
+# =====================================================
+# SellerHisab local/private files - NEVER COMMIT
+# =====================================================
+.env
+.env.*
+!.env.example
+.dev.vars
+node_modules/
+.next/
+.vercel/
+.wrangler/
+.turbo/
+.cache/
+coverage/
+dist/
+build/
+.sellerhisab-backups/
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
+*.log
+Thumbs.db
+.DS_Store

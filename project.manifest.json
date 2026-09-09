@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "name": "SellerHisab",
+  "package": "seller-margin-guard",
+  "projectVersion": "1.4.0",
+  "runtime": "Cloudflare Workers",
+  "framework": "Next.js 16 via vinext",
+  "packageManager": "pnpm@11.19.0",
+  "minimumNodeVersion": "22.13.0",
+  "defaultLanguage": "english",
+  "secondaryLanguage": "hinglish",
+  "databaseBinding": "DB",
+  "databaseType": "Cloudflare D1",
+  "workerEntry": "worker/index.ts",
+  "browserWorkerEntry": "core/workers/analyzer.worker.ts",
+  "rawReportStorage": "none",
+  "documentation": [
+    "README.md",
+    "docs/PROJECT_STRUCTURE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/CLOUDFLARE_DEPLOYMENT.md",
+    "docs/DEVELOPER_HINTS.md",
+    "docs/UI_DESIGN_SYSTEM.md",
+    "docs/AUTH_MSG91_SETUP.md",
+    "docs/PRODUCTION_READINESS.md"
+  ]
+}

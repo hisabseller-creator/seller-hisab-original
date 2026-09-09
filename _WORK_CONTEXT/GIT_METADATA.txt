@@ -1,0 +1,10 @@
+SellerHisab Work Continuation Snapshot
+Created: 2026-09-08 11:32:45
+Branch: ui/framer-original-restore-20260906-104107
+HEAD: 9eab12fbf8258391981342f252e2d900789b3324
+Repo: C:\Users\Umesh\Desktop\Website\Seller-Margin-Guard
+IMPORTANT:
+- Working tree source included.
+- Modified/untracked work must be preserved.
+- No migration was applied while creating this package.
+- No deployment was run while creating this package.

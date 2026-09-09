@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788094224517,
+      "tag": "0000_short_shiva",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788095090296,
+      "tag": "0001_majestic_killraven",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788095232853,
+      "tag": "0002_square_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1788272951364,
+      "tag": "0003_melted_pyro",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1788320222298,
+      "tag": "0004_mobile_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1788329669085,
+      "tag": "0005_registration_profile",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788347538529,
+      "tag": "0006_blog_cms",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1788411583391,
+      "tag": "0007_multimarket_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1788418626093,
+      "tag": "0008_connector_health",
+      "breakpoints": true
+    }
+  ]
+}

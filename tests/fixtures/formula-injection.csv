@@ -1,0 +1,2 @@
+Sub Order Number,Supplier SKU,Order Status,Selling Price,Net Settlement Amount
+SO-3001,=HYPERLINK("https://bad.invalid"),Delivered,499,401

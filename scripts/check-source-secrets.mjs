@@ -1,0 +1,5 @@
+import fs from 'node:fs';import path from 'node:path';
+const skip=new Set(['node_modules','.git','.wrangler','.playwright-browsers','dist','test-results','playwright-report','artifacts','public','_WORK_CONTEXT']);
+const rules=[['private-key',/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],['aws-access-key',/\bAKIA[0-9A-Z]{16}\b/],['github-token',/\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b/],['slack-token',/\bxox[baprs]-[0-9A-Za-z-]{20,}\b/]];
+const failures=[];let count=0;function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(skip.has(e.name))continue;const f=path.join(dir,e.name);if(e.isDirectory()){walk(f);continue;}if(!/\.(?:ts|tsx|js|mjs|json|jsonc|ya?ml|ps1|md)$/.test(e.name)||f===path.join('scripts','check-source-secrets.mjs'))continue;count++;const s=fs.readFileSync(f,'utf8');for(const [rule,re] of rules)if(re.test(s))failures.push({file:f,rule});}}
+walk('.');if(failures.length){console.error(JSON.stringify(failures));process.exit(1);}console.log('Source credential pattern check PASS:',count,'files; full Git-history gitleaks scan remains a CI gate.');

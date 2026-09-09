@@ -1,0 +1,376 @@
+--- a/dist/detector.cjs
++++ b/dist/detector.cjs
+@@ -28,9 +28,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -250,7 +250,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/detector.mjs
++++ b/dist/detector.mjs
+@@ -26,9 +26,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -248,7 +248,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/fromFile.cjs
++++ b/dist/fromFile.cjs
+@@ -54,9 +54,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -276,7 +276,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/fromFile.mjs
++++ b/dist/fromFile.mjs
+@@ -31,9 +31,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -253,7 +253,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -30,9 +30,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -252,7 +252,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -26,9 +26,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -248,7 +248,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/lookup.cjs
++++ b/dist/lookup.cjs
+@@ -28,9 +28,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -250,7 +250,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/lookup.mjs
++++ b/dist/lookup.mjs
+@@ -26,9 +26,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -248,7 +248,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize2 = getImageSize2(imageHeader[0]);
+       images.push(imageSize2);
+       imageOffset += imageHeader[1];
+--- a/dist/types/heif.cjs
++++ b/dist/types/heif.cjs
+@@ -6,9 +6,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/heif.mjs
++++ b/dist/types/heif.mjs
+@@ -4,9 +4,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/icns.cjs
++++ b/dist/types/icns.cjs
+@@ -71,7 +71,9 @@
+     let imageOffset = SIZE_HEADER;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/types/icns.mjs
++++ b/dist/types/icns.mjs
+@@ -69,7 +69,9 @@
+     let imageOffset = SIZE_HEADER;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/types/index.cjs
++++ b/dist/types/index.cjs
+@@ -28,9 +28,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -250,7 +250,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/types/index.mjs
++++ b/dist/types/index.mjs
+@@ -26,9 +26,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+@@ -248,7 +248,9 @@
+     let imageOffset = SIZE_HEADER2;
+     const images = [];
+     while (imageOffset < fileLength && imageOffset < inputLength) {
++      if (imageOffset + SIZE_HEADER > Math.min(fileLength, inputLength)) throw new TypeError("Truncated ICNS entry");
+       const imageHeader = readImageHeader(input, imageOffset);
++      if (imageHeader[1] < SIZE_HEADER || imageHeader[1] > Math.min(fileLength, inputLength) - imageOffset) throw new TypeError("Invalid ICNS entry length");
+       const imageSize = getImageSize2(imageHeader[0]);
+       images.push(imageSize);
+       imageOffset += imageHeader[1];
+--- a/dist/types/jp2.cjs
++++ b/dist/types/jp2.cjs
+@@ -6,9 +6,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/jp2.mjs
++++ b/dist/types/jp2.mjs
+@@ -4,9 +4,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/jxl.cjs
++++ b/dist/types/jxl.cjs
+@@ -47,9 +47,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/jxl.mjs
++++ b/dist/types/jxl.mjs
+@@ -45,9 +45,9 @@
+ var getView = (input, offset) => new DataView(input.buffer, input.byteOffset + offset);
+ var readUInt32BE = (input, offset = 0) => getView(input, offset).getUint32(0, false);
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/utils.cjs
++++ b/dist/types/utils.cjs
+@@ -28,9 +28,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,
+--- a/dist/types/utils.mjs
++++ b/dist/types/utils.mjs
+@@ -26,9 +26,9 @@
+   return methods[methodName](input, offset);
+ }
+ function readBox(input, offset) {
+-  if (input.length - offset < 4) return;
++  if (input.length - offset < 8) return;
+   const boxSize = readUInt32BE(input, offset);
+-  if (input.length - offset < boxSize) return;
++  if (boxSize < 8 || input.length - offset < boxSize) throw new TypeError("Invalid image box length");
+   return {
+     name: toUTF8String(input, 4 + offset, 8 + offset),
+     offset,

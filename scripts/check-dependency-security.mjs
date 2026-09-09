@@ -1,0 +1,14 @@
+import {spawnSync} from 'node:child_process';
+import fs from 'node:fs';
+import {verifyImageBackport} from './verify-image-backport.mjs';
+verifyImageBackport();
+const regression=spawnSync(process.execPath,['scripts/test-image-parser-backport.mjs'],{stdio:'inherit',timeout:15000});if(regression.status!==0)process.exit(1);
+const result=spawnSync(process.platform==='win32'?'pnpm.cmd':'pnpm',['audit','--json'],{encoding:'utf8',shell:process.platform==='win32',timeout:120000,maxBuffer:8*1024*1024});
+if(result.error||result.signal||![0,1].includes(result.status))throw Error('Dependency advisory service check failed');
+const report=JSON.parse(result.stdout);if(!report.advisories||!report.metadata)throw Error('Unrecognized advisory response');
+const mitigated=new Set(['GHSA-w3rx-r6r6-pgpr','GHSA-5p2g-fcmc-qvqq']);
+const unresolved=Object.values(report.advisories).filter(a=>!mitigated.has(String(a.url).split('/').pop())||a.module_name!=='image-size');
+fs.mkdirSync('artifacts',{recursive:true});fs.writeFileSync('artifacts/dependency-audit.json',JSON.stringify(report,null,2));
+fs.writeFileSync('artifacts/dependency-mitigations.json',JSON.stringify({checkedAt:new Date().toISOString(),localBackport:'image-size@2.0.2: zero/small/oversized box and ICNS entry rejection; integrity and runtime fixtures passed',advisories:[...mitigated],unresolved:unresolved.map(a=>({package:a.module_name,url:a.url,severity:a.severity}))},null,2));
+if(unresolved.some(a=>['high','critical'].includes(a.severity)))throw Error('Unmitigated high/critical dependency advisories');
+console.log('Dependency security gate PASS. Raw scanner findings remain visible; two image-size findings have a verified local backport. Other advisories: '+unresolved.length);

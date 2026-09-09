@@ -1,0 +1,262 @@
+export type SeoToolType = "margin" | "failure" | "break-even" | "roas" | "acos" | "gap" | "headers";
+
+export type SeoPageConfig = {
+  slug: string;
+  title: string;
+  description: string;
+  eyebrow: string;
+  headline: string;
+  intro: string;
+  directAnswer: string;
+  formula: string;
+  example: string;
+  toolType: SeoToolType;
+  guideTitle: string;
+  guide: string[];
+  faqs: Array<[question: string, answer: string]>;
+  related: Array<{ href: string; label: string }>;
+};
+
+export const seoPages: Record<string, SeoPageConfig> = {
+  "meesho-profit-calculator": {
+    slug: "meesho-profit-calculator",
+    title: "Meesho Profit Calculator",
+    description: "Calculate seller contribution after settlement, product, packaging and ads, then analyze a full report locally.",
+    eyebrow: "Free seller calculator",
+    headline: "How do you calculate real Meesho profit?",
+    intro: "Move beyond sales value. Subtract every supplied variable cost from settlement to see contribution.",
+    directAnswer: "A safer Meesho contribution calculation starts with the supplied settlement amount and subtracts known product cost, packaging, other variable costs and attributable ads. If taxes, fixed overhead or critical evidence are missing, SellerHisab does not relabel contribution as Net Profit.",
+    formula: "Contribution = settlement − product cost − packaging − other known variable costs − attributable ads",
+    example: "If a supplied settlement is ₹420 and known variable costs total ₹310, contribution is ₹110. That is not automatically Net Profit because fixed overhead or tax evidence may still be outside the calculation.",
+    toolType: "margin",
+    guideTitle: "Honest contribution, not a generic profit number",
+    guide: ["Use marketplace settlement as the starting cash flow.", "Subtract product, packaging, variable costs and ads.", "Do not call the result Net Profit when taxes or fixed overhead are missing."],
+    faqs: [
+      ["Is sales minus product cost enough?", "No. Sales value does not prove the same amount was settled, and variable costs such as packaging or attributable ads can change contribution."],
+      ["What happens when SKU cost is missing?", "The result should remain incomplete rather than treating the missing cost as zero."],
+      ["Does the calculator upload my report?", "This quick calculator uses values entered in the browser. The normal report-analysis flow is designed to keep raw marketplace files browser-local."],
+    ],
+    related: [
+      { href: "/guides/contribution-margin", label: "Contribution Margin Guide" },
+      { href: "/meesho-rto-calculator", label: "RTO Loss Calculator" },
+      { href: "/meesho-break-even-price", label: "Break-even Price Calculator" },
+      { href: "/marketplaces/meesho", label: "Meesho Seller Hub" },
+    ],
+  },
+  "meesho-payment-file-checker": {
+    slug: "meesho-payment-file-checker",
+    title: "Meesho Payment File Checker",
+    description: "Check whether report headers contain a safely recognizable sub-order and settlement structure.",
+    eyebrow: "Safe format check",
+    headline: "Can this Payments to Date file be read safely?",
+    intro: "Paste the header row. The tool will not guess monetary columns.",
+    directAnswer: "SellerHisab only proceeds when the header structure exposes the critical identifiers and a uniquely recognizable settlement field required by the supported parser. Unknown layouts stop before financial output.",
+    formula: "Safe parse = recognized header fingerprint + required critical fields",
+    example: "A file with a stable Sub-Order Number, Supplier SKU and recognized settlement amount can pass the core check. A file that has only generic Amount columns should not be guessed.",
+    toolType: "headers",
+    guideTitle: "Fail-closed format detection",
+    guide: ["A stable Sub-Order Number is required.", "SKU and a uniquely recognized settlement amount are required.", "An unknown layout stops before any financial output."],
+    faqs: [
+      ["Why does SellerHisab reject some files?", "Financial columns are high-risk. Rejecting an unknown layout is safer than guessing which amount represents settlement."],
+      ["Do I need to paste report rows?", "No. The format checker only needs the header row."],
+      ["Can a changed marketplace format be supported later?", "Yes, after the new layout is deliberately mapped and tested rather than inferred from ambiguous headings."],
+    ],
+    related: [
+      { href: "/help", label: "Supported Reports" },
+      { href: "/methodology", label: "Methodology" },
+      { href: "/marketplaces/meesho", label: "Meesho Seller Hub" },
+    ],
+  },
+  "meesho-rto-calculator": {
+    slug: "meesho-rto-calculator",
+    title: "Meesho RTO Loss Calculator",
+    description: "Estimate RTO economic loss from order volume, failure rate and average observed loss.",
+    eyebrow: "Free RTO calculator",
+    headline: "How much money are Meesho RTOs costing?",
+    intro: "Estimate total exposure from the observed loss per failed shipment and the RTO rate.",
+    directAnswer: "Translate RTO from a percentage into money by multiplying shipped orders by the observed RTO rate and the observed average economic loss per RTO. The useful loss input should come from real seller evidence rather than a universal assumed charge.",
+    formula: "Estimated RTO loss = shipped orders × RTO rate × observed average loss per RTO",
+    example: "For 100 shipped orders, an 18% RTO rate and ₹85 observed loss per RTO, estimated exposure is 100 × 0.18 × ₹85 = ₹1,530.",
+    toolType: "failure",
+    guideTitle: "Convert the RTO rate into money",
+    guide: ["RTO count = shipped orders × RTO rate.", "Total loss = RTO count × average observed RTO loss.", "When an actual settlement report is supplied, the full analyzer matches exact sub-orders."],
+    faqs: [
+      ["Is there one safe RTO percentage for every seller?", "No. A sustainable rate depends on the seller's successful-order contribution and observed failure loss."],
+      ["Does RTO loss include invented inventory damage?", "No. Damage or recovery value should only be included when evidence supports it."],
+      ["Why use observed loss per RTO?", "The economic impact can vary by product and evidence, so observed seller data is safer than a hidden universal assumption."],
+    ],
+    related: [
+      { href: "/guides/rto-impact", label: "RTO Impact Guide" },
+      { href: "/meesho-return-loss-calculator", label: "Return Loss Calculator" },
+      { href: "/meesho-break-even-price", label: "Break-even Price Calculator" },
+    ],
+  },
+  "meesho-return-loss-calculator": {
+    slug: "meesho-return-loss-calculator",
+    title: "Meesho Return Loss Calculator",
+    description: "Estimate customer return loss using observed failure cost and return rate.",
+    eyebrow: "Free return calculator",
+    headline: "How much margin are customer returns consuming?",
+    intro: "Connect the return rate with observed loss per return to estimate money exposure.",
+    directAnswer: "Estimate return exposure by multiplying the relevant order count by the observed return rate and the observed average economic loss per return. Cross-period refunds or adjustments can still change the final result when full settlement evidence arrives later.",
+    formula: "Estimated return loss = orders × return rate × observed average loss per return",
+    example: "If 200 orders have a 10% return rate and each observed return costs ₹70 economically, estimated exposure is 200 × 0.10 × ₹70 = ₹1,400.",
+    toolType: "failure",
+    guideTitle: "Look beyond the return count",
+    guide: ["Packaging, observed negative settlement and return charges all matter.", "Do not invent inventory damage when a report does not prove it.", "Cross-period return events can remain provisional in a full analysis."],
+    faqs: [
+      ["Is a customer return the same as RTO?", "No. They are different operating outcomes even though both can create financial loss."],
+      ["Why can final loss change later?", "Refunds, settlement adjustments and recovery events can arrive in a later period."],
+      ["Should missing recovery value be assumed zero?", "Not as a hidden fact. Missing recovery evidence should remain visible as an uncertainty."],
+    ],
+    related: [
+      { href: "/guides/rto-impact", label: "Return/RTO Impact Guide" },
+      { href: "/meesho-rto-calculator", label: "RTO Loss Calculator" },
+      { href: "/guides/contribution-margin", label: "Contribution Margin Guide" },
+    ],
+  },
+  "meesho-break-even-price": {
+    slug: "meesho-break-even-price",
+    title: "Meesho Break-even Price Calculator",
+    description: "Estimate the selling price needed to cover product, packaging, ads, failure loss and observed deduction rate.",
+    eyebrow: "Free price calculator",
+    headline: "What minimum price can stop the loss?",
+    intro: "Use your own costs and observed retained settlement rate to estimate a break-even selling price.",
+    directAnswer: "Break-even price should be based on the seller's required unit economics and observed retained settlement rate. SellerHisab avoids hiding a hard-coded fee assumption inside the answer.",
+    formula: "Approximate break-even price = required unit economics ÷ observed retained settlement rate",
+    example: "If required unit economics are ₹300 and the observed retained settlement rate is 75%, approximate break-even price is ₹300 ÷ 0.75 = ₹400.",
+    toolType: "break-even",
+    guideTitle: "Use the seller's own observed economics",
+    guide: ["Required economics include product, packaging, ads and expected failure loss.", "An observed retained rate is better than a hard-coded fee assumption.", "Keep price recommendations low-confidence when the sample is small."],
+    faqs: [
+      ["What is the retained settlement rate?", "It is the share of selling price represented by observed settlement in the relevant evidence sample."],
+      ["Can one break-even price work forever?", "No. Costs, returns, ads and marketplace economics can change, so the input evidence should be reviewed."],
+      ["Does break-even price guarantee profit?", "No. It is an analytical threshold based on the supplied assumptions and observed evidence."],
+    ],
+    related: [
+      { href: "/guides/break-even-price", label: "Break-even Price Guide" },
+      { href: "/meesho-profit-calculator", label: "Profit Calculator" },
+      { href: "/meesho-acos-calculator", label: "Max ACoS Calculator" },
+    ],
+  },
+  "meesho-ads-break-even-roas": {
+    slug: "meesho-ads-break-even-roas",
+    title: "Meesho Ads Break-even ROAS Calculator",
+    description: "Calculate break-even ROAS and maximum sustainable ACoS from pre-ad contribution.",
+    eyebrow: "Free ads calculator",
+    headline: "How much ad spend is economically safe?",
+    intro: "Pre-ad contribution shows how much margin is available to pay for advertising.",
+    directAnswer: "Break-even ROAS depends on the contribution available before ads. If pre-ad contribution is weak or non-positive, a strong revenue ROAS can still fail to create sustainable economics.",
+    formula: "Break-even ROAS = attributable ad sales ÷ pre-ad contribution",
+    example: "With ₹48,000 attributable ad sales and ₹12,000 pre-ad contribution, break-even ROAS is 48,000 ÷ 12,000 = 4.0x.",
+    toolType: "roas",
+    guideTitle: "Read ROAS together with margin",
+    guide: ["Break-even ROAS = attributable sales ÷ pre-ad contribution.", "Max ACoS = pre-ad contribution ÷ attributable sales.", "When pre-ad contribution is non-positive, an ad-scale recommendation is not supportable."],
+    faqs: [
+      ["Is higher ROAS always profitable?", "No. Profitability depends on contribution before advertising, not revenue efficiency alone."],
+      ["What if pre-ad contribution is zero?", "There is no positive contribution available to pay for ads, so a sustainable scale recommendation is not supportable."],
+      ["How is this related to ACoS?", "Break-even ROAS and maximum sustainable ACoS are inverse views of the same pre-ad economics."],
+    ],
+    related: [
+      { href: "/meesho-acos-calculator", label: "Max ACoS Calculator" },
+      { href: "/guides/contribution-margin", label: "Contribution Margin Guide" },
+      { href: "/meesho-profit-calculator", label: "Profit Calculator" },
+    ],
+  },
+  "meesho-acos-calculator": {
+    slug: "meesho-acos-calculator",
+    title: "Meesho Max ACoS Calculator",
+    description: "Calculate the maximum sustainable advertising cost of sales from attributable sales and pre-ad contribution.",
+    eyebrow: "Free ads calculator",
+    headline: "What is the maximum ACoS your margin can afford?",
+    intro: "Use actual pre-ad contribution to see the highest advertising-cost percentage that does not consume the full margin.",
+    directAnswer: "Maximum sustainable ACoS is the share of attributable ad sales that the available pre-ad contribution can absorb before contribution reaches zero.",
+    formula: "Maximum sustainable ACoS = pre-ad contribution ÷ attributable ad sales × 100",
+    example: "With ₹12,000 pre-ad contribution and ₹48,000 attributable ad sales, maximum sustainable ACoS is 12,000 ÷ 48,000 × 100 = 25%.",
+    toolType: "acos",
+    guideTitle: "Set an ad limit backed by contribution",
+    guide: ["Max ACoS = pre-ad contribution ÷ attributable sales.", "Break-even ROAS is the inverse view of the same economics.", "If pre-ad contribution is zero or negative, paid scaling is not financially supportable."],
+    faqs: [
+      ["Is target ACoS the same as maximum ACoS?", "No. Maximum ACoS is a break-even ceiling; an operating target normally needs room below that ceiling."],
+      ["Can ACoS be calculated without attributable sales?", "No. The denominator is required for a meaningful percentage."],
+      ["Why use pre-ad contribution?", "It represents the margin available to fund advertising before ad spend is deducted."],
+    ],
+    related: [
+      { href: "/meesho-ads-break-even-roas", label: "Break-even ROAS Calculator" },
+      { href: "/guides/break-even-price", label: "Break-even Guide" },
+      { href: "/meesho-profit-calculator", label: "Profit Calculator" },
+    ],
+  },
+  "meesho-settlement-checker": {
+    slug: "meesho-settlement-checker",
+    title: "Meesho Settlement Checker",
+    description: "Compare expected and received bank settlement and calculate the unexplained gap.",
+    eyebrow: "Free settlement check",
+    headline: "Does expected payment match the bank credit?",
+    intro: "Compare the two totals; the full analyzer locates mismatches at sub-order level.",
+    directAnswer: "Expected marketplace settlement and actual bank credit should be compared for the same evidence window, but a matching total alone does not prove that every sub-order is correct. Exact references and cross-period adjustments still matter.",
+    formula: "Unexplained gap = expected settlement − received bank credit",
+    example: "If expected settlement is ₹25,000 and matching bank credit is ₹24,200, the review gap is ₹800. That gap is a signal to reconcile, not automatic proof of marketplace underpayment.",
+    toolType: "gap",
+    guideTitle: "Check the total gap, then inspect source rows",
+    guide: ["Compare the expected settlement report total with actual bank credit.", "Review refunds, multi-period credits and unmatched settlements separately.", "A matching total does not prove that every sub-order is correct."],
+    faqs: [
+      ["Does a gap always mean missing payment?", "No. Period mismatch, refunds, adjustments or batching can create a difference that needs reconciliation."],
+      ["What is the safest bank match?", "An explicit stable reference is stronger than amount-only matching."],
+      ["Can equal totals still hide errors?", "Yes. Different sub-order overpayments and underpayments can cancel out at the grand-total level."],
+    ],
+    related: [
+      { href: "/guides/settlement-reconciliation", label: "Settlement Reconciliation Guide" },
+      { href: "/meesho-payment-mismatch", label: "Payment Mismatch Checker" },
+      { href: "/marketplaces/meesho", label: "Meesho Seller Hub" },
+    ],
+  },
+  "meesho-payment-mismatch": {
+    slug: "meesho-payment-mismatch",
+    title: "Meesho Payment Mismatch Checker",
+    description: "Measure a Meesho payment gap and route into sub-order reconciliation.",
+    eyebrow: "Payment gap checker",
+    headline: "Why is the Meesho payment lower than expected?",
+    intro: "Measure the expected-versus-received gap, then use report analysis to identify exact unmatched sub-orders.",
+    directAnswer: "A lower received amount can come from a true mismatch, a different payout window, returns, refunds or later adjustments. Measure the gap first, then reconcile the underlying references before calling it a missing payment.",
+    formula: "Review gap = expected marketplace settlement − received bank credit",
+    example: "If the expected report total is ₹10,500 and the compared bank credit is ₹10,000, the initial review gap is ₹500. The next step is to reconcile timing and source rows.",
+    toolType: "gap",
+    guideTitle: "Common evidence gaps behind a mismatch",
+    guide: ["Comparing different settlement periods can create a false gap.", "Returns and adjustments can arrive in a later period.", "Sub-Order Number is a safer reconciliation key than a broad Order ID."],
+    faqs: [
+      ["Should I compare different settlement periods?", "No. The compared evidence should cover the same intended payout window before interpreting the gap."],
+      ["Why is Sub-Order Number useful?", "It is more specific than a broad Order ID when one order can contain multiple economic lines."],
+      ["Can a later adjustment close the gap?", "Yes. Cross-period marketplace events can change what initially looks unmatched."],
+    ],
+    related: [
+      { href: "/meesho-settlement-checker", label: "Settlement Checker" },
+      { href: "/guides/settlement-reconciliation", label: "Settlement Reconciliation Guide" },
+      { href: "/analyze", label: "Analyze a Report" },
+    ],
+  },
+  "meesho-sku-profit-calculator": {
+    slug: "meesho-sku-profit-calculator",
+    title: "Meesho SKU Profit Calculator",
+    description: "Calculate one SKU's contribution per order and contribution margin.",
+    eyebrow: "Free SKU calculator",
+    headline: "How much money remains on each SKU?",
+    intro: "Calculate contribution from one SKU's settlement, unit cost, packaging and ads.",
+    directAnswer: "SKU profitability should be calculated from attributable settlement and known SKU-level variable costs, then interpreted together with Return/RTO rate and evidence count. A high-sales SKU can still have negative contribution.",
+    formula: "SKU contribution per order = attributable settlement − known SKU variable costs",
+    example: "If a SKU receives ₹360 attributable settlement and carries ₹285 known variable cost, contribution is ₹75 per order before any missing fixed-overhead or tax evidence.",
+    toolType: "margin",
+    guideTitle: "SKU-level unit economics",
+    guide: ["A high-sales SKU can still have negative contribution.", "Read Return/RTO rate together with sample size.", "The full Action Board gives every SKU a deterministic next action."],
+    faqs: [
+      ["Why analyze SKU instead of only total business profit?", "A profitable aggregate can hide loss-making products, while a high-revenue SKU can consume contribution."],
+      ["Should missing SKU cost be treated as zero?", "No. Missing cost should keep the result incomplete."],
+      ["Why show sample size with return rate?", "A percentage based on very few orders can be unstable and should not drive a strong action by itself."],
+    ],
+    related: [
+      { href: "/guides/sku-profitability", label: "SKU Profitability Guide" },
+      { href: "/meesho-profit-calculator", label: "Profit Calculator" },
+      { href: "/guides/rto-impact", label: "RTO Impact Guide" },
+    ],
+  },
+};

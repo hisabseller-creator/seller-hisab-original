@@ -1,0 +1,3 @@
+Sub Order Number,Supplier SKU,Order Status,Selling Price,Net Settlement Amount,Settlement Date
+SO-BAD-SALE,SKU-BAD,Delivered,-499,400,2026-08-10
+SO-BAD-DATE,SKU-BLUE-M,Delivered,499,400,not-a-date

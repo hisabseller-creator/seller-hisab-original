@@ -1,0 +1,92 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seller-margin-guard",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-22",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "routes": [
+    {
+      "pattern": "sellerhisab.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.sellerhisab.com",
+      "custom_domain": true
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *",
+      "15 2 * * *"
+    ]
+  },
+  "vars": {
+    "APP_ENV": "production",
+    "PRICE_ACTION_REPORT_PAISE": "4900",
+    "PRICE_STARTER_PAISE": "9900",
+    "PRICE_PRO_PAISE": "19900"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "seller-margin-guard",
+      "database_id": "220bab03-28c2-40c6-8f5a-7010c49ca21b",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "bucket_name": "sellerhisab-media-prod",
+      "binding": "BLOG_MEDIA",
+      "remote": true
+    }
+  ],
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "BILLING_QUEUE",
+        "queue": "sellerhisab-billing"
+      },
+      {
+        "binding": "CONNECTOR_QUEUE",
+        "queue": "sellerhisab-connectors"
+      },
+      {
+        "binding": "BILLING_DLQ",
+        "queue": "sellerhisab-billing-dlq"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "sellerhisab-billing",
+        "max_batch_size": 1,
+        "max_retries": 8,
+        "max_concurrency": 2,
+        "dead_letter_queue": "sellerhisab-billing-dlq"
+      },
+      {
+        "queue": "sellerhisab-connectors",
+        "max_batch_size": 1,
+        "max_retries": 8,
+        "max_concurrency": 2,
+        "dead_letter_queue": "sellerhisab-connectors-dlq"
+      }
+    ]
+  }
+}
