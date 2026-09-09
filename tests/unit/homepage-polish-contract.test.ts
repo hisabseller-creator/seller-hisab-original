@@ -18,7 +18,9 @@ describe("homepage marketplace + tablet navigation polish", () => {
   });
 
   it("keeps every marketplace logo contained without text clipping", () => {
-    const css = source("components/website.css");
+    const css = source("components/marketplace-responsive.css");
+    const layout = source("app/layout.tsx");
+    expect(layout).toContain('import "../components/marketplace-responsive.css"');
     expect(css).toContain("object-fit:contain");
     expect(css).toContain("marketplace-logo-meesho");
     expect(css).toContain("marketplace-logo-woocommerce");
@@ -26,10 +28,11 @@ describe("homepage marketplace + tablet navigation polish", () => {
   });
 
   it("makes tablet navigation read as equal clickable tabs", () => {
-    const css = source("components/website.css");
+    const css = source("components/marketplace-responsive.css");
     expect(css).toContain("@media(min-width:601px) and (max-width:1024px)");
     expect(css).toContain("flex:1 1 0");
     expect(css).toContain("border:1px solid #e2e9f2");
     expect(css).toContain("a[aria-current]");
+    expect(css).toContain("white-space:normal");
   });
 });
