@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Calculator, CheckCircle2, FileCheck2, Info, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateTool, type CalculatorMathType, type CalculatorValues } from "@/core/calculators";
 import { calculatorCatalog } from "@/core/calculator-catalog";
+import { calculatorEntryForSlug, calculatorGroupForSlug } from "@/core/marketplace-calculators";
+import { MARKETPLACE_DEFINITIONS, type MarketplaceExperienceId } from "@/core/marketplace-definitions";
 import { mapHeaders } from "@/core/parsers/aliases";
 import type { SeoPageConfig } from "@/core/seo-pages";
 import { PublicShell } from "./public-shell";
 
 export function SeoToolPage({ config }: { config: SeoPageConfig }) {
+  const calculatorEntry = calculatorEntryForSlug(config.slug);
+  const marketplace = calculatorEntry ? MARKETPLACE_DEFINITIONS[calculatorEntry.marketplaceId] : undefined;
+  const exactHref = marketplace?.fileAnalysis.state === "live" ? "/analyze" : marketplace?.connection.href ?? "/analyze";
+  const exactLabel = marketplace?.fileAnalysis.state === "live" ? "Open Profit Check" : marketplace ? "Open Connections" : "Open Profit Check";
+  const exactEyebrow = marketplace?.fileAnalysis.state === "live" ? "Exact report check" : marketplace ? "Read-only connection" : "Exact report check";
+  const exactCopy = marketplace?.fileAnalysis.state === "live"
+    ? `Use supported ${marketplace.name} report evidence to move beyond a quick estimate and see confirmed, provisional or incomplete economics.`
+    : marketplace
+      ? `${marketplace.name} file analysis is not claimed here. Use the supported connection for order evidence and enter actual gateway or bank payout values in the calculators.`
+      : "Upload the report to see confirmed contribution, risk and every supported SKU action.";
+
   return (
     <PublicShell>
       <main className="website-editorial">
@@ -24,12 +38,13 @@ export function SeoToolPage({ config }: { config: SeoPageConfig }) {
 
             <div className="mt-8 grid items-start gap-8 lg:grid-cols-[.82fr_1.18fr]">
               <div className="lg:sticky lg:top-28">
+                {marketplace ? <div className="mb-5 flex h-11 items-center"><Image src={marketplace.logo} alt={`${marketplace.name} logo`} width={180} height={48} className="max-h-10 w-auto max-w-[180px] object-contain object-left" /></div> : null}
                 <p className="eyebrow">{config.eyebrow}</p>
                 <h1 className="mt-4 text-balance text-4xl font-black leading-tight tracking-[-.045em] text-slate-950 sm:text-5xl">{config.headline}</h1>
                 <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600">{config.intro}</p>
-                <div className="mt-6 flex flex-wrap gap-3 text-xs font-bold text-slate-600"><span className="liquid-pill inline-flex items-center gap-1.5 rounded-full px-3 py-2"><CheckCircle2 className="size-4 text-emerald-600" />No login</span><span className="liquid-pill inline-flex items-center gap-1.5 rounded-full px-3 py-2"><ShieldCheck className="size-4 text-blue-600" />Calculation stays local</span></div>
+                <div className="mt-6 flex flex-wrap gap-3 text-xs font-bold text-slate-600"><span className="liquid-pill inline-flex items-center gap-1.5 rounded-full px-3 py-2"><CheckCircle2 className="size-4 text-emerald-600" />No login</span><span className="liquid-pill inline-flex items-center gap-1.5 rounded-full px-3 py-2"><ShieldCheck className="size-4 text-blue-600" />Calculation stays local</span>{marketplace ? <Link href={marketplace.hubHref} className="liquid-pill inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-blue-700">{marketplace.name} hub <ArrowRight className="size-3.5" /></Link> : null}</div>
               </div>
-              <MiniTool type={config.toolType} />
+              <MiniTool type={config.toolType} marketplaceId={calculatorEntry?.marketplaceId} />
             </div>
           </div>
         </section>
@@ -38,7 +53,6 @@ export function SeoToolPage({ config }: { config: SeoPageConfig }) {
           <div className="mx-auto max-w-[1220px]">
             <div className="grid gap-6 lg:grid-cols-[1.12fr_.88fr]">
               <article className="liquid-panel rounded-[26px] p-6 sm:p-8">
-                
                 <h2 className="mt-2 text-2xl font-black tracking-[-.03em] text-slate-950">The short version</h2>
                 <p className="mt-4 text-sm leading-7 text-slate-700">{config.directAnswer}</p>
                 <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
@@ -54,7 +68,7 @@ export function SeoToolPage({ config }: { config: SeoPageConfig }) {
               <article className="liquid-panel rounded-[26px] p-6 sm:p-8">
                 <h2 className="text-2xl font-black tracking-[-.03em] text-slate-950">{config.guideTitle}</h2>
                 <ul className="mt-6 space-y-4">{config.guide.map((item) => <li key={item} className="flex gap-3 text-sm leading-6 text-slate-600"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />{item}</li>)}</ul>
-                <p className="mt-7 border-t border-blue-100 pt-6 text-sm leading-6 text-slate-600">This quick calculator is an estimate. Full report analysis also handles identifiers, settlement states, multiple periods and missing costs where those inputs are available.</p>
+                <p className="mt-7 border-t border-blue-100 pt-6 text-sm leading-6 text-slate-600">This quick calculator is an estimate. Full evidence review also has to account for identifiers, payout/settlement timing, multiple periods and missing costs where those inputs matter.</p>
               </article>
             </div>
 
@@ -79,10 +93,10 @@ export function SeoToolPage({ config }: { config: SeoPageConfig }) {
               </section>
 
               <aside className="navy-frost rounded-[26px] p-6 sm:p-8">
-                <p className="text-xs font-extrabold uppercase tracking-[.16em] text-blue-200">Exact report check</p>
-                <h2 className="mt-4 text-2xl font-black tracking-[-.03em]">Get the action behind the number.</h2>
-                <p className="mt-4 text-sm leading-6 text-blue-100">Upload the report to see confirmed contribution, risk and every supported SKU action.</p>
-                <Button asChild className="mt-6 w-full bg-white font-extrabold text-blue-800 hover:bg-blue-50"><Link href="/analyze">Open Profit Check <ArrowRight className="ml-2 size-4" /></Link></Button>
+                <p className="text-xs font-extrabold uppercase tracking-[.16em] text-blue-200">{exactEyebrow}</p>
+                <h2 className="mt-4 text-2xl font-black tracking-[-.03em]">Go from estimate to evidence.</h2>
+                <p className="mt-4 text-sm leading-6 text-blue-100">{exactCopy}</p>
+                <Button asChild className="mt-6 w-full bg-white font-extrabold text-blue-800 hover:bg-blue-50"><Link href={exactHref}>{exactLabel} <ArrowRight className="ml-2 size-4" /></Link></Button>
               </aside>
             </div>
           </div>
@@ -93,6 +107,20 @@ export function SeoToolPage({ config }: { config: SeoPageConfig }) {
 }
 
 function CalculatorSwitcher({ currentSlug }: { currentSlug: string }) {
+  const group = calculatorGroupForSlug(currentSlug);
+  if (group) {
+    return (
+      <nav className="liquid-panel rounded-[22px] p-2" aria-label={`Choose ${group.label} calculator`}>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          {group.calculators.map((tool) => {
+            const active = currentSlug === tool.slug;
+            return <Link key={tool.slug} href={`/${tool.slug}`} aria-current={active ? "page" : undefined} className={`flex min-h-12 items-center justify-center rounded-2xl px-2 text-center text-[11px] font-extrabold transition sm:text-xs ${active ? "liquid-button" : "liquid-soft text-slate-700 hover:text-blue-700"}`}>{tool.shortTitle}</Link>;
+          })}
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="liquid-panel grid grid-cols-2 gap-2 rounded-[22px] p-2 sm:grid-cols-5" aria-label="Choose calculator">
       {calculatorCatalog.map((tool) => {
@@ -103,7 +131,7 @@ function CalculatorSwitcher({ currentSlug }: { currentSlug: string }) {
   );
 }
 
-function MiniTool({ type }: { type: SeoPageConfig["toolType"] }) {
+function MiniTool({ type, marketplaceId }: { type: SeoPageConfig["toolType"]; marketplaceId?: MarketplaceExperienceId }) {
   const [values, setValues] = useState<CalculatorValues>(() => initialValues(type));
   const output = useMemo(() => calculateDisplay(type, values), [type, values]);
   const set = (key: string, value: string) => setValues((current) => ({ ...current, [key]: value }));
@@ -119,7 +147,7 @@ function MiniTool({ type }: { type: SeoPageConfig["toolType"] }) {
         <div className="calculator-entry-panel rounded-[22px] p-4 sm:p-5">
           <div className="flex items-center justify-between"><h2 className="text-sm font-black text-slate-900">1. Enter your numbers</h2><span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-extrabold text-blue-700">₹ values</span></div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {fieldsFor(type).map((field) => (
+            {fieldsFor(type, marketplaceId).map((field) => (
               <div key={field.key} className={field.key === "headers" ? "sm:col-span-2" : ""}>
                 <Label htmlFor={`tool-${field.key}`} className="text-xs font-extrabold text-slate-800">{field.label}</Label>
                 <Input id={`tool-${field.key}`} className="calculator-input mt-2 h-12 rounded-xl" inputMode={field.key === "headers" ? "text" : "decimal"} value={values[field.key] ?? ""} onChange={(event) => set(field.key, event.target.value)} />
@@ -135,7 +163,7 @@ function MiniTool({ type }: { type: SeoPageConfig["toolType"] }) {
           <p role="status" aria-live="polite" aria-atomic="true" className="mt-2 break-words text-3xl font-black tracking-[-.045em] tabular-nums sm:text-4xl">{output.value}</p>
           <p className="mt-2 text-sm font-bold opacity-80">{output.detail}</p>
           <div className="mt-6 rounded-2xl border border-white/70 bg-white/55 p-3 text-xs leading-5 text-slate-700"><span className="font-extrabold">Formula:</span> {output.formula}</div>
-          <div className="mt-3 flex gap-2 text-[10px] leading-4 opacity-75"><Info className="mt-0.5 size-3.5 shrink-0" />Use actual observed costs wherever possible. This tool does not invent marketplace fee assumptions.</div>
+          <div className="mt-3 flex gap-2 text-[10px] leading-4 opacity-75"><Info className="mt-0.5 size-3.5 shrink-0" />Use actual observed costs and payout/settlement evidence wherever possible. This tool does not invent marketplace fee assumptions.</div>
         </div>
       </div>
     </section>
@@ -188,17 +216,30 @@ function initialValues(type: SeoPageConfig["toolType"]): CalculatorValues {
   return { sale: "649", settlement: "548", product: "305", packaging: "14", ads: "20" };
 }
 
-function fieldsFor(type: SeoPageConfig["toolType"]) {
+function fieldsFor(type: SeoPageConfig["toolType"], marketplaceId?: MarketplaceExperienceId) {
+  const payoutLabel = marketplaceId === "woocommerce" ? "Net gateway / bank payout ₹" : marketplaceId === "shopify" ? "Net payout / balance amount ₹" : "Settlement received ₹";
+  const payoutHelper = marketplaceId === "woocommerce"
+    ? "Use actual payment-gateway or bank payout; WooCommerce order total alone is not settlement"
+    : marketplaceId === "shopify"
+      ? "Use Shopify Payments balance evidence or another actual gateway payout"
+      : "Amount attributable to this order from supported settlement/payout evidence";
+  const retainedLabel = marketplaceId === "woocommerce" || marketplaceId === "shopify" ? "Retained net payout %" : "Retained settlement %";
+  const retainedHelper = marketplaceId === "woocommerce"
+    ? "Actual gateway/bank payout ÷ selling price from your history"
+    : marketplaceId === "shopify"
+      ? "Actual net payout ÷ selling price from your history"
+      : "Settlement ÷ selling price from your history";
+
   if (type === "margin") return [
     { key: "sale", label: "Selling price ₹", helper: "Customer-facing order value" },
-    { key: "settlement", label: "Settlement received ₹", helper: "Amount attributable to this order" },
+    { key: "settlement", label: payoutLabel, helper: payoutHelper },
     { key: "product", label: "Product cost ₹", helper: "Your purchase or manufacturing cost" },
     { key: "packaging", label: "Packaging ₹", helper: "Bag, box, tape and labels" },
     { key: "ads", label: "Ads per order ₹", helper: "Attributable advertising cost" },
   ];
   if (type === "failure") return [
-    { key: "orders", label: "Shipped orders", helper: "Orders in the same sample period" },
-    { key: "rate", label: "Return / RTO rate %", helper: "Use the observed failure rate" },
+    { key: "orders", label: "Orders in sample", helper: "Use one consistent evidence period" },
+    { key: "rate", label: "Return / RTO / refund rate %", helper: "Use the observed failure rate relevant to this channel" },
     { key: "loss", label: "Average loss per failure ₹", helper: "Observed economic loss per failed order" },
   ];
   if (type === "break-even") return [
@@ -206,9 +247,9 @@ function fieldsFor(type: SeoPageConfig["toolType"]) {
     { key: "packaging", label: "Packaging ₹", helper: "Per shipped order" },
     { key: "variable", label: "Other variable cost ₹", helper: "Only costs that change with orders" },
     { key: "ads", label: "Ads per order ₹", helper: "Attributable ad cost" },
-    { key: "rate", label: "Failure rate %", helper: "Observed Return/RTO percentage" },
+    { key: "rate", label: "Failure rate %", helper: "Observed Return/RTO/refund percentage" },
     { key: "loss", label: "Loss per failure ₹", helper: "Observed average economic loss" },
-    { key: "retained", label: "Retained settlement %", helper: "Settlement ÷ selling price from your history" },
+    { key: "retained", label: retainedLabel, helper: retainedHelper },
   ];
   if (type === "roas" || type === "acos") return [
     { key: "sale", label: "Attributable ad sales ₹", helper: "Sales linked to this advertising spend" },
