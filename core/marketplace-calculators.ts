@@ -285,7 +285,7 @@ export const marketplaceCalculatorGroups: MarketplaceCalculatorGroup[] = (["mees
 const configEntries: Array<[string, SeoPageConfig]> = PLATFORM_COPY.flatMap((copy) => {
   const slugs = MARKETPLACE_DEFINITIONS[copy.id].calculatorSlugs;
   const kinds: MarketplaceCalculatorKind[] = ["profit", "failure", "break-even", "acos", "roas"];
-  return kinds.map((kind, index) => [slugs[index], configFor(copy, kind, slugs[index])]);
+  return kinds.map<[string, SeoPageConfig]>((kind, index) => [slugs[index], configFor(copy, kind, slugs[index])]);
 });
 
 export const marketplaceSeoPages: Record<string, SeoPageConfig> = Object.fromEntries(configEntries);
