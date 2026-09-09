@@ -1,8 +1,8 @@
 import {availableBlogLocales,localeBlogPath,blogLanguageAlternates} from "@/core/blog-locales";
 import {getPublicSeoSettings} from "@/server/seo-settings";
 import type { MetadataRoute } from "next";
-import { seoPages } from "@/core/seo-pages";
-import { guidePages, marketplaceHubs } from "@/core/seo-hubs";
+import { allSeoPages } from "@/core/all-seo-pages";
+import { guidePages, marketplaceHubs } from "@/core/marketplace-content";
 import { PUBLIC_STATIC_PATHS, absoluteUrl } from "@/core/seo";
 import { getPublishedIndexableBlogPosts, getPublishedVideoPosts, getPublishedNewsPosts } from "@/server/blog";
 
@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : path === "/analyze" || path === "/calculators" ? 0.9 : 0.7,
   }));
 
-  const calculatorEntries: MetadataRoute.Sitemap = Object.keys(seoPages).map((slug) => ({
+  const calculatorEntries: MetadataRoute.Sitemap = Object.keys(allSeoPages).map((slug) => ({
     url: absoluteUrl(`/${slug}`),
     changeFrequency: "monthly",
     priority: 0.85,
