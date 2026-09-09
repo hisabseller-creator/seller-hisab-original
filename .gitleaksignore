@@ -1,0 +1,5 @@
+# Verified false positives from the original sanitized import.
+# Two entries are SHA-256 migration checksums; the third is a TypeScript mapper identifier.
+18cd59ae7a478669a48f2deb3eda3d8331ec504c:db/applied-migrations.sha256.json:generic-api-key:6
+18cd59ae7a478669a48f2deb3eda3d8331ec504c:db/applied-migrations.sha256.json:generic-api-key:11
+18cd59ae7a478669a48f2deb3eda3d8331ec504c:tests/unit/official-order-mappers.test.ts:generic-api-key:2
