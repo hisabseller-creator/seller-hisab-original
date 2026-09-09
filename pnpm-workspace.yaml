@@ -6,6 +6,7 @@ allowBuilds:
   workerd: true
 
 # Patched transitive versions required by the advisory gate; validate vinext build.
+# sharp 0.35.4 is the minimum patched version for GHSA-rgj7-g3m4-5g8c.
 overrides:
   undici: 7.29.0
   ws: 8.21.0
