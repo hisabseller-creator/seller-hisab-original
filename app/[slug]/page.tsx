@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SeoToolPage } from "@/components/seo-tool-page";
+import { allSeoPages } from "@/core/all-seo-pages";
 import { absoluteUrl } from "@/core/seo";
-import { seoPages } from "@/core/seo-pages";
 
 export function generateStaticParams() {
-  return Object.keys(seoPages).map((slug) => ({ slug }));
+  return Object.keys(allSeoPages).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const config = seoPages[slug];
+  const config = allSeoPages[slug];
   if (!config) return {};
   const path = `/${config.slug}`;
   return {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function SeoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const config = seoPages[slug];
+  const config = allSeoPages[slug];
   if (!config) notFound();
   const path = `/${config.slug}`;
   const structuredData = [
