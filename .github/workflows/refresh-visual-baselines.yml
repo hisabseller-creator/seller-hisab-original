@@ -53,8 +53,9 @@ jobs:
           git restore --worktree --staged -- tests/fixtures 2>$null
           git clean -fd -- tests/fixtures
 
-          # Stage every changed/deleted visual baseline produced by Playwright.
-          git add -A -- 'tests/e2e/*-snapshots'
+          # Stage the e2e tree, then strictly reject anything except canonical snapshot PNGs.
+          # Using the directory avoids Windows git pathspec wildcard differences.
+          git add -A -- tests/e2e
 
           $snapshots = @(git diff --cached --name-only | Where-Object { $_ })
           if ($snapshots.Count -eq 0) {
