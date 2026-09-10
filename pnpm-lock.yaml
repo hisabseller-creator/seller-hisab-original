@@ -136,8 +136,8 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       vinext:
-        specifier: 0.0.50
-        version: 0.0.50(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)))(@vitejs/plugin-rsc@0.5.26(react-dom@19.2.8(react@19.2.8))(react-server-dom-webpack@19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26)))(react@19.2.8)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)))(next@16.3.3(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.19.19)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-server-dom-webpack@19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26)))(react@19.2.8)(supports-color@10.2.2)(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12))
+        specifier: 0.2.1
+        version: 0.2.1(a3ee65cd88d36056d65f941055028d54)
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)
@@ -4045,24 +4045,27 @@ packages:
   utrie@1.0.2:
     resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
 
-  vinext@0.0.50:
-    resolution: {integrity: sha512-uo72YNnq94NtogETWnhMdFSrkMLwWgeXh5PS6qh8ksajuvAaZX50bXYJ4a6dERQ/AnnXAlNByAGHCjjNxQrvig==}
+  vinext@0.2.1:
+    resolution: {integrity: sha512-QvafNbaDCWeXIRd9+8zvTMDXdByjeLGpJXx8CnmcrPRJHjqHUZj5SgjWueadUukKZA96kzjFdsCTUqJM6GkQsg==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
       '@mdx-js/rollup': ^3.0.0
       '@vitejs/plugin-react': ^5.1.4 || ^6.0.0
-      '@vitejs/plugin-rsc': ^0.5.23
+      '@vitejs/plugin-rsc': ^0.5.26
       react: ^19.2.6
       react-dom: ^19.2.6
       react-server-dom-webpack: ^19.2.6
       vite: ^7.0.0 || ^8.0.0
+      vite-tsconfig-paths: ^6.1.1
     peerDependenciesMeta:
       '@mdx-js/rollup':
         optional: true
       '@vitejs/plugin-rsc':
         optional: true
       react-server-dom-webpack:
+        optional: true
+      vite-tsconfig-paths:
         optional: true
 
   vite-plugin-commonjs@0.10.4:
@@ -6945,7 +6948,8 @@ snapshots:
       define-properties: 1.2.1
       gopd: 1.2.0
 
-  globrex@0.1.2: {}
+  globrex@0.1.2:
+    optional: true
 
   gopd@1.2.0: {}
 
@@ -8088,6 +8092,7 @@ snapshots:
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
+    optional: true
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -8239,7 +8244,7 @@ snapshots:
       base64-arraybuffer: 1.0.2
     optional: true
 
-  vinext@0.0.50(@vitejs/plugin-react@6.0.2(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)))(@vitejs/plugin-rsc@0.5.26(react-dom@19.2.8(react@19.2.8))(react-server-dom-webpack@19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26)))(react@19.2.8)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)))(next@16.3.3(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.19.19)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react-server-dom-webpack@19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26)))(react@19.2.8)(supports-color@10.2.2)(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)):
+  vinext@0.2.1(a3ee65cd88d36056d65f941055028d54):
     dependencies:
       '@unpic/react': 1.0.2(next@16.3.3(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.19.19)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@vercel/og': 0.8.6
@@ -8251,15 +8256,13 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       vite: 8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12)
       vite-plugin-commonjs: 0.10.4
-      vite-tsconfig-paths: 6.1.1(supports-color@10.2.2)(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12))
       web-vitals: 4.2.4
     optionalDependencies:
       '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.8(react@19.2.8))(react-server-dom-webpack@19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26)))(react@19.2.8)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12))
       react-server-dom-webpack: 19.2.8(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(webpack@5.110.1(esbuild@0.28.1)(lightningcss@1.33.0)(postcss@8.5.26))
+      vite-tsconfig-paths: 6.1.1(supports-color@10.2.2)(typescript@5.9.3)(vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12))
     transitivePeerDependencies:
       - next
-      - supports-color
-      - typescript
 
   vite-plugin-commonjs@0.10.4:
     dependencies:
@@ -8283,6 +8286,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    optional: true
 
   vite@8.0.16(@types/node@22.19.19)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.12):
     dependencies:
