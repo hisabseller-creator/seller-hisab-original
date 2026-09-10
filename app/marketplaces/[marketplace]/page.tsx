@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { SeoContentPage } from "@/components/seo-content-page";
-import { marketplaceDefinition } from "@/core/marketplace-definitions";
+import { MarketplaceHubExperience } from "@/components/marketplace-hub-experience";
+import { marketplaceDefinition, type MarketplaceExperienceId } from "@/core/marketplace-definitions";
 import { marketplaceHubs } from "@/core/marketplace-content";
 import { absoluteUrl, RESEARCH_AUTHOR_NAME, RESEARCH_AUTHOR_PATH, SEO_REVIEWED_AT } from "@/core/seo";
 
@@ -12,13 +12,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ marketplace: string }> }): Promise<Metadata> {
   const { marketplace } = await params;
   const config = marketplaceHubs[marketplace];
-  if (!config) return {};
+  const definition = marketplaceDefinition(marketplace);
+  if (!config || !definition) return {};
   const path = `/marketplaces/${config.slug}`;
   return {
-    title: config.title,
-    description: config.description,
+    title: `${definition.name} Seller Hub`,
+    description: `Use SellerHisab ${definition.name} analysis, supported connection tools, guides and calculators from one marketplace hub.`,
     alternates: { canonical: path },
-    openGraph: { title: config.title, description: config.description, url: path },
+    openGraph: { title: `${definition.name} Seller Hub`, description: config.description, url: path },
   };
 }
 
@@ -32,7 +33,7 @@ export default async function MarketplaceHubPage({ params }: { params: Promise<{
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
-      name: config.title,
+      name: `${definition.name} Seller Hub`,
       description: config.description,
       url: absoluteUrl(path),
       dateModified: SEO_REVIEWED_AT,
@@ -44,21 +45,14 @@ export default async function MarketplaceHubPage({ params }: { params: Promise<{
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
         { "@type": "ListItem", position: 2, name: "Marketplaces", item: absoluteUrl("/marketplaces") },
-        { "@type": "ListItem", position: 3, name: config.title, item: absoluteUrl(path) },
+        { "@type": "ListItem", position: 3, name: definition.name, item: absoluteUrl(path) },
       ],
     },
   ];
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <SeoContentPage
-        config={config}
-        parent={{ href: "/marketplaces", label: "Marketplaces" }}
-        brand={{ name: definition.name, logo: definition.logo }}
-        capabilities={[definition.fileAnalysis, definition.connection, definition.guides, definition.calculators]}
-        primaryCta={definition.primaryCta}
-        secondaryCta={definition.secondaryCta}
-      />
+      <MarketplaceHubExperience marketplaceId={definition.id as MarketplaceExperienceId} />
     </>
   );
 }
