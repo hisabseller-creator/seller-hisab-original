@@ -4,7 +4,7 @@ Privacy-first multi-marketplace seller financial decision engine. Reports are pa
 
 This is the complete editable source project. `README.md` is the starting point for development; deeper architecture, deployment and safety rules live under `docs/`. English is the first-visit default language; users can switch to Hinglish and their choice is saved on the device.
 
-Version 1.4 uses an Indian-seller-first interface with a soft watercolor wallpaper and frosted surfaces. It includes account-aware navigation, five seller calculators, clear data-entry fields, a contact-led footer and a mobile-friendly D1-backed website admin. Production contains no public synthetic demo or payment simulator. English remains the first-visit default; Hinglish keeps English product terms in Latin script and Hindi text in Devanagari.
+Version 1.4 uses an Indian-seller-first interface with a soft watercolor wallpaper and frosted surfaces. It includes account-aware navigation, marketplace-aware calculator families, clear data-entry fields, a contact-led footer and a mobile-friendly D1-backed website admin. Production contains no public synthetic demo or payment simulator. English remains the first-visit default; Hinglish keeps English product terms in Latin script and Hindi text in Devanagari.
 
 The product distinguishes source-backed **Confirmed Contribution**, unresolved **Provisional Contribution**, and **Incomplete** economics. It uses integer paise arithmetic and deterministic rules for actions, break-even price, return/RTO tolerance, ROAS and ACoS.
 
@@ -18,11 +18,25 @@ The product distinguishes source-backed **Confirmed Contribution**, unresolved *
 - Free headline result, full deterministic Action Board and local simulators
 - Browser-generated seven-sheet Excel workbook and PDF Action Report
 - Intent-specific calculators, methodology and legal pages
-- Profit, RTO loss, break-even price, Max ACoS and break-even ROAS calculator hub
+- Profit, Return/RTO, Break-even Price, Max ACoS and Break-even ROAS calculators across the five primary marketplace/storefront hubs
 - Password login by mobile/email, MSG91 Widget mobile OTP for registration/password reset, D1 metadata/history, Razorpay one-time and subscription flows
 - Protected `/admin` website manager for hero copy, feature visibility, footer copy and official contact handles
 - Server-verified signatures, webhook idempotency and anonymous signed entitlements
 - Local IndexedDB costs/snapshots with a working Clear Local Data control
+
+## Current marketplace support
+
+SellerHisab keeps file analysis, official connections, guides and calculators as separate capabilities so the UI does not imply that every platform supports every ingestion method.
+
+| Platform | File analysis | Official/live connection | Guides & calculators |
+|---|---|---|---|
+| Meesho | Live | No general seller API claimed | Available |
+| Amazon India | Live | SP-API / Ads API flow requires seller authorization and approved scopes | Available |
+| Flipkart | Live | Seller/API sync remains authorization or partner dependent | Available |
+| Shopify | Live | Admin API sync is optional and authorization dependent | Available |
+| WooCommerce | Not claimed | Merchant-authorized read-only `wc/v3` sync | Available |
+
+The source-of-truth capability flags live in `core/channels/catalog.ts`. Public marketplace hubs expose the supported workflow without guessing settlement data or inventing unavailable API access.
 
 ## Financial and privacy boundaries
 
@@ -133,13 +147,8 @@ See [docs/PRODUCTION_READINESS.md](./docs/PRODUCTION_READINESS.md) for the launc
 
 Independent seller analytics utility. Not affiliated with or endorsed by any marketplace or commerce platform. Results are analytical estimates based on files and costs supplied by the seller; they are not tax, legal or accounting advice.
 
-
 ## Blog image storage (AWS S3)
 
 Production blog media uses a private AWS S3 bucket. Set `AWS_S3_REGION`, `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` as Worker secrets. The IAM identity should be limited to `s3:GetObject`, `s3:PutObject`, and `s3:DeleteObject` on `arn:aws:s3:::YOUR_BUCKET/blog_*`. Public pages fetch images through the same-origin `/api/blog/media/<key>` route, so the S3 bucket does not need public access.
 
 `www.sellerhisab.com` is redirected to `https://sellerhisab.com` by the Worker once both custom domains are attached.
-
-## F1 connector runtime
-
-The parser now routes every tabular marketplace report through an explicit connector fingerprint before normalization. Meesho remains the only live file analyzer. Amazon India, Flipkart and Shopify fingerprints are recognized but deliberately fail closed until real fixtures/approved connectors are validated. See `docs/F1_CONNECTOR_RUNTIME.md`.
