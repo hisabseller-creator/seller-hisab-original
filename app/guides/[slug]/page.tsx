@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SeoContentPage } from "@/components/seo-content-page";
+import { guidePages } from "@/core/marketplace-content";
 import { absoluteUrl, RESEARCH_AUTHOR_NAME, RESEARCH_AUTHOR_PATH, SEO_REVIEWED_AT } from "@/core/seo";
-import { guidePages } from "@/core/seo-hubs";
 
 export function generateStaticParams() {
   return Object.keys(guidePages).map((slug) => ({ slug }));

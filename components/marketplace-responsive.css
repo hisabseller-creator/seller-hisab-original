@@ -1,0 +1,39 @@
+/* Marketplace and tablet polish kept separate from the legacy website stylesheet. */
+.marketplace-logo{
+  object-fit:contain;
+  object-position:center;
+  overflow:visible;
+}
+
+/* Different marketplace wordmarks have different intrinsic whitespace/ratios. */
+.marketplace-logo-amazon{max-width:126px}
+.marketplace-logo-flipkart{max-width:128px}
+.marketplace-logo-meesho{max-width:118px}
+.marketplace-logo-shopify{max-width:120px}
+.marketplace-logo-woocommerce{max-width:132px}
+
+@media(min-width:601px) and (max-width:1024px){
+  .website-mobile-tabs{
+    display:flex;
+    gap:6px;
+    overflow:visible;
+  }
+
+  .website-mobile-tabs a{
+    flex:1 1 0;
+    min-width:0;
+    min-height:44px;
+    justify-content:center;
+    padding:8px 6px;
+    border:1px solid #e2e9f2;
+    text-align:center;
+    white-space:normal;
+    line-height:1.2;
+  }
+
+  .website-mobile-tabs a[aria-current]{
+    border-color:#b9cef0;
+    background:#eaf2ff;
+    color:#185bdf;
+  }
+}

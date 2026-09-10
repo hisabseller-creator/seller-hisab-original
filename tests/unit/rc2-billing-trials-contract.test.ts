@@ -6,12 +6,14 @@ function source(path: string) {
 }
 
 describe("RC2 billing + language contracts", () => {
-  it("keeps pricing fully English in English mode and exact HinEnglish hero copy", () => {
+  it("keeps pricing fully English in English mode and the current simple Hindi hero copy", () => {
     const pricing = source("components/pricing-view.tsx");
-    expect(pricing).toContain("See your profit first.");
-    expect(pricing).toContain("Then pay only for the depth you need.");
-    expect(pricing).toContain("पहले profit देखो.");
-    expect(pricing).toContain("फिर jitni depth चाहिए, उतना hi pay करो.");
+    expect(pricing).toContain("Start with clarity.");
+    expect(pricing).toContain("Grow at your pace.");
+    expect(pricing).toContain("Your first profit check is free.");
+    expect(pricing).toContain("पहले अपना लाभ जानें।");
+    expect(pricing).toContain("फिर सही प्लान चुनें।");
+    expect(pricing).toContain("पहला लाभ विश्लेषण मुफ़्त है।");
     expect(pricing).not.toContain("फिर जितनी depth चाहिए, उतना ही pay करो.");
   });
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SeoContentPage } from "@/components/seo-content-page";
+import { marketplaceDefinition } from "@/core/marketplace-definitions";
+import { marketplaceHubs } from "@/core/marketplace-content";
 import { absoluteUrl, RESEARCH_AUTHOR_NAME, RESEARCH_AUTHOR_PATH, SEO_REVIEWED_AT } from "@/core/seo";
-import { marketplaceHubs } from "@/core/seo-hubs";
 
 export function generateStaticParams() {
   return Object.keys(marketplaceHubs).map((marketplace) => ({ marketplace }));
@@ -24,7 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ marketpla
 export default async function MarketplaceHubPage({ params }: { params: Promise<{ marketplace: string }> }) {
   const { marketplace } = await params;
   const config = marketplaceHubs[marketplace];
-  if (!config) notFound();
+  const definition = marketplaceDefinition(marketplace);
+  if (!config || !definition) notFound();
   const path = `/marketplaces/${config.slug}`;
   const structuredData = [
     {
@@ -49,7 +51,14 @@ export default async function MarketplaceHubPage({ params }: { params: Promise<{
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <SeoContentPage config={config} parent={{ href: "/marketplaces", label: "Marketplaces" }} />
+      <SeoContentPage
+        config={config}
+        parent={{ href: "/marketplaces", label: "Marketplaces" }}
+        brand={{ name: definition.name, logo: definition.logo }}
+        capabilities={[definition.fileAnalysis, definition.connection, definition.guides, definition.calculators]}
+        primaryCta={definition.primaryCta}
+        secondaryCta={definition.secondaryCta}
+      />
     </>
   );
 }

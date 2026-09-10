@@ -31,7 +31,7 @@ describe("homepage UX refresh", () => {
   });
 
   it("supports admin-managed social links while remaining compatible with old saved settings", () => {
-    const legacy = structuredClone(DEFAULT_SITE_SETTINGS) as Record<string, any>;
+    const legacy = structuredClone(DEFAULT_SITE_SETTINGS) as unknown as { contact: { socialLinks?: unknown } };
     delete legacy.contact.socialLinks;
     const parsed = parseSiteSettings(legacy);
     expect(parsed.contact.socialLinks).toEqual([]);

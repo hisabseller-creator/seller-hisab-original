@@ -8,7 +8,7 @@ async function runBasicAnalysis(page: import("@playwright/test").Page) {
   await page.goto("/analyze");
   await expect(page.locator('input[type="file"]').first()).toBeEnabled();
   await page.locator('input[type="file"]').first().setInputFiles(path.join(fixtures, "payments-basic.csv"));
-  await expect(page.getByText('payments-basic.csv',{exact:true})).toBeVisible();
+  await expect(page.getByText("payments-basic.csv", { exact: true })).toBeVisible();
   await page.getByRole("tab", { name: "Paste costs" }).click();
   await page.locator("#cost-paste").fill(costs);
   await page.getByRole("button", { name: "See My Margin — Free" }).click();
@@ -17,10 +17,11 @@ async function runBasicAnalysis(page: import("@playwright/test").Page) {
 
 test("landing explains the real product without a public demo path", async ({ page }) => {
   await page.goto("/");
-  const hero=page.frameLocator('iframe[title="SellerHisab business clarity"]');
-  await expect(hero.locator("h1").first()).toBeVisible();
-  await expect(page.getByRole("heading", {name:"Know where your money came from, where it went, and what is really left."})).toBeVisible();
-  await expect(page.getByRole("link", {name:"Free calculators",exact:true})).toBeVisible();
+  await expect(page.locator("main.website-home")).toBeVisible();
+  await expect(page.locator("iframe")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Check my profit", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore supported workflows", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore free calculators", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /Try Demo/i })).toHaveCount(0);
 });
 
