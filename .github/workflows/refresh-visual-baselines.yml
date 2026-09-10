@@ -1,0 +1,101 @@
+name: One-time Windows visual baseline refresh
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refresh-visual-baselines.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-visual-baseline-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: windows-2025
+    timeout-minutes: 35
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
+      VISUAL_REGRESSION: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        run: npm install --global pnpm@11.19.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate browser fixtures
+        run: pnpm fixtures
+
+      - name: Install canonical Windows browsers
+        run: pnpm exec playwright install chromium webkit
+
+      - name: Refresh snapshots and prove semantic checks
+        run: pnpm test:e2e --project chromium --project webkit --update-snapshots
+
+      - name: Commit only regenerated Windows visual baselines and self-remove
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          # Fixture generation is runtime-only; never include it in this commit.
+          git restore --worktree --staged -- tests/fixtures 2>$null
+          git clean -fd -- tests/fixtures
+
+          # Stage every changed/deleted visual baseline produced by Playwright.
+          git add -A -- 'tests/e2e/*-snapshots'
+
+          $snapshots = @(git diff --cached --name-only | Where-Object { $_ })
+          if ($snapshots.Count -eq 0) {
+            throw 'No visual baseline changes were generated; refusing a no-op refresh.'
+          }
+
+          $badSnapshots = @($snapshots | Where-Object {
+            $_ -notmatch '^tests/e2e/.+\.spec\.ts-snapshots/.+-(chromium|webkit)-win32\.png$'
+          })
+          if ($badSnapshots.Count -gt 0) {
+            Write-Host 'Unexpected staged files:'
+            $badSnapshots | ForEach-Object { Write-Host "  $_" }
+            throw 'Snapshot refresh touched a non-canonical file.'
+          }
+
+          # Ensure the test run did not modify source/config outside snapshot folders.
+          $trackedOutside = @(git diff --name-only | Where-Object {
+            $_ -and $_ -ne '.github/workflows/refresh-visual-baselines.yml'
+          })
+          if ($trackedOutside.Count -gt 0) {
+            Write-Host 'Unexpected unstaged tracked changes:'
+            $trackedOutside | ForEach-Object { Write-Host "  $_" }
+            throw 'Test run modified tracked non-snapshot files.'
+          }
+
+          # This workflow is deliberately one-shot. Remove it in the same baseline commit.
+          git rm -- '.github/workflows/refresh-visual-baselines.yml'
+
+          $finalStaged = @(git diff --cached --name-only | Where-Object { $_ })
+          $badFinal = @($finalStaged | Where-Object {
+            $_ -ne '.github/workflows/refresh-visual-baselines.yml' -and
+            $_ -notmatch '^tests/e2e/.+\.spec\.ts-snapshots/.+-(chromium|webkit)-win32\.png$'
+          })
+          if ($badFinal.Count -gt 0) {
+            throw "Unexpected final staged file(s): $($badFinal -join ', ')"
+          }
+
+          Write-Host "Canonical visual baselines refreshed: $($snapshots.Count)"
+          $snapshots | ForEach-Object { Write-Host "  $_" }
+
+          git config user.name 'sellerhisab-ci'
+          git config user.email 'sellerhisab-ci@users.noreply.github.com'
+          git commit -m 'test: refresh canonical Windows visual baselines'
+          git push origin HEAD:main
