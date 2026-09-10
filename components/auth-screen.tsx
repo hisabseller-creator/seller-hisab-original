@@ -12,6 +12,7 @@ import {
   MapPin,
   MessageSquareText,
   Phone,
+  ShieldCheck,
   UserPlus,
   UserRound,
 } from "lucide-react";
@@ -21,8 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
-import { FeatureTabs } from "./feature-tabs";
-import { SiteHeader } from "./site-header";
+import { WebsiteHeader } from "./website-header";
 import { AuthLottie } from "./auth-lottie";
 import { sendMsg91WidgetOtp, verifyMsg91WidgetOtp } from "./msg91-widget-client";
 
@@ -57,7 +57,6 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: AuthUser) => voi
   const [loading, setLoading] = useState(false);
   const [resetPassword, setResetPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
 
   const switchMode = (next: Mode) => {
     setMode(next);
@@ -233,30 +232,55 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: AuthUser) => voi
   }
 
   const heading = resetPassword
-    ? "Reset your password."
+    ? "Reset your password"
     : mode === "login"
-      ? "Welcome back."
-      : "Create your account.";
+      ? "Welcome back"
+      : "Create your SellerHisab account";
+
+  const subheading = resetPassword
+    ? "Set a new password and verify your registered mobile number."
+    : mode === "login"
+      ? "Sign in to your saved analyses, costs, billing and marketplace workspace."
+      : "Create one account for your marketplace analysis, saved costs and reports.";
 
   const prettyPhone = challenge
     ? `+${challenge.phone.slice(0, 2)} ${challenge.phone.slice(2, 7)} ${challenge.phone.slice(7)}`
     : "";
 
   return (
-    <div className="app-wallpaper min-h-screen text-slate-950">
-      <SiteHeader />
-      <FeatureTabs />
+    <div className="website-public min-h-screen bg-slate-50 text-slate-950">
+      <WebsiteHeader />
 
-      <main className="mx-auto w-full max-w-[1120px] px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <section className="auth-shell liquid-panel overflow-hidden rounded-[30px]">
-          <div className="auth-visual-panel p-5 sm:p-7 lg:p-9">
-            <h1 className="max-w-md text-3xl font-black tracking-[-.045em] text-slate-950 sm:text-4xl">{heading}</h1>
-            <div className="auth-lottie-wrap mt-3 h-[190px] sm:h-[230px] lg:mt-6 lg:h-[330px]">
+      <main className="website-editorial mx-auto w-full max-w-[1180px] px-4 py-7 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+        <section className="grid overflow-hidden rounded-[28px] border border-slate-200/90 bg-white shadow-[0_24px_70px_-44px_rgba(15,23,42,.35)] lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="relative border-b border-slate-200 bg-gradient-to-br from-blue-50 via-white to-slate-50 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+            <div className="relative z-10">
+              <span className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3 py-1.5 text-[11px] font-extrabold text-blue-700 shadow-sm">
+                <ShieldCheck className="size-3.5" /> Secure seller account
+              </span>
+              <h1 className="mt-4 max-w-lg text-3xl font-black tracking-[-.045em] text-slate-950 sm:text-4xl">{heading}</h1>
+              <p className="mt-3 max-w-lg text-sm leading-6 text-slate-600 sm:text-base">{subheading}</p>
+            </div>
+
+            <div className="mt-4 h-[145px] sm:h-[190px] lg:mt-8 lg:h-[270px]">
               <AuthLottie />
+            </div>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:mt-6 lg:grid-cols-1 xl:grid-cols-3">
+              {[
+                "Raw reports stay on your device",
+                "Saved costs can be reused",
+                "OTP-secured registration",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2.5 text-[11px] font-bold leading-4 text-slate-600 shadow-sm">
+                  <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-blue-600" />
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="auth-form-panel p-4 sm:p-7 lg:p-9">
+          <div className="p-5 sm:p-8 lg:p-10">
             {challenge ? (
               <OtpForm
                 otp={otp}
@@ -283,13 +307,13 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: AuthUser) => voi
               />
             ) : (
               <>
-                <div className="auth-mode-switch grid grid-cols-2 rounded-2xl p-1.5" role="tablist" aria-label="Authentication mode">
+                <div className="grid grid-cols-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5" role="tablist" aria-label="Authentication mode">
                   <button
                     type="button"
                     role="tab"
                     aria-selected={mode === "login"}
                     onClick={() => switchMode("login")}
-                    className={`auth-mode-button ${mode === "login" ? "auth-mode-button-active" : ""}`}
+                    className={`flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-extrabold transition ${mode === "login" ? "bg-white text-blue-700 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-900"}`}
                   >
                     <CircleUserRound className="size-4" /> Login
                   </button>
@@ -298,7 +322,7 @@ export function AuthScreen({ onSignedIn }: { onSignedIn: (user: AuthUser) => voi
                     role="tab"
                     aria-selected={mode === "register"}
                     onClick={() => switchMode("register")}
-                    className={`auth-mode-button ${mode === "register" ? "auth-mode-button-active" : ""}`}
+                    className={`flex min-h-11 items-center justify-center gap-2 rounded-xl text-sm font-extrabold transition ${mode === "register" ? "bg-white text-blue-700 shadow-sm ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-900"}`}
                   >
                     <UserPlus className="size-4" /> Register
                   </button>
@@ -372,18 +396,18 @@ function LoginForm({
     <div className="mt-6">
       <Label htmlFor="login-identifier" className="text-xs font-extrabold text-slate-800">Mobile number / Email</Label>
       <div className="relative mt-2">
-        <CircleUserRound className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+        <CircleUserRound className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
         <Input
           id="login-identifier"
           autoComplete="username"
-          className="data-entry h-12 pl-9"
+          className="h-12 rounded-xl border-slate-200 bg-white pl-10 shadow-none focus-visible:border-blue-400 focus-visible:ring-blue-100"
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value)}
           placeholder="Mobile number or email"
         />
       </div>
 
-      <Label htmlFor="login-password" className="mt-4 block text-xs font-extrabold text-slate-800">Password</Label>
+      <Label htmlFor="login-password" className="mt-5 block text-xs font-extrabold text-slate-800">Password</Label>
       <PasswordInput
         id="login-password"
         value={password}
@@ -399,10 +423,11 @@ function LoginForm({
         </button>
       </div>
 
-      <Button className="liquid-button mt-4 h-12 w-full rounded-xl font-extrabold" onClick={onLogin} disabled={loading || !identifier.trim() || !password}>
+      <Button className="mt-5 h-12 w-full rounded-xl bg-blue-600 font-extrabold text-white shadow-sm hover:bg-blue-700" onClick={onLogin} disabled={loading || !identifier.trim() || !password}>
         {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
         Login
       </Button>
+      <p className="mt-4 text-center text-[11px] leading-5 text-slate-500">Your account stores saved SellerHisab data. Raw marketplace report files continue to be processed locally.</p>
     </div>
   );
 }
@@ -452,23 +477,23 @@ function RegisterForm({
         <div>
           <Label htmlFor="register-name" className="text-xs font-extrabold text-slate-800">Name</Label>
           <div className="relative mt-2">
-            <UserRound className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <Input id="register-name" autoComplete="name" className="data-entry h-12 pl-9" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
+            <UserRound className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <Input id="register-name" autoComplete="name" className="h-12 rounded-xl border-slate-200 bg-white pl-10 shadow-none focus-visible:border-blue-400 focus-visible:ring-blue-100" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" />
           </div>
         </div>
         <div>
           <Label htmlFor="register-city" className="text-xs font-extrabold text-slate-800">City</Label>
           <div className="relative mt-2">
-            <MapPin className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <Input id="register-city" autoComplete="address-level2" className="data-entry h-12 pl-9" value={city} onChange={(event) => setCity(event.target.value)} placeholder="Your city" />
+            <MapPin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <Input id="register-city" autoComplete="address-level2" className="h-12 rounded-xl border-slate-200 bg-white pl-10 shadow-none focus-visible:border-blue-400 focus-visible:ring-blue-100" value={city} onChange={(event) => setCity(event.target.value)} placeholder="Your city" />
           </div>
         </div>
       </div>
 
       <div>
         <Label htmlFor="register-phone" className="text-xs font-extrabold text-slate-800">Mobile number <span className="text-red-600">*</span></Label>
-        <div className="auth-phone-input mt-2 flex overflow-hidden rounded-xl">
-          <span className="grid min-h-12 place-items-center border-r border-blue-200/80 px-3 text-sm font-extrabold text-slate-800">+91</span>
+        <div className="mt-2 flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <span className="grid min-h-12 place-items-center border-r border-slate-200 px-3 text-sm font-extrabold text-slate-700">+91</span>
           <div className="relative min-w-0 flex-1">
             <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
             <Input
@@ -489,8 +514,8 @@ function RegisterForm({
       <div>
         <Label htmlFor="register-email" className="text-xs font-extrabold text-slate-800">Email <span className="font-medium text-slate-400">(optional)</span></Label>
         <div className="relative mt-2">
-          <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          <Input id="register-email" type="email" autoComplete="email" className="data-entry h-12 pl-9" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" />
+          <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <Input id="register-email" type="email" autoComplete="email" className="h-12 rounded-xl border-slate-200 bg-white pl-10 shadow-none focus-visible:border-blue-400 focus-visible:ring-blue-100" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" />
         </div>
       </div>
 
@@ -504,7 +529,7 @@ function RegisterForm({
         <PasswordInput id="register-confirm-password" value={confirmPassword} setValue={setConfirmPassword} show={showPassword} setShow={setShowPassword} autoComplete="new-password" />
       </div>
 
-      <div className="flex items-start gap-2.5 rounded-xl border border-blue-100/90 bg-white/45 p-3">
+      <div className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3">
         <Checkbox id="register-terms" checked={acceptedTerms} onCheckedChange={(checked) => setAcceptedTerms(checked === true)} className="mt-0.5" />
         <Label htmlFor="register-terms" className="cursor-pointer text-[11px] font-medium leading-5 text-slate-600">
           I accept the <Link href="/terms" className="font-bold text-blue-700 hover:underline">Terms & Conditions</Link> and <Link href="/privacy" className="font-bold text-blue-700 hover:underline">Privacy Policy</Link>.
@@ -513,7 +538,7 @@ function RegisterForm({
 
       <div id="smg-msg91-captcha" className="flex min-h-0 justify-center" />
 
-      <Button className="liquid-button h-12 w-full rounded-xl font-extrabold" onClick={onRegister} disabled={loading}>
+      <Button className="h-12 w-full rounded-xl bg-blue-600 font-extrabold text-white shadow-sm hover:bg-blue-700" onClick={onRegister} disabled={loading}>
         {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <MessageSquareText className="mr-2 size-4" />}
         Register with mobile OTP
       </Button>
@@ -549,8 +574,8 @@ function ResetPasswordForm({
   return (
     <div className="mt-1">
       <Label htmlFor="reset-phone" className="text-xs font-extrabold text-slate-800">Mobile number</Label>
-      <div className="auth-phone-input mt-2 flex overflow-hidden rounded-xl">
-        <span className="grid min-h-12 place-items-center border-r border-blue-200/80 px-3 text-sm font-extrabold text-slate-800">+91</span>
+      <div className="mt-2 flex overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <span className="grid min-h-12 place-items-center border-r border-slate-200 px-3 text-sm font-extrabold text-slate-700">+91</span>
         <div className="relative min-w-0 flex-1">
           <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <Input id="reset-phone" type="tel" inputMode="numeric" autoComplete="tel-national" value={phone} maxLength={10} onChange={(event) => setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))} className="h-12 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-0" placeholder="9876543210" />
@@ -565,7 +590,7 @@ function ResetPasswordForm({
 
       <div id="smg-msg91-captcha" className="mt-4 flex min-h-0 justify-center" />
 
-      <Button className="liquid-button mt-5 h-12 w-full rounded-xl font-extrabold" onClick={onSendOtp} disabled={loading || phone.length !== 10 || !password || !confirmPassword}>
+      <Button className="mt-5 h-12 w-full rounded-xl bg-blue-600 font-extrabold text-white shadow-sm hover:bg-blue-700" onClick={onSendOtp} disabled={loading || phone.length !== 10 || !password || !confirmPassword}>
         {loading ? <Loader2 className="mr-2 size-4 animate-spin" /> : <MessageSquareText className="mr-2 size-4" />}
         Send reset OTP
       </Button>
@@ -593,17 +618,17 @@ function OtpForm({
 }) {
   return (
     <div className="mt-1">
-      <span className="liquid-icon grid size-12 place-items-center rounded-2xl text-blue-600"><LockKeyhole className="size-5" /></span>
+      <span className="grid size-12 place-items-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600"><LockKeyhole className="size-5" /></span>
       <h2 className="mt-5 text-2xl font-black tracking-[-.035em]">Enter the 6-digit OTP</h2>
       <p className="mt-2 text-sm text-slate-500">Sent to <span className="font-bold text-slate-800">{phone}</span></p>
       <InputOTP maxLength={6} value={otp} onChange={setOtp} containerClassName="mt-6 justify-between gap-1.5 sm:justify-start sm:gap-2">
         <InputOTPGroup className="w-full justify-between gap-1.5 sm:w-auto sm:justify-start sm:gap-2">
           {Array.from({ length: 6 }, (_, index) => (
-            <InputOTPSlot key={index} index={index} className="h-12 min-w-0 flex-1 rounded-xl border-blue-200 bg-white/70 text-base font-black sm:w-12 sm:flex-none" />
+            <InputOTPSlot key={index} index={index} className="h-12 min-w-0 flex-1 rounded-xl border-slate-200 bg-white text-base font-black sm:w-12 sm:flex-none" />
           ))}
         </InputOTPGroup>
       </InputOTP>
-      <Button className="liquid-button mt-5 h-12 w-full rounded-xl font-extrabold" onClick={onVerify} disabled={loading || otp.length !== 6}>
+      <Button className="mt-5 h-12 w-full rounded-xl bg-blue-600 font-extrabold text-white shadow-sm hover:bg-blue-700" onClick={onVerify} disabled={loading || otp.length !== 6}>
         {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
         {actionLabel}
       </Button>
@@ -629,8 +654,8 @@ function PasswordInput({
 }) {
   return (
     <div className="relative mt-2">
-      <LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-      <Input id={id} type={show ? "text" : "password"} autoComplete={autoComplete} className="data-entry h-12 pl-9 pr-11" value={value} onChange={(event) => setValue(event.target.value)} placeholder="At least 8 characters" />
+      <LockKeyhole className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+      <Input id={id} type={show ? "text" : "password"} autoComplete={autoComplete} className="h-12 rounded-xl border-slate-200 bg-white pl-10 pr-11 shadow-none focus-visible:border-blue-400 focus-visible:ring-blue-100" value={value} onChange={(event) => setValue(event.target.value)} placeholder="At least 8 characters" />
       <button type="button" className="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-lg text-slate-500 hover:bg-blue-50 hover:text-blue-700" aria-label={show ? "Hide password" : "Show password"} onClick={() => setShow(!show)}>
         {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>
