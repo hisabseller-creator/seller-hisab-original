@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, BookOpen, Calculator, FileSpreadsheet, Files } from "lucide-react";
+import { ArrowRight, BookOpen, Cable, Calculator, FileSpreadsheet } from "lucide-react";
 import { PublicShell } from "@/components/public-shell";
 import {
   MARKETPLACE_DEFINITIONS,
@@ -11,7 +11,7 @@ import {
 } from "@/core/marketplace-definitions";
 
 export const metadata: Metadata = {
-  title: "Marketplace Support: Files, Guides & Calculators",
+  title: "Marketplace Support: Files, Connections, Guides & Calculators",
   description: "Choose Meesho, Amazon India, Flipkart, Shopify or WooCommerce and open its SellerHisab marketplace hub.",
   alternates: { canonical: "/marketplaces" },
 };
@@ -20,14 +20,14 @@ const STATE_STYLES: Record<CapabilityState, string> = {
   live: "border-emerald-200 bg-emerald-50 text-emerald-800",
   available: "border-blue-200 bg-blue-50 text-blue-800",
   "activation-required": "border-amber-200 bg-amber-50 text-amber-800",
-  "not-available": "border-amber-200 bg-amber-50 text-amber-800",
+  "not-available": "border-slate-200 bg-slate-50 text-slate-600",
 };
 
 function statusText(state: CapabilityState) {
   if (state === "live") return "Live";
   if (state === "available") return "Available";
   if (state === "activation-required") return "Auth Required";
-  return "Not Claimed";
+  return "Not Available";
 }
 
 function CompactRow({ icon, label, state }: { icon: ReactNode; label: string; state: CapabilityState }) {
@@ -63,9 +63,9 @@ export default function MarketplacesPage() {
 
                 <div className="mt-2">
                   <CompactRow icon={<FileSpreadsheet className="size-4 text-blue-600" />} label="File Analyze" state={marketplace.fileAnalysis.state} />
-                  <CompactRow icon={<Files className="size-4 text-blue-600" />} label="File First Only" state={marketplace.fileAnalysis.state} />
-                  <CompactRow icon={<BookOpen className="size-4 text-blue-600" />} label="Guides Available" state={marketplace.guides.state} />
-                  <CompactRow icon={<Calculator className="size-4 text-blue-600" />} label="Calculators Available" state={marketplace.calculators.state} />
+                  <CompactRow icon={<Cable className="size-4 text-blue-600" />} label="API Connect" state={marketplace.connection.state} />
+                  <CompactRow icon={<BookOpen className="size-4 text-blue-600" />} label="Guides" state={marketplace.guides.state} />
+                  <CompactRow icon={<Calculator className="size-4 text-blue-600" />} label="Calculators" state={marketplace.calculators.state} />
                 </div>
 
                 <Link href={marketplace.hubHref} className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-700">View Full Hub <ArrowRight className="ml-2 size-4" /></Link>
