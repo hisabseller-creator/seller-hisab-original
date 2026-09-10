@@ -5,32 +5,53 @@ import path from "node:path";
 const root = process.cwd();
 const source = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
 
-describe("profit check marketplace + intro polish", () => {
-  it("shows only live Profit Check marketplaces with the supplied SVG logos", () => {
+describe("profit check marketplace-first experience", () => {
+  it("lets the seller explicitly choose every supported marketplace entry point", () => {
     const wizard = source("components/analyze-wizard.tsx");
-    for (const asset of ["meesho.svg", "shopify.svg", "amazon.svg", "flipkart.svg"]) {
+    for (const asset of ["meesho.svg", "shopify.svg", "amazon.svg", "flipkart.svg", "woocommerce.svg"]) {
       expect(wizard).toContain(`/brands/marketplaces/${asset}`);
       expect(fs.existsSync(path.join(root, "public/brands/marketplaces", asset))).toBe(true);
     }
-    expect(wizard).not.toContain('/brands/marketplaces/woocommerce.svg');
-    expect(wizard.match(/File analysis live/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(wizard).toContain('role="radiogroup"');
+    expect(wizard).toContain("Choose where you sell");
+    expect(wizard).toContain("आप कहाँ बेचते हैं?");
+    expect(wizard).toContain("SellerHisab will not choose a marketplace for you.");
   });
 
-  it("keeps marketplace cards clean without technical subtitles", () => {
+  it("shows only capabilities that are honest for the chosen marketplace", () => {
     const wizard = source("components/analyze-wizard.tsx");
-    expect(wizard).toContain('text-[9px]');
-    expect(wizard).not.toContain("Payments, orders, returns/RTO and ads through validated seller files.");
-    expect(wizard).not.toContain("Orders CSV + Shopify Payments balance-transactions CSV give source-backed profit analysis.");
-    expect(wizard).not.toContain("Orders export + Settlement Flat File V2 are supported locally");
-    expect(wizard).not.toContain("settlement/P&L export are supported with deterministic order linking");
+    expect(wizard).toContain('id: "meesho"');
+    expect(wizard).toContain('fileAnalysis: true, apiConnection: false');
+    expect(wizard).toContain('id: "amazon-in"');
+    expect(wizard).toContain('id: "flipkart"');
+    expect(wizard).toContain('id: "shopify"');
+    expect(wizard.match(/fileAnalysis: true, apiConnection: true/g)?.length).toBeGreaterThanOrEqual(3);
+    expect(wizard).toContain('id: "woocommerce"');
+    expect(wizard).toContain('fileAnalysis: false, apiConnection: true');
+    expect(wizard).toContain("Automatic connect — Pro");
+    expect(wizard).toContain("File analysis is not shown because it is not live yet.");
   });
 
-  it("explains Profit Check in plain language and removes schema jargon", () => {
+  it("keeps the normal path simple and hides fallback inputs until needed", () => {
     const wizard = source("components/analyze-wizard.tsx");
-    expect(wizard).toContain("Upload your marketplace payment or settlement report.");
-    expect(wizard).toContain("how much profit and margin you actually kept.");
-    expect(wizard).toContain("कितना profit/margin बचा");
+    expect(wizard).toContain("Choose all the reports you have");
+    expect(wizard).toContain("जो reports हैं, सब एक साथ चुनें");
+    expect(wizard).toContain("Costs are reused automatically");
+    expect(wizard).toContain("पुरानी costs अपने-आप use होंगी");
+    expect(wizard).toContain("Only if a report is missing — add optional numbers");
+    expect(wizard).toContain("सिर्फ report missing हो तो — optional numbers भरें");
+    expect(wizard).toContain("मेरा हिसाब दिखाओ");
     expect(wizard).not.toContain("fails closed on unknown schemas");
     expect(wizard).not.toContain("unknown schema पर SellerHisab guess नहीं करेगा");
+  });
+
+  it("unlocks Action Report and paid-plan capabilities for explicit admins", () => {
+    const wizard = source("components/analyze-wizard.tsx");
+    const planAccess = source("server/plan-access.ts");
+    expect(wizard).toContain("initiallyUnlocked={Boolean(user?.isAdmin)}");
+    expect(planAccess).toContain("isAdminEmail");
+    expect(planAccess).toContain("isAdminPhone");
+    expect(planAccess).toContain('if (isExplicitAdminSession(user)) return "pro";');
+    expect(planAccess.match(/isExplicitAdminUserId\(userId\)/g)?.length).toBeGreaterThanOrEqual(2);
   });
 });
