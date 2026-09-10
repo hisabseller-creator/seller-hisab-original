@@ -4,14 +4,24 @@ import { expect, test } from "@playwright/test";
 const fixtures = path.resolve("tests/fixtures");
 const costs = "SKU-BLUE-M\t305\t14\nSKU-BOX-6\t290\t21\nSKU-SANDAL-6\t380\t18\nSKU-PENDING\t115\t12";
 
+async function chooseMeesho(page: import("@playwright/test").Page) {
+  await expect(page.getByRole("button", { name: "English" })).toBeEnabled();
+  const meesho = page.getByRole("radio", { name: /Meesho/ });
+  await meesho.click();
+  await expect(meesho).toHaveAttribute("aria-checked", "true");
+}
+
 async function runBasicAnalysis(page: import("@playwright/test").Page) {
   await page.goto("/analyze");
-  await expect(page.locator('input[type="file"]').first()).toBeEnabled();
-  await page.locator('input[type="file"]').first().setInputFiles(path.join(fixtures, "payments-basic.csv"));
+  await chooseMeesho(page);
+  const reportInput = page.locator('input[type="file"]').first();
+  await expect(reportInput).toBeEnabled();
+  await reportInput.setInputFiles(path.join(fixtures, "payments-basic.csv"));
   await expect(page.getByText("payments-basic.csv", { exact: true })).toBeVisible();
-  await page.getByRole("tab", { name: "Paste costs" }).click();
+  await page.getByText("Add or update product costs", { exact: true }).click();
+  await page.getByRole("tab", { name: "Paste", exact: true }).click();
   await page.locator("#cost-paste").fill(costs);
-  await page.getByRole("button", { name: "See My Margin — Free" }).click();
+  await page.getByRole("button", { name: "Show My Hisaab" }).click();
   await expect(page.getByRole("heading", { name: "Your money snapshot" })).toBeVisible({ timeout: 20_000 });
 }
 
@@ -23,6 +33,15 @@ test("landing explains the real product without a public demo path", async ({ pa
   await expect(page.getByRole("link", { name: "Explore supported workflows", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore free calculators", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /Try Demo/i })).toHaveCount(0);
+});
+
+test("seller chooses a marketplace before seeing its available analysis path", async ({ page }) => {
+  await page.goto("/analyze");
+  await expect(page.getByRole("heading", { name: "Choose where you sell" })).toBeVisible();
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await chooseMeesho(page);
+  await expect(page.getByText("Add your Meesho reports")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Automatic connect — Pro/ })).toHaveCount(0);
 });
 
 test("valid payment report produces a free result and source-backed audit trail", async ({ page }) => {
@@ -39,14 +58,17 @@ test("free result stays limited without invoking a real payment provider", async
   await expect(page.getByRole("button", { name: "PDF" })).toHaveCount(0);
 });
 
-test("unknown format fails closed and preserves the wizard", async ({ page }) => {
+test("unknown format fails closed and preserves the chosen marketplace flow", async ({ page }) => {
   await page.goto("/analyze");
-  await expect(page.locator('input[type="file"]').first()).toBeEnabled();
-  await page.locator('input[type="file"]').first().setInputFiles(path.join(fixtures, "unknown-format.csv"));
-  await page.getByRole("button", { name: "See My Margin — Free" }).click();
-  await expect(page.getByText("Safe calculation stopped")).toBeVisible({ timeout: 15_000 });
+  await chooseMeesho(page);
+  const reportInput = page.locator('input[type="file"]').first();
+  await expect(reportInput).toBeEnabled();
+  await reportInput.setInputFiles(path.join(fixtures, "unknown-format.csv"));
+  await page.getByRole("button", { name: "Show My Hisaab" }).click();
+  await expect(page.getByText("We need one correction")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText(/cannot safely calculate profit|New report format/i)).toBeVisible();
   await expect(page.getByText("unknown-format.csv")).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Meesho/ })).toHaveAttribute("aria-checked", "true");
 });
 
 test("account screen exposes password login, mobile registration and mobile password reset", async ({ page }) => {

@@ -1,4 +1,5 @@
 import type { SessionUser } from "./auth";
+import { isAdminEmail, isAdminPhone } from "./admin";
 import { getD1 } from "./runtime";
 import { activeTrialPlan } from "./trials";
 
@@ -46,11 +47,28 @@ export class PlanAccessError extends Error {
   }
 }
 
+function isExplicitAdminSession(user: Pick<SessionUser, "email" | "phone">): boolean {
+  return isAdminEmail(user.email) || isAdminPhone(user.phone);
+}
+
+async function isExplicitAdminUserId(userId: string): Promise<boolean> {
+  const row = await getD1().prepare(`
+    SELECT CASE WHEN email LIKE '%@auth.smg.invalid' THEN NULL ELSE email END AS email,
+           phone
+    FROM users
+    WHERE id = ?1 AND deleted_at IS NULL
+    LIMIT 1
+  `).bind(userId).first<{ email: string | null; phone: string | null }>();
+  return Boolean(row && (isAdminEmail(row.email) || isAdminPhone(row.phone)));
+}
+
 export async function activePaidPlan(userId: string): Promise<PaidPlan | undefined> {
+  if (await isExplicitAdminUserId(userId)) return "pro";
   return activePlanForUser(userId);
 }
 
 export async function activeWorkspacePaidPlan(userId: string): Promise<PaidPlan | undefined> {
+  if (await isExplicitAdminUserId(userId)) return "pro";
   const row = await getD1().prepare(`
     SELECT t.owner_user_id AS ownerUserId
     FROM tenants t
@@ -86,6 +104,7 @@ export async function hasPaidCapability(userId: string, capability: PaidCapabili
 }
 
 export async function requirePaidCapability(user: SessionUser, capability: PaidCapability): Promise<PaidPlan> {
+  if (isExplicitAdminSession(user)) return "pro";
   const plan = WORKSPACE_SCOPED.has(capability) ? await activeWorkspacePaidPlan(user.id) : await activePaidPlan(user.id);
   const required = MIN_PLAN[capability];
   if (!plan || PLAN_RANK[plan] < PLAN_RANK[required]) throw new PlanAccessError(required);
