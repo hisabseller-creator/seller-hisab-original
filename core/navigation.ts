@@ -13,6 +13,5 @@ export function buildFeatureTabs(input: {
   tabs.push({ id: "blog", href: "/blog" });
   if (input.navigation.showPricing) tabs.push({ id: "pricing", href: "/pricing" });
   tabs.push({ id: "account", href: "/app" });
-  if (input.navigation.showHowToUse) tabs.push({ id: "help", href: "/help" });
   return tabs;
 }
