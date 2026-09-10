@@ -51,7 +51,7 @@ export function BlogIndex({ posts, currentPage = 1 }: { posts: BlogPostRecord[];
         <div className="mx-auto max-w-[1180px]">
           <div className="mb-5 flex items-end justify-between gap-4">
             <h2 className="text-2xl text-slate-950">{english ? "More to explore" : "और पढ़ें"}</h2>
-            <span className="hidden text-xs font-bold text-slate-400 sm:block">{posts.length} practical guides</span>
+            <span className="hidden text-xs font-bold text-slate-600 sm:block">{posts.length} practical guides</span>
           </div>
 
           {pagePosts.length ? (
