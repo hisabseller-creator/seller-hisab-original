@@ -5,8 +5,10 @@ const fixtures = path.resolve("tests/fixtures");
 const costs = "SKU-BLUE-M\t305\t14\nSKU-BOX-6\t290\t21\nSKU-SANDAL-6\t380\t18\nSKU-PENDING\t115\t12";
 
 async function chooseMeesho(page: import("@playwright/test").Page) {
-  await page.getByRole("radio", { name: /Meesho/ }).click();
-  await expect(page.getByRole("radio", { name: /Meesho/ })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("button", { name: "English" })).toBeEnabled();
+  const meesho = page.getByRole("radio", { name: /Meesho/ });
+  await meesho.click();
+  await expect(meesho).toHaveAttribute("aria-checked", "true");
 }
 
 async function runBasicAnalysis(page: import("@playwright/test").Page) {
