@@ -1,0 +1,59 @@
+name: Refresh Analyze visual baselines once
+
+on:
+  push:
+    branches:
+      - ux-marketplace-first-admin-unlock
+    paths:
+      - .github/workflows/refresh-analyze-baselines-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
+      VISUAL_REGRESSION: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ux-marketplace-first-admin-unlock
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Install pnpm
+        run: npm install --global pnpm@11.19.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate fixtures
+        run: pnpm fixtures
+      - name: Install browsers
+        run: pnpm exec playwright install chromium webkit
+      - name: Refresh only Analyze snapshots
+        run: pnpm exec playwright test tests/e2e/critical-accessibility.spec.ts --project chromium --project webkit --grep "/analyze keyboard/reflow/axe" --update-snapshots
+      - name: Commit validated baselines
+        shell: pwsh
+        run: |
+          git add tests/e2e/critical-accessibility.spec.ts-snapshots/
+          $expected = @(
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-320-chromium-win32.png",
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-640-chromium-win32.png",
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-1280-chromium-win32.png",
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-320-webkit-win32.png",
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-640-webkit-win32.png",
+            "tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-1280-webkit-win32.png"
+          ) | Sort-Object
+          $actual = @(git diff --cached --name-only) | Sort-Object
+          $delta = Compare-Object $expected $actual
+          if ($delta) {
+            $actual | ForEach-Object { Write-Host "STAGED: $_" }
+            throw "Unexpected baseline staging set."
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "test: refresh marketplace-first Analyze baselines"
+          git push origin HEAD:ux-marketplace-first-admin-unlock
