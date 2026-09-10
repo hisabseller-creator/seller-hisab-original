@@ -33,9 +33,9 @@ for (const width of [320, 1280]) test('login loading and provider error states '
     await expect(page).toHaveScreenshot('login-loading-' + width + '.png', {
       fullPage: true,
       animations: 'disabled',
-      // The loading button is already asserted semantically above. Mask it to avoid
-      // Windows/Chromium spinner/focus rasterization noise in the full-page baseline.
-      mask: [button],
+      // Windows Chromium shows a repeatable 233-pixel rasterization delta in this
+      // transient loading frame. Keep the visual gate strict while allowing only
+      // this tiny rendering noise; loading semantics are asserted above.
       maxDiffPixels: 300,
     });
   }
