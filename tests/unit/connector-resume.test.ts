@@ -5,7 +5,7 @@ const state=vi.hoisted(()=>({db:null as D1Database|null,page:vi.fn(),send:vi.fn(
 vi.mock('@/server/plan-access',()=>({hasPaidCapability:async()=>true}));
 vi.mock('@/server/runtime',()=>({getD1:()=>state.db,runtimeEnv:()=>({CONNECTOR_QUEUE:{send:state.send}})}));
 vi.mock('@/server/connectors/store',()=>({getConnectionById:async()=>({id:'c',tenantId:'t',channelAccountId:'ca',connectorId:'woocommerce-v1',status:'connected'}),loadCredential:async()=>({provider:'woocommerce'}),storeCredential:vi.fn()}));
-vi.mock('@/server/connectors/providers',()=>({ensureFreshCredential:async(v:unknown)=>v}));
+vi.mock('@/server/connectors/providers',()=>({connectorApiConfigured:()=>true,ensureFreshCredential:async(v:unknown)=>v}));
 vi.mock('@/server/connectors/pages',()=>({fetchConnectorPage:state.page}));
 import {enqueueConnectorSyncJob,processConnectorSyncJob} from '@/server/connectors/jobs';
 import {dispatchConnectorNotifications} from '@/server/connectors/notifications';
