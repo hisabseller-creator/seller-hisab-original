@@ -24,6 +24,10 @@ function retryDelayMs(attempt: number): number {
   return Math.min(6 * 60 * 60_000, 15 * 60_000 * Math.max(1, 2 ** Math.max(0, attempt - 1)));
 }
 
+function syncRunId(jobId: string): string {
+  return `csr_${jobId}`;
+}
+
 export async function enqueueConnectorSyncJob(input: { tenantId: string; connectionId: string; requestedByUserId: string; days: number; orderDateField?:'updated_at'; triggerKind?: ConnectorSyncTriggerKind }): Promise<string> {
   const now = new Date().toISOString();
   if(!Number.isInteger(input.days)||input.days<1||input.days>3650)throw Error('invalid_history_range');
@@ -75,9 +79,22 @@ export async function processConnectorSyncJob(jobId: string): Promise<ConnectorS
     await db.prepare(`UPDATE connector_sync_jobs SET status = 'terminal_failed', logical_key = NULL, last_error_code = 'connection_unavailable', last_error_message = 'Connection was removed or disabled.', processing_started_at = NULL, completed_at = ?2, updated_at = ?2 WHERE id = ?1 AND lease_token = ?3`).bind(jobId, new Date().toISOString(),lease).run();
     return null;
   }
+  const runId = syncRunId(jobId);
+  await db.prepare(`
+    INSERT INTO connector_sync_runs
+      (id, tenant_id, connection_id, connector_id, status, started_at, created_at)
+    VALUES (?1, ?2, ?3, ?4, 'processing', ?5, ?5)
+    ON CONFLICT(id) DO UPDATE SET status = 'processing', error_code = NULL
+    WHERE connector_sync_runs.tenant_id = excluded.tenant_id
+  `).bind(runId, job.tenantId, job.connectionId, connection.connectorId, now).run();
+
   const actorUserId = job.requestedByUserId ?? await tenantOwnerUserId(job.tenantId);
   if (!actorUserId) {
-    await db.prepare(`UPDATE connector_sync_jobs SET status = 'terminal_failed', logical_key = NULL, last_error_code = 'actor_unavailable', last_error_message = 'No workspace owner is available for retry audit.', processing_started_at = NULL, completed_at = ?2, updated_at = ?2 WHERE id = ?1 AND lease_token = ?3`).bind(jobId, new Date().toISOString(),lease).run();
+    const failedAt = new Date().toISOString();
+    await db.batch([
+      db.prepare(`UPDATE connector_sync_jobs SET status = 'terminal_failed', logical_key = NULL, last_error_code = 'actor_unavailable', last_error_message = 'No workspace owner is available for retry audit.', processing_started_at = NULL, completed_at = ?2, updated_at = ?2 WHERE id = ?1 AND lease_token = ?3`).bind(jobId, failedAt,lease),
+      db.prepare(`UPDATE connector_sync_runs SET status='failed', completed_at=?2, error_code='actor_unavailable' WHERE id=?1 AND tenant_id=?3`).bind(runId, failedAt, job.tenantId),
+    ]);
     return null;
   }
 
@@ -88,11 +105,20 @@ export async function processConnectorSyncJob(jobId: string): Promise<ConnectorS
     const completedAt = new Date().toISOString();
     const nextAttemptAt=summary.checkpoint.notBefore??completedAt;
     const pageKey = await sha256([checkpoint.sliceStart,checkpoint.stage,checkpoint.cursor].join(':'));
+    const finalStatus = summary.coverage.state==='complete'?'completed':summary.checkpoint.done?'partial':'processing';
     await db.batch([
       db.prepare("UPDATE connector_connections SET status=?2,last_sync_at=?3,last_success_at=?3,last_error_code=?4,last_error_message=?5,data_revision=data_revision+1,last_data_change_at=?3,updated_at=?3 WHERE id=?1 AND EXISTS(SELECT 1 FROM connector_sync_jobs WHERE id=?6 AND lease_token=?7) AND ?8=1 AND status<>'disabled'").bind(connection.id,summary.coverage.state==='complete'?'healthy':'degraded',completedAt,summary.coverage.state==='partial'?'partial_coverage':null,summary.warning??null,jobId,lease,summary.checkpoint.done?1:0),
       db.prepare("INSERT OR IGNORE INTO connector_page_receipts(id,job_id,page_key,created_at) SELECT ?1||':'||?2,?1,?2,?3 FROM connector_sync_jobs WHERE id=?1 AND lease_token=?4").bind(jobId,pageKey,completedAt,lease),
       db.prepare("UPDATE connector_sync_jobs SET status=?3,logical_key=CASE WHEN ?4 THEN NULL ELSE logical_key END,checkpoint_json=?5,coverage_json=?6,attempt_count=0,processing_started_at=NULL,lease_token=NULL,last_error_code=NULL,last_error_message=NULL,completed_at=CASE WHEN ?4 THEN ?2 ELSE NULL END,next_attempt_at=?8,updated_at=?2 WHERE id=?1 AND lease_token=?7")
         .bind(jobId,completedAt,summary.checkpoint.done?(summary.coverage.state==='complete'?'completed':'partial'):'queued',summary.checkpoint.done?1:0,JSON.stringify(summary.checkpoint),JSON.stringify(summary.coverage),lease,nextAttemptAt),
+      db.prepare(`
+        UPDATE connector_sync_runs
+        SET status=?2, coverage_start=?3, coverage_end=?4, order_count=?5,
+            financial_record_count=?6, issue_count=?7,
+            completed_at=CASE WHEN ?8=1 THEN ?9 ELSE NULL END,
+            error_code=NULL
+        WHERE id=?1 AND tenant_id=?10
+      `).bind(runId, finalStatus, summary.coverageStart, summary.coverageEnd, summary.orderCount, summary.financialRecordCount, summary.issueCount, summary.checkpoint.done?1:0, completedAt, job.tenantId),
     ]);
     if (summary.checkpoint.done) {
       try {
@@ -112,12 +138,20 @@ export async function processConnectorSyncJob(jobId: string): Promise<ConnectorS
     const failure = safeFailure(error);
     const exhausted = job.attemptCount >= job.maxAttempts;
     const nextAttemptAt = new Date(Date.now() + Math.max(retryDelayMs(job.attemptCount), error instanceof ProviderTransportError ? error.retryAfterMs : 0)).toISOString();
-    await db.prepare(`
-      UPDATE connector_sync_jobs
-      SET status = ?2, logical_key = CASE WHEN ?2 = 'dead_letter' THEN NULL ELSE logical_key END, processing_started_at = NULL, last_error_code = ?3, last_error_message = ?4,
-          next_attempt_at = ?5, completed_at = CASE WHEN ?2 = 'dead_letter' THEN ?6 ELSE NULL END, updated_at = ?6
-      WHERE id = ?1 AND lease_token = ?7
-    `).bind(jobId, exhausted ? "dead_letter" : "retryable_failed", failure.code, failure.message, nextAttemptAt, new Date().toISOString(), lease).run();
+    const failedAt = new Date().toISOString();
+    await db.batch([
+      db.prepare(`
+        UPDATE connector_sync_jobs
+        SET status = ?2, logical_key = CASE WHEN ?2 = 'dead_letter' THEN NULL ELSE logical_key END, processing_started_at = NULL, last_error_code = ?3, last_error_message = ?4,
+            next_attempt_at = ?5, completed_at = CASE WHEN ?2 = 'dead_letter' THEN ?6 ELSE NULL END, updated_at = ?6
+        WHERE id = ?1 AND lease_token = ?7
+      `).bind(jobId, exhausted ? "dead_letter" : "retryable_failed", failure.code, failure.message, nextAttemptAt, failedAt, lease),
+      db.prepare(`
+        UPDATE connector_sync_runs
+        SET status=?2, completed_at=CASE WHEN ?3=1 THEN ?4 ELSE NULL END, error_code=?5
+        WHERE id=?1 AND tenant_id=?6
+      `).bind(runId, exhausted ? 'failed' : 'retrying', exhausted?1:0, failedAt, failure.code, job.tenantId),
+    ]);
     throw error;
   }
 }
