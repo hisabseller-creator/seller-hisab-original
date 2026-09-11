@@ -4,6 +4,7 @@ import handler from "vinext/server/app-router-entry";
 import { dispatchBillingOutbox, processBillingJob } from "@/server/billing-jobs";
 import { processConnectorSyncJob } from "@/server/connectors/jobs";
 import { processDueConnectorSyncJobs } from "@/server/connectors/jobs";
+import { scheduleDueMarketplaceAutoSyncs } from "@/server/connectors/live-platform";
 import { reconcileOpenSubscriptionsWithProvider, reconcileRecentBillingWithProvider } from "@/server/billing-reconciliation";
 import { pruneOperationalRetention } from "@/server/retention";
 import { dispatchConnectorNotifications } from '@/server/connectors/notifications';
@@ -61,6 +62,7 @@ const worker = {
     }
     ctx.waitUntil(Promise.all([
       dispatchBillingOutbox(),
+      scheduleDueMarketplaceAutoSyncs(),
       processDueConnectorSyncJobs(),
       reconcilePaymentIntents(),
       dispatchConnectorNotifications(),
