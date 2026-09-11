@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     if (error instanceof RateLimitError) {
       return Response.json(
         { error: error.message },
-        { status: 429, headers: { "retry-after": String(Math.max(1, Math.ceil((error.resetAt - Date.now()) / 1000))) },
+        { status: 429, headers: { "retry-after": String(Math.max(1, Math.ceil((error.resetAt - Date.now()) / 1000))) } },
       );
     }
     if (error instanceof z.ZodError) return Response.json({ error: "Choose a supported connector." }, { status: 400 });
