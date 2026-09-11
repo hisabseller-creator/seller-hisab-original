@@ -73,18 +73,17 @@ export const MARKETPLACE_DEFINITIONS: Record<MarketplaceExperienceId, Marketplac
     channelId: "amazon-in",
     logo: "/brands/marketplaces/amazon.svg",
     hubHref: "/marketplaces/amazon",
-    summary: "Orders + settlement file analysis with an optional seller-authorized SP-API read connection.",
+    summary: "Orders + settlement file analysis for Amazon India sellers.",
     fileAnalysis: {
       state: "live",
       label: "File analysis live",
-      detail: "Supported Orders export and Settlement Flat File V2 evidence can be analyzed separately from API access.",
+      detail: "Supported Orders export and Settlement Flat File V2 evidence can be analyzed without API access.",
       href: "/analyze",
     },
     connection: {
-      state: "activation-required",
-      label: "Official connection supported",
-      detail: "SP-API read sync is implemented but requires SellerHisab app configuration, approved roles/scopes and seller authorization.",
-      href: "/app/connections",
+      state: "not-available",
+      label: "API connection not active",
+      detail: "Use supported Amazon files for analysis while the public API connection remains unavailable.",
     },
     guides: {
       state: "live",
@@ -107,7 +106,6 @@ export const MARKETPLACE_DEFINITIONS: Record<MarketplaceExperienceId, Marketplac
       "amazon-ads-break-even-roas",
     ],
     primaryCta: { href: "/analyze", label: "Analyze Amazon files" },
-    secondaryCta: { href: "/app/connections", label: "Open Connections" },
   },
   flipkart: {
     id: "flipkart",
