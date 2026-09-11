@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import type { Metadata } from "next";
 import "./globals.css";
 import "../components/marketplace-responsive.css";
+import "../components/liquid-glass.css";
 import { AdminReauthentication } from "@/components/admin-reauthentication";
 import { WebVitals } from "@/components/web-vitals";
 import { Providers } from "@/components/providers";
