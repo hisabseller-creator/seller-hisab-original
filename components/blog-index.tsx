@@ -8,6 +8,12 @@ import { useLanguage } from "./providers";
 
 const POSTS_PER_PAGE = 8;
 
+const journalGlassStyle = {
+  background: "linear-gradient(145deg, rgba(248,251,255,.76), rgba(232,240,252,.64))",
+  backdropFilter: "blur(6px) saturate(140%)",
+  WebkitBackdropFilter: "blur(6px) saturate(140%)",
+};
+
 export function BlogIndex({ posts, currentPage = 1 }: { posts: BlogPostRecord[]; currentPage?: number }) {
   const { language } = useLanguage();
   const english = language === "english";
@@ -80,7 +86,6 @@ export function BlogIndex({ posts, currentPage = 1 }: { posts: BlogPostRecord[];
     </main>
   );
 }
-
 
 function BlogPagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
   const items = buildPaginationItems(currentPage, totalPages);
@@ -158,9 +163,13 @@ function pageHref(page: number) {
 
 function FeaturedPost({ post }: { post: BlogPostRecord }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="blog-featured-card group grid overflow-hidden rounded-[28px] md:grid-cols-[.92fr_1.08fr]">
+    <Link
+      href={`/blog/${post.slug}`}
+      className="blog-featured-card group grid overflow-hidden rounded-[28px] lg:grid-cols-[.96fr_1.04fr] lg:items-center"
+      style={journalGlassStyle}
+    >
       <BlogMedia post={post} featured />
-      <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
+      <div className="flex flex-col justify-center p-5 sm:p-7 lg:p-9">
         <Meta post={post} />
         <div className="mt-4"><span className="blog-text-tag">{post.tag}</span></div>
         <h3 className="mt-4 text-2xl font-black leading-tight tracking-[-.04em] text-slate-950 transition group-hover:text-blue-700 sm:text-3xl">{post.title}</h3>
@@ -173,13 +182,17 @@ function FeaturedPost({ post }: { post: BlogPostRecord }) {
 
 function PostCard({ post }: { post: BlogPostRecord }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="blog-post-card group flex overflow-hidden rounded-[24px]">
+    <Link
+      href={`/blog/${post.slug}`}
+      className="blog-post-card group flex flex-col overflow-hidden rounded-[24px]"
+      style={journalGlassStyle}
+    >
       <BlogMedia post={post} />
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <span className="blog-text-tag w-fit">{post.tag}</span>
-        <h3 className="mt-4 text-xl font-black leading-tight tracking-[-.035em] text-slate-950 transition group-hover:text-blue-700 sm:text-[1.35rem]">{post.title}</h3>
-        <p className="mt-3 text-sm leading-6 text-slate-600">{post.subtitle}</p>
-        <div className="mt-auto flex items-end justify-between gap-4 pt-6">
+        <h3 className="mt-3 line-clamp-3 text-xl font-black leading-tight tracking-[-.035em] text-slate-950 transition group-hover:text-blue-700 md:line-clamp-2 sm:text-[1.35rem]">{post.title}</h3>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{post.subtitle}</p>
+        <div className="mt-auto flex items-end justify-between gap-4 pt-5">
           <Meta post={post} compact />
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-700 transition group-hover:translate-x-1 group-hover:bg-blue-600 group-hover:text-white"><ArrowRight className="size-4" /></span>
         </div>
@@ -190,8 +203,8 @@ function PostCard({ post }: { post: BlogPostRecord }) {
 
 function BlogMedia({ post, featured = false }: { post: BlogPostRecord; featured?: boolean }) {
   return (
-    <div className={`blog-media-frame relative w-full shrink-0 overflow-hidden bg-gradient-to-br from-blue-100 via-slate-50 to-indigo-100 ${featured ? "min-h-[220px] md:min-h-full" : "h-44 sm:h-48"}`}>
-      {post.imageUrl ? <Image src={post.imageUrl} alt={post.imageAlt} fill unoptimized sizes={featured ? "(min-width: 768px) 45vw, 100vw" : "(min-width: 768px) 50vw, 100vw"} className="object-cover" /> : (
+    <div className={`relative aspect-[16/9] w-full shrink-0 self-start overflow-hidden bg-gradient-to-br from-blue-100 via-slate-50 to-indigo-100 ${featured ? "lg:self-center" : ""}`}>
+      {post.imageUrl ? <Image src={post.imageUrl} alt={post.imageAlt} fill unoptimized sizes={featured ? "(min-width: 1024px) 46vw, 100vw" : "(min-width: 768px) 50vw, 100vw"} className="object-cover" /> : (
         <div className="grid h-full place-items-center px-6 text-center text-sm font-black text-slate-400">{post.tag}</div>
       )}
     </div>
