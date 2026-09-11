@@ -22,7 +22,7 @@ for (const width of [320, 1280]) test('login loading and provider error states '
   await page.locator('#login-identifier').fill('fixture@example.invalid');
   await page.locator('#login-password').fill('FixturePassword123!');
 
-  const button = page.locator('.auth-form-panel').getByRole('button', { name: 'Login', exact: true });
+  const button = page.getByRole('button', { name: 'Login', exact: true }).last();
   await button.click();
 
   // Transient loading state: assert behavior directly instead of comparing a

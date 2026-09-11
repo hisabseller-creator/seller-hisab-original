@@ -73,22 +73,21 @@ test("unknown format fails closed and preserves the chosen marketplace flow", as
 
 test("account screen exposes password login, mobile registration and mobile password reset", async ({ page }) => {
   await page.goto("/app");
-  const auth = page.locator(".auth-form-panel");
 
-  await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
-  await expect(auth.locator("#login-identifier")).toBeVisible();
-  await expect(auth.locator("#login-password")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  await expect(page.locator("#login-identifier")).toBeVisible();
+  await expect(page.locator("#login-password")).toBeVisible();
 
-  await auth.getByRole("tab", { name: "Register" }).click();
-  await expect(page.getByRole("heading", { name: "Create your account." })).toBeVisible();
-  await expect(auth.locator("#register-phone")).toBeVisible();
-  await expect(auth.locator("#register-password")).toBeVisible();
-  await expect(auth.getByRole("button", { name: "Register with mobile OTP" })).toBeVisible();
+  await page.getByRole("tab", { name: "Register" }).click();
+  await expect(page.getByRole("heading", { name: "Create your SellerHisab account" })).toBeVisible();
+  await expect(page.locator("#register-phone")).toBeVisible();
+  await expect(page.locator("#register-password")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Register with mobile OTP" })).toBeVisible();
 
-  await auth.getByRole("tab", { name: "Login" }).click();
-  await auth.getByRole("button", { name: "Forgot your password?" }).click();
-  await expect(page.getByRole("heading", { name: "Reset your password." })).toBeVisible();
-  await expect(auth.locator("#reset-phone")).toBeVisible();
-  await expect(auth.locator("#reset-password")).toBeVisible();
+  await page.getByRole("tab", { name: "Login" }).click();
+  await page.getByRole("button", { name: "Forgot your password?" }).click();
+  await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
+  await expect(page.locator("#reset-phone")).toBeVisible();
+  await expect(page.locator("#reset-password")).toBeVisible();
   await expect(page.getByText(/Preview OTP:/)).toHaveCount(0);
 });
