@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { CalculatorHub } from "@/components/calculator-hub";
 
 export const metadata: Metadata = {
-  title: "Marketplace Seller Calculators",
-  description: "Free browser-local profit, return/RTO loss, break-even price, ACoS and ROAS calculators for Meesho, Amazon India, Flipkart, Shopify and WooCommerce sellers.",
+  title: "5 Universal Seller Calculators",
+  description: "Five marketplace-neutral calculators for seller profit, return/RTO loss, break-even price, Max ACoS and break-even ROAS using your own evidence.",
   alternates: { canonical: "/calculators" },
 };
 

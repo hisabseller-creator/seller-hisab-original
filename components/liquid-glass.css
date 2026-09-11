@@ -1,10 +1,9 @@
 /* SellerHisab public-site liquid-glass layer.
-   Restrained by design: translucent surfaces, edge highlights, depth and soft motion
-   without turning the product into a decorative glass demo. */
+   Keep the approved design; use clearer, lower-blur glass so the background remains visible. */
 
 .website-public {
-  --glass-surface: rgba(255, 255, 255, 0.62);
-  --glass-surface-strong: rgba(255, 255, 255, 0.78);
+  --glass-surface: rgba(255, 255, 255, 0.48);
+  --glass-surface-strong: rgba(255, 255, 255, 0.64);
   --glass-border: rgba(255, 255, 255, 0.82);
   --glass-edge: rgba(139, 173, 222, 0.26);
   --glass-shadow: 0 20px 55px -34px rgba(36, 68, 112, 0.34), inset 0 1px 0 rgba(255,255,255,.92);
@@ -18,17 +17,17 @@
 }
 
 .website-header {
-  background: linear-gradient(180deg, rgba(248,250,252,.78), rgba(248,250,252,0));
+  background: linear-gradient(180deg, rgba(248,250,252,.66), rgba(248,250,252,0));
 }
 
 .website-nav,
 .website-mobile-tabs,
 .website-mobile-menu {
   border: 1px solid var(--glass-border) !important;
-  background: linear-gradient(135deg, rgba(255,255,255,.77), rgba(244,249,255,.56)) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.58), rgba(244,249,255,.38)) !important;
   box-shadow: var(--glass-shadow), 0 0 0 1px rgba(83,124,181,.06) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(9px) saturate(180%);
+  backdrop-filter: blur(9px) saturate(180%);
 }
 
 .website-nav::after,
@@ -51,19 +50,19 @@
 .website-language,
 .website-mobile-tabs a,
 .website-public :is(.website-faq-list details, .confidence-board, .teaser-plan, .hero-marketplace-card, .website-capability) {
-  -webkit-backdrop-filter: blur(10px) saturate(165%);
-  backdrop-filter: blur(10px) saturate(165%);
+  -webkit-backdrop-filter: blur(7px) saturate(165%);
+  backdrop-filter: blur(7px) saturate(165%);
 }
 
 .website-language {
   border-color: rgba(255,255,255,.78) !important;
-  background: rgba(242,247,253,.56) !important;
+  background: rgba(242,247,253,.42) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 6px 18px -14px rgba(29,78,216,.45);
 }
 
 .website-language button[aria-pressed="true"] {
-  background: rgba(255,255,255,.88) !important;
-  box-shadow: 0 6px 18px -14px rgba(31,78,146,.55), inset 0 1px 0 #fff !important;
+  background: rgba(250,252,255,.68) !important;
+  box-shadow: 0 6px 18px -14px rgba(31,78,146,.55), inset 0 1px 0 rgba(255,255,255,.9) !important;
 }
 
 .website-public .website-nav-actions > a {
@@ -80,7 +79,7 @@
   position: relative;
   overflow: hidden;
   border-color: rgba(255,255,255,.76) !important;
-  background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(241,247,255,.54)) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.60), rgba(241,247,255,.40)) !important;
   box-shadow: var(--glass-shadow) !important;
 }
 
@@ -106,7 +105,7 @@
   box-shadow: 0 14px 30px -18px rgba(24,85,211,.72), inset 0 1px 0 rgba(255,255,255,.42) !important;
 }
 
-/* Restore depth to the scroll story while keeping the animation itself unchanged. */
+/* Keep the homepage scroll story unchanged; only make its glass clearer. */
 .website-journey {
   background:
     radial-gradient(circle at 78% 42%, rgba(84,145,255,.12), transparent 30rem),
@@ -115,14 +114,13 @@
 
 .website-journey .profit-ledger {
   border-color: rgba(255,255,255,.82);
-  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(247,250,255,.7));
+  background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(247,250,255,.50));
   box-shadow: 0 26px 70px -38px rgba(29,78,216,.42), inset 0 1px 0 rgba(255,255,255,.96);
-  -webkit-backdrop-filter: blur(9px) saturate(150%);
-  backdrop-filter: blur(9px) saturate(150%);
+  -webkit-backdrop-filter: blur(7px) saturate(150%);
+  backdrop-filter: blur(7px) saturate(150%);
 }
 
-/* Auth page: remove the empty white strip by making the entire card one continuous
-   glass surface. The left hero still has a soft tint, but there is no separate blank band. */
+/* Auth/editorial surfaces keep the same approved layout and palette, with less fog. */
 .website-editorial {
   padding-top: 16px !important;
 }
@@ -133,23 +131,34 @@
   border-color: rgba(255,255,255,.82) !important;
   background:
     radial-gradient(circle at 78% 18%, rgba(91,151,255,.14), transparent 24rem),
-    linear-gradient(145deg, rgba(255,255,255,.8), rgba(240,247,255,.58)) !important;
+    linear-gradient(145deg, rgba(255,255,255,.62), rgba(240,247,255,.42)) !important;
   box-shadow: 0 26px 76px -42px rgba(25,66,126,.46), inset 0 1px 0 rgba(255,255,255,.96) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(175%);
-  backdrop-filter: blur(12px) saturate(175%);
+  -webkit-backdrop-filter: blur(9px) saturate(175%);
+  backdrop-filter: blur(9px) saturate(175%);
 }
 
 .website-editorial > section > div:first-child {
   margin: 0 !important;
   background:
     radial-gradient(circle at 78% 32%, rgba(75,137,255,.13), transparent 19rem),
-    linear-gradient(145deg, rgba(241,247,255,.7), rgba(255,255,255,.42)) !important;
+    linear-gradient(145deg, rgba(241,247,255,.54), rgba(255,255,255,.32)) !important;
 }
 
 .website-editorial > section > div:nth-child(2) {
-  background: rgba(255,255,255,.42);
-  -webkit-backdrop-filter: blur(8px) saturate(150%);
-  backdrop-filter: blur(8px) saturate(150%);
+  background: rgba(248,251,255,.32);
+  -webkit-backdrop-filter: blur(6px) saturate(150%);
+  backdrop-filter: blur(6px) saturate(150%);
+}
+
+/* Pure-white card blocks look disconnected from Liquid Glass. Only card-like editorial
+   article/section/nav surfaces are softened; buttons and semantic status surfaces are untouched. */
+.website-editorial :is(article, section, nav).bg-white,
+.website-editorial :is(article, section, nav).bg-white\/80,
+.website-editorial :is(article, section, nav).bg-white\/85 {
+  background-color: rgba(248,251,255,.52) !important;
+  border-color: rgba(255,255,255,.72) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(150%);
+  backdrop-filter: blur(6px) saturate(150%);
 }
 
 /* PR #13 removed these visually. Keep the rule here so they stay gone even if the
@@ -182,15 +191,15 @@
 .website-editorial input,
 .website-editorial [role="tablist"] {
   border-color: rgba(255,255,255,.8) !important;
-  background: rgba(255,255,255,.58) !important;
+  background: rgba(250,252,255,.46) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 12px 28px -24px rgba(37,73,122,.38) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(150%);
-  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(5px) saturate(150%);
+  backdrop-filter: blur(5px) saturate(150%);
 }
 
 .website-editorial [role="tab"][aria-selected="true"] {
-  background: rgba(255,255,255,.9) !important;
-  box-shadow: 0 8px 20px -16px rgba(29,78,216,.42), inset 0 1px 0 #fff !important;
+  background: rgba(250,252,255,.72) !important;
+  box-shadow: 0 8px 20px -16px rgba(29,78,216,.42), inset 0 1px 0 rgba(255,255,255,.9) !important;
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -220,7 +229,7 @@
   .teaser-plan,
   .website-faq-list details,
   .website-editorial > section {
-    background: rgba(255,255,255,.94) !important;
+    background: rgba(248,251,255,.90) !important;
   }
 }
 
