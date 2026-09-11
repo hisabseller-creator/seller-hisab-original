@@ -1,5 +1,5 @@
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
-import { channelAccounts, tenants, users } from "./schema";
+import { channelAccounts, tenants, users } from "./schema.ts";
 
 /**
  * 0023 connector live-platform schema extension.
