@@ -1,39 +1,34 @@
-/* SellerHisab liquid-glass layer.
-   Balanced by design: less blur, more tonal separation and cooler tinted glass.
-   This file changes appearance only; product, auth and account behavior stay untouched. */
-
-.website-public,
-.app-wallpaper {
-  --glass-surface: rgba(230, 238, 248, 0.72);
-  --glass-surface-strong: rgba(238, 244, 251, 0.82);
-  --glass-surface-deep: rgba(216, 227, 240, 0.76);
-  --glass-border: rgba(167, 188, 214, 0.72);
-  --glass-border-strong: rgba(137, 164, 198, 0.78);
-  --glass-edge: rgba(255, 255, 255, 0.72);
-  --glass-shadow: 0 18px 46px -32px rgba(35, 65, 105, 0.42), inset 0 1px 0 rgba(255,255,255,.66);
-  --glass-shadow-hover: 0 24px 54px -32px rgba(29, 67, 122, 0.48), inset 0 1px 0 rgba(255,255,255,.72);
-}
+/* SellerHisab public-site liquid-glass layer.
+   Restrained by design: translucent surfaces, edge highlights, depth and soft motion
+   without turning the product into a decorative glass demo. */
 
 .website-public {
+  --glass-surface: rgba(255, 255, 255, 0.62);
+  --glass-surface-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.82);
+  --glass-edge: rgba(139, 173, 222, 0.26);
+  --glass-shadow: 0 20px 55px -34px rgba(36, 68, 112, 0.34), inset 0 1px 0 rgba(255,255,255,.92);
+  --glass-shadow-hover: 0 28px 68px -36px rgba(30, 75, 142, 0.42), inset 0 1px 0 rgba(255,255,255,.96);
   background:
-    radial-gradient(circle at 8% 0%, rgba(73, 126, 206, 0.11), transparent 31rem),
-    radial-gradient(circle at 94% 12%, rgba(74, 155, 171, 0.08), transparent 28rem),
-    linear-gradient(180deg, #edf2f7 0%, #e8eef5 48%, #edf2f6 100%);
+    radial-gradient(circle at 8% 0%, rgba(90, 148, 255, 0.15), transparent 31rem),
+    radial-gradient(circle at 94% 12%, rgba(105, 222, 228, 0.12), transparent 28rem),
+    radial-gradient(circle at 58% 72%, rgba(134, 111, 255, 0.08), transparent 36rem),
+    linear-gradient(180deg, #f9fbff 0%, #f5f8fc 48%, #f8fafc 100%);
   background-attachment: fixed;
 }
 
 .website-header {
-  background: linear-gradient(180deg, rgba(234,240,247,.88), rgba(234,240,247,0));
+  background: linear-gradient(180deg, rgba(248,250,252,.78), rgba(248,250,252,0));
 }
 
 .website-nav,
 .website-mobile-tabs,
 .website-mobile-menu {
   border: 1px solid var(--glass-border) !important;
-  background: linear-gradient(135deg, rgba(232,240,249,.84), rgba(219,230,242,.72)) !important;
-  box-shadow: var(--glass-shadow), 0 0 0 1px rgba(83,124,181,.045) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(118%);
-  backdrop-filter: blur(10px) saturate(118%);
+  background: linear-gradient(135deg, rgba(255,255,255,.77), rgba(244,249,255,.56)) !important;
+  box-shadow: var(--glass-shadow), 0 0 0 1px rgba(83,124,181,.06) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
 }
 
 .website-nav::after,
@@ -47,8 +42,8 @@
   pointer-events: none;
   inset: 1px;
   border-radius: inherit;
-  border-top: 1px solid rgba(255,255,255,.62);
-  opacity: .62;
+  border-top: 1px solid rgba(255,255,255,.78);
+  opacity: .72;
 }
 
 .website-nav { position: relative; }
@@ -56,25 +51,25 @@
 .website-language,
 .website-mobile-tabs a,
 .website-public :is(.website-faq-list details, .confidence-board, .teaser-plan, .hero-marketplace-card, .website-capability) {
-  -webkit-backdrop-filter: blur(8px) saturate(116%);
-  backdrop-filter: blur(8px) saturate(116%);
+  -webkit-backdrop-filter: blur(10px) saturate(165%);
+  backdrop-filter: blur(10px) saturate(165%);
 }
 
 .website-language {
-  border-color: var(--glass-border) !important;
-  background: rgba(220,230,241,.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.58), 0 6px 18px -15px rgba(29,78,216,.30);
+  border-color: rgba(255,255,255,.78) !important;
+  background: rgba(242,247,253,.56) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 6px 18px -14px rgba(29,78,216,.45);
 }
 
 .website-language button[aria-pressed="true"] {
-  background: rgba(240,245,251,.86) !important;
-  box-shadow: 0 5px 16px -14px rgba(31,78,146,.42), inset 0 1px 0 rgba(255,255,255,.72) !important;
+  background: rgba(255,255,255,.88) !important;
+  box-shadow: 0 6px 18px -14px rgba(31,78,146,.55), inset 0 1px 0 #fff !important;
 }
 
 .website-public .website-nav-actions > a {
-  border-color: rgba(49,115,235,.42) !important;
-  background: linear-gradient(145deg, #397ce8, #245fc9) !important;
-  box-shadow: 0 10px 22px -15px rgba(20,83,210,.58), inset 0 1px 0 rgba(255,255,255,.30) !important;
+  border-color: rgba(49,115,235,.45) !important;
+  background: linear-gradient(145deg, rgba(55,128,255,.96), rgba(27,86,211,.94)) !important;
+  box-shadow: 0 12px 28px -16px rgba(20,83,210,.7), inset 0 1px 0 rgba(255,255,255,.38) !important;
 }
 
 .hero-marketplace-card,
@@ -84,8 +79,8 @@
 .website-faq-list details {
   position: relative;
   overflow: hidden;
-  border-color: var(--glass-border) !important;
-  background: linear-gradient(145deg, rgba(234,241,249,.86), rgba(218,229,241,.74)) !important;
+  border-color: rgba(255,255,255,.76) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(241,247,255,.54)) !important;
   box-shadow: var(--glass-shadow) !important;
 }
 
@@ -93,40 +88,41 @@
 .teaser-plan,
 .hero-marketplace-card,
 .website-faq-list details {
-  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease, border-color .24s ease;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease;
 }
 
 .website-capability:hover,
 .teaser-plan:hover,
 .hero-marketplace-card:hover,
 .website-faq-list details:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--glass-shadow-hover) !important;
-  border-color: var(--glass-border-strong) !important;
+  border-color: rgba(174,204,244,.72) !important;
 }
 
 .website-button {
-  border-color: rgba(72,139,255,.66) !important;
-  background: linear-gradient(145deg, #3b7ce7, #245fc8) !important;
-  box-shadow: 0 12px 26px -17px rgba(24,85,211,.62), inset 0 1px 0 rgba(255,255,255,.32) !important;
+  border-color: rgba(72,139,255,.72) !important;
+  background: linear-gradient(145deg, rgba(55,130,255,.98), rgba(24,82,199,.94)) !important;
+  box-shadow: 0 14px 30px -18px rgba(24,85,211,.72), inset 0 1px 0 rgba(255,255,255,.42) !important;
 }
 
-/* Keep the homepage scroll story intact; only tune its surface depth. */
+/* Restore depth to the scroll story while keeping the animation itself unchanged. */
 .website-journey {
   background:
-    radial-gradient(circle at 78% 42%, rgba(72,123,190,.08), transparent 30rem),
-    linear-gradient(180deg, rgba(232,238,246,.28), rgba(217,228,240,.72) 48%, rgba(233,239,246,.28)) !important;
+    radial-gradient(circle at 78% 42%, rgba(84,145,255,.12), transparent 30rem),
+    linear-gradient(180deg, rgba(248,250,252,.15), rgba(232,241,252,.68) 48%, rgba(248,250,252,.12)) !important;
 }
 
 .website-journey .profit-ledger {
-  border-color: var(--glass-border);
-  background: linear-gradient(145deg, rgba(239,244,250,.90), rgba(222,231,242,.78));
-  box-shadow: 0 24px 58px -38px rgba(29,78,216,.36), inset 0 1px 0 rgba(255,255,255,.70);
-  -webkit-backdrop-filter: blur(8px) saturate(114%);
-  backdrop-filter: blur(8px) saturate(114%);
+  border-color: rgba(255,255,255,.82);
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(247,250,255,.7));
+  box-shadow: 0 26px 70px -38px rgba(29,78,216,.42), inset 0 1px 0 rgba(255,255,255,.96);
+  -webkit-backdrop-filter: blur(9px) saturate(150%);
+  backdrop-filter: blur(9px) saturate(150%);
 }
 
-/* Auth page: one continuous, evenly tinted surface with low blur and no white band. */
+/* Auth page: remove the empty white strip by making the entire card one continuous
+   glass surface. The left hero still has a soft tint, but there is no separate blank band. */
 .website-editorial {
   padding-top: 16px !important;
 }
@@ -134,36 +130,36 @@
 .website-editorial > section {
   position: relative;
   overflow: clip !important;
-  border-color: var(--glass-border) !important;
+  border-color: rgba(255,255,255,.82) !important;
   background:
-    radial-gradient(circle at 80% 16%, rgba(78,125,194,.08), transparent 24rem),
-    linear-gradient(145deg, rgba(226,235,246,.88), rgba(213,225,239,.78)) !important;
-  box-shadow: 0 24px 62px -40px rgba(25,66,126,.42), inset 0 1px 0 rgba(255,255,255,.64) !important;
-  -webkit-backdrop-filter: blur(9px) saturate(116%);
-  backdrop-filter: blur(9px) saturate(116%);
+    radial-gradient(circle at 78% 18%, rgba(91,151,255,.14), transparent 24rem),
+    linear-gradient(145deg, rgba(255,255,255,.8), rgba(240,247,255,.58)) !important;
+  box-shadow: 0 26px 76px -42px rgba(25,66,126,.46), inset 0 1px 0 rgba(255,255,255,.96) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(175%);
+  backdrop-filter: blur(12px) saturate(175%);
 }
 
 .website-editorial > section > div:first-child {
   margin: 0 !important;
-  border-color: rgba(151,176,207,.60) !important;
   background:
-    radial-gradient(circle at 72% 32%, rgba(74,121,188,.08), transparent 19rem),
-    linear-gradient(145deg, rgba(219,230,242,.78), rgba(229,237,246,.66)) !important;
+    radial-gradient(circle at 78% 32%, rgba(75,137,255,.13), transparent 19rem),
+    linear-gradient(145deg, rgba(241,247,255,.7), rgba(255,255,255,.42)) !important;
 }
 
 .website-editorial > section > div:nth-child(2) {
-  background: linear-gradient(145deg, rgba(231,239,248,.78), rgba(218,229,241,.68));
-  -webkit-backdrop-filter: blur(6px) saturate(110%);
-  backdrop-filter: blur(6px) saturate(110%);
+  background: rgba(255,255,255,.42);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  backdrop-filter: blur(8px) saturate(150%);
 }
 
-/* Keep the secure-pill and feature strip hidden as in the approved auth layout. */
+/* PR #13 removed these visually. Keep the rule here so they stay gone even if the
+   component markup is later rearranged slightly. */
 .website-editorial > section > div:first-child > div:first-child > span,
 .website-editorial > section > div:first-child > div:nth-child(3) {
   display: none !important;
 }
 
-/* Preserve the Lottie source ratio and avoid fixed-height cropping. */
+/* The animation must keep its own source ratio and should never sit inside a fixed-height crop. */
 .website-editorial > section > div:first-child > div:nth-child(2) {
   width: min(100%, 410px) !important;
   height: auto !important;
@@ -184,115 +180,17 @@
 }
 
 .website-editorial input,
-.website-editorial textarea,
-.website-editorial select,
 .website-editorial [role="tablist"] {
-  border-color: rgba(154,179,208,.62) !important;
-  background: rgba(225,234,244,.80) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.58), 0 9px 22px -20px rgba(37,73,122,.32) !important;
-  -webkit-backdrop-filter: blur(5px) saturate(108%);
-  backdrop-filter: blur(5px) saturate(108%);
-}
-
-.website-editorial input:focus,
-.website-editorial textarea:focus,
-.website-editorial select:focus {
-  border-color: rgba(72,122,190,.76) !important;
-  background: rgba(235,241,248,.90) !important;
+  border-color: rgba(255,255,255,.8) !important;
+  background: rgba(255,255,255,.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 12px 28px -24px rgba(37,73,122,.38) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  backdrop-filter: blur(8px) saturate(150%);
 }
 
 .website-editorial [role="tab"][aria-selected="true"] {
-  border: 1px solid rgba(128,158,196,.68) !important;
-  background: rgba(235,241,248,.90) !important;
-  box-shadow: 0 7px 18px -16px rgba(29,78,216,.38), inset 0 1px 0 rgba(255,255,255,.66) !important;
-}
-
-/* Account/app UI: extend the same restrained glass language across the authenticated product. */
-.app-wallpaper {
-  background:
-    radial-gradient(ellipse at 7% 5%, rgba(74,128,203,.15), transparent 29rem),
-    radial-gradient(ellipse at 92% 20%, rgba(94,125,172,.09), transparent 27rem),
-    radial-gradient(ellipse at 68% 78%, rgba(70,143,148,.07), transparent 31rem),
-    linear-gradient(180deg, #e9eff5 0%, #e5ecf3 50%, #eaf0f4 100%) !important;
-}
-
-.app-wallpaper::before {
-  opacity: .42 !important;
-  background:
-    repeating-radial-gradient(ellipse at 8% 8%, transparent 0 46px, rgba(42,83,138,.025) 47px, transparent 49px 70px),
-    linear-gradient(120deg, rgba(255,255,255,.18), transparent 44%) !important;
-}
-
-.app-wallpaper .glass-nav,
-.app-wallpaper .liquid-panel,
-.app-wallpaper .liquid-soft,
-.app-wallpaper .liquid-pill {
-  border-color: var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(112%) !important;
-  backdrop-filter: blur(8px) saturate(112%) !important;
-}
-
-.app-wallpaper .glass-nav,
-.app-wallpaper .liquid-panel {
-  background: linear-gradient(145deg, rgba(229,237,246,.86), rgba(215,226,239,.76)) !important;
-}
-
-.app-wallpaper .liquid-soft,
-.app-wallpaper .liquid-pill {
-  background: linear-gradient(145deg, rgba(225,234,244,.82), rgba(211,223,237,.72)) !important;
-}
-
-.app-wallpaper .wizard-card,
-.app-wallpaper .data-entry-card,
-.app-wallpaper .cost-entry-row,
-.app-wallpaper .calculator-shell,
-.app-wallpaper .calculator-entry-panel,
-.app-wallpaper .calculator-choice,
-.app-wallpaper .bg-white {
-  border-color: rgba(155,180,209,.64) !important;
-  background: linear-gradient(145deg, rgba(232,239,247,.88), rgba(218,228,240,.78)) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.60), 0 14px 34px -28px rgba(30,64,175,.34) !important;
-}
-
-.app-wallpaper .bg-slate-50 {
-  background: rgba(213,224,236,.68) !important;
-}
-
-.app-wallpaper input,
-.app-wallpaper textarea,
-.app-wallpaper select,
-.app-wallpaper .data-entry,
-.app-wallpaper .calculator-input {
-  border-color: rgba(146,173,205,.68) !important;
-  background: rgba(226,235,245,.84) !important;
-  box-shadow: inset 0 1px 1px rgba(15,23,42,.04) !important;
-  -webkit-backdrop-filter: blur(4px) saturate(106%);
-  backdrop-filter: blur(4px) saturate(106%);
-}
-
-.app-wallpaper input:focus,
-.app-wallpaper textarea:focus,
-.app-wallpaper select:focus,
-.app-wallpaper .data-entry:focus,
-.app-wallpaper .calculator-input:focus {
-  border-color: rgba(72,122,190,.78) !important;
-  background: rgba(236,242,248,.92) !important;
-}
-
-.app-wallpaper .cost-method-tabs {
-  border-color: rgba(146,173,205,.68) !important;
-  background: rgba(207,219,233,.76) !important;
-}
-
-.app-wallpaper .cost-method-tab[data-state="active"] {
-  border-color: rgba(111,147,193,.70) !important;
-  background: rgba(234,240,247,.92) !important;
-}
-
-/* Preserve semantic state colors; only reduce the harsh white base around them. */
-.app-wallpaper :is(.bg-blue-50, .bg-emerald-50, .bg-amber-50, .bg-red-50) {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.40);
+  background: rgba(255,255,255,.9) !important;
+  box-shadow: 0 8px 20px -16px rgba(29,78,216,.42), inset 0 1px 0 #fff !important;
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -321,12 +219,8 @@
   .confidence-board,
   .teaser-plan,
   .website-faq-list details,
-  .website-editorial > section,
-  .app-wallpaper .glass-nav,
-  .app-wallpaper .liquid-panel,
-  .app-wallpaper .liquid-soft,
-  .app-wallpaper .liquid-pill {
-    background: rgba(226,235,245,.95) !important;
+  .website-editorial > section {
+    background: rgba(255,255,255,.94) !important;
   }
 }
 
