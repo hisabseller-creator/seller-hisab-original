@@ -18,7 +18,7 @@ function buildAdapter(connectorId: ApiConnectorId): ConnectorProviderAdapter {
     connectorId,
     platform: marketplaceApiPlatformForConnector(connectorId),
     configured: () => connectorApiConfigured(connectorId),
-    ensureCredential,
+    ensureCredential: ensureFreshCredential,
     fetchPage: (credential, connection, checkpoint) => fetchConnectorPage(credential, connection, checkpoint),
   };
 }
