@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SeoToolPage } from "@/components/seo-tool-page";
 import { allSeoPages } from "@/core/all-seo-pages";
+import { calculatorEntryForSlug } from "@/core/marketplace-calculators";
+import { universalCalculatorHrefForKind } from "@/core/universal-calculators";
 import { absoluteUrl } from "@/core/seo";
+
+function calculatorRedirect(slug: string) {
+  const legacy = calculatorEntryForSlug(slug);
+  return legacy ? universalCalculatorHrefForKind(legacy.kind) : null;
+}
 
 export function generateStaticParams() {
   return Object.keys(allSeoPages).map((slug) => ({ slug }));
@@ -10,6 +17,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const redirectHref = calculatorRedirect(slug);
+  if (redirectHref) {
+    return {
+      alternates: { canonical: redirectHref },
+      robots: { index: false, follow: true },
+    };
+  }
+
   const config = allSeoPages[slug];
   if (!config) return {};
   const path = `/${config.slug}`;
@@ -24,6 +39,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function SeoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const redirectHref = calculatorRedirect(slug);
+  if (redirectHref) redirect(redirectHref);
+
   const config = allSeoPages[slug];
   if (!config) notFound();
   const path = `/${config.slug}`;
