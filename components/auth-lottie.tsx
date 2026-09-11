@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ShieldCheck } from "lucide-react";
+import styles from "./auth-lottie.module.css";
 
 type LottieAnimation = { destroy: () => void };
 type LottieApi = { loadAnimation: (options: { container: Element; renderer: "svg"; loop: boolean; autoplay: boolean; path: string; rendererSettings?: { preserveAspectRatio?: string } }) => LottieAnimation };
@@ -69,8 +70,8 @@ export function AuthLottie() {
   }, [reducedMotion, failed]);
 
   if (failed || reducedMotion) {
-    return <div role="img" aria-label="Secure OTP sign-in illustration" className="grid h-full min-h-36 place-items-center"><span className="liquid-icon grid size-20 place-items-center rounded-[24px] text-blue-600"><ShieldCheck aria-hidden="true" className="size-10" /></span></div>;
+    return <div role="img" aria-label="Secure OTP sign-in illustration" className={`${styles.canvas} grid place-items-center`}><span className="liquid-icon grid size-20 place-items-center rounded-[24px] text-blue-600"><ShieldCheck aria-hidden="true" className="size-10" /></span></div>;
   }
 
-  return <div ref={containerRef} className="mx-auto h-full min-h-36 w-full max-w-[360px]" role="img" aria-label="Secure OTP sign-in illustration" />;
+  return <div ref={containerRef} className={`${styles.canvas} mx-auto`} role="img" aria-label="Secure OTP sign-in illustration" />;
 }
