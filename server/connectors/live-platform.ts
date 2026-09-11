@@ -1,7 +1,7 @@
 import type { ApiConnectorId } from "@/core/connectors/api-runtime";
 import { ACTIVE_MARKETPLACE_API_PLATFORM_IDS, clampMarketplaceSyncInterval, marketplaceApiPlatformForConnector } from "@/core/connectors/platform";
 import { hasPaidCapability } from "../plan-access";
-import { getD1 } from "../runtime";
+import { getD1, runtimeEnv } from "../runtime";
 import { enqueueConnectorSyncJob } from "./jobs";
 import { getOwnedApiConnection } from "./store";
 
@@ -22,6 +22,12 @@ function nextIso(minutes: number): string {
   return new Date(Date.now() + minutes * 60_000).toISOString();
 }
 
+async function dispatchConnectorJob(jobId: string, source: "enable" | "auto"): Promise<void> {
+  await runtimeEnv().CONNECTOR_QUEUE?.send({ kind: "connector", id: jobId }).catch(() => {
+    console.error(JSON.stringify({ event: "connector.live_queue.failed", source, jobId }));
+  });
+}
+
 export async function updateConnectionLiveSync(input: {
   userId: string;
   connectorId: ApiConnectorId;
@@ -37,7 +43,7 @@ export async function updateConnectionLiveSync(input: {
     input.connectorId,
     input.intervalMinutes ?? platform.defaultSyncIntervalMinutes,
   );
-  const nextAutoSyncAt = input.enabled ? new Date().toISOString() : null;
+  const nextAutoSyncAt = input.enabled ? nextIso(intervalMinutes) : null;
   await getD1().prepare(`
     UPDATE connector_connections
     SET auto_sync_enabled = ?2,
@@ -53,6 +59,22 @@ export async function updateConnectionLiveSync(input: {
     new Date().toISOString(),
     connection.tenantId,
   ).run();
+
+  if (input.enabled) {
+    // Enabling live sync is also the user's request for a fresh connected view.
+    // Kick a bounded initial refresh immediately; later refreshes use a small
+    // overlap window to capture late provider updates safely.
+    const jobId = await enqueueConnectorSyncJob({
+      tenantId: connection.tenantId,
+      connectionId: connection.id,
+      requestedByUserId: input.userId,
+      days: 30,
+      orderDateField: input.connectorId === "shopify-v1" ? "updated_at" : undefined,
+      triggerKind: "auto",
+    });
+    await dispatchConnectorJob(jobId, "enable");
+  }
+
   return { autoSyncEnabled: input.enabled, syncIntervalMinutes: intervalMinutes, nextAutoSyncAt };
 }
 
@@ -112,7 +134,7 @@ export async function scheduleDueMarketplaceAutoSyncs(limit = AUTO_SYNC_BATCH_LI
     }
 
     try {
-      await enqueueConnectorSyncJob({
+      const jobId = await enqueueConnectorSyncJob({
         tenantId: row.tenantId,
         connectionId: row.id,
         requestedByUserId: row.ownerUserId,
@@ -120,6 +142,7 @@ export async function scheduleDueMarketplaceAutoSyncs(limit = AUTO_SYNC_BATCH_LI
         orderDateField: row.connectorId === "shopify-v1" ? "updated_at" : undefined,
         triggerKind: "auto",
       });
+      await dispatchConnectorJob(jobId, "auto");
       queued += 1;
     } catch (error) {
       failed += 1;
