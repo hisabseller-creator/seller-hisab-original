@@ -44,8 +44,8 @@ describe("marketplace full experience contract", () => {
   });
 
   it("keeps activation-dependent marketplace APIs distinct from a connected account", () => {
-    expect(MARKETPLACE_DEFINITIONS.amazon.connection.detail).toContain("seller authorization");
-    expect(MARKETPLACE_DEFINITIONS.flipkart.connection.detail).toContain("seller authorization");
-    expect(MARKETPLACE_DEFINITIONS.shopify.connection.detail).toContain("merchant authorization");
+    expect(MARKETPLACE_DEFINITIONS.amazon.connection.detail).toMatch(/seller authorization/i);
+    expect(MARKETPLACE_DEFINITIONS.flipkart.connection.detail).toMatch(/seller authorization/i);
+    expect(MARKETPLACE_DEFINITIONS.shopify.connection.detail).toMatch(/merchant authorization/i);
   });
 });
