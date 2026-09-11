@@ -1,5 +1,4 @@
 import { getSessionUser } from "@/server/auth";
-import { PlanAccessError, requirePaidCapability } from "@/server/plan-access";
 import { getD1 } from "@/server/runtime";
 import { listAccountConnectorReadiness, type ConnectorReadiness } from "@/core/connectors/health";
 import { connectorApiConfigured } from "@/server/connectors/providers";
@@ -51,8 +50,9 @@ function isApiConnectorId(value: string): value is ApiConnectorId {
 export async function GET(request: Request) {
   const user = await getSessionUser(request);
   if (!user) return Response.json({ error: "Sign in required." }, { status: 401 });
-  try { await requirePaidCapability(user, "connectors"); } catch (error) { if (error instanceof PlanAccessError) return Response.json({ error: error.message, requiredPlan: error.requiredPlan }, { status: 402 }); throw error; }
 
+  // Connection discovery/status is available to every signed-in seller. Pro is
+  // required only when marketplace data is synced for API-backed analysis.
   const tenantId = await findUserTenantId(user.id);
 
   const persisted = tenantId
@@ -122,6 +122,7 @@ export async function GET(request: Request) {
         externalAccountDisplayName: null,
         grantedScopes: [] as string[],
         latestSync: null,
+        syncRequiresPlan: "pro" as const,
       };
     }
 
@@ -160,6 +161,7 @@ export async function GET(request: Request) {
         attemptCount: row.jobAttemptCount ?? 0,
         maxAttempts: row.jobMaxAttempts ?? 5,
       } : null,
+      syncRequiresPlan: "pro" as const,
     };
   });
 
@@ -167,6 +169,8 @@ export async function GET(request: Request) {
     connections,
     rawCredentialStorage: false,
     encryptedTokenStorage: true,
+    connectionRequiresPlan: null,
+    syncRequiresPlan: "pro",
     message: "SellerHisab never stores marketplace passwords. Official API access/refresh tokens are encrypted at rest and can be disconnected by the seller.",
   });
 }
