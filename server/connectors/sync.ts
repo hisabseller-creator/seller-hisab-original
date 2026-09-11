@@ -5,9 +5,8 @@ import type {SettlementBatchEvidence} from '@/core/settlements/reconciliation';
 import {coverageFor,type PageCheckpoint,type SourceCoverage} from '@/core/connectors/coverage';
 import {randomId,sha256} from '../crypto';
 import {getD1} from '../runtime';
-import {ensureFreshCredential} from './providers';
 import {loadCredential,storeCredential,type OwnedConnection} from './store';
-import {fetchConnectorPage} from './pages';
+import {connectorProviderAdapter} from './adapters';
 export type ConnectorSyncSummary = {
   connectorId: ApiConnectorId;
   coverageStart: string;
@@ -202,17 +201,19 @@ async function persistLedger(input: {
 export async function runConnectorSync(input:{userId:string;connection:OwnedConnection;days:number;jobId:string;checkpoint:PageCheckpoint;lease:string}):Promise<ConnectorSyncSummary>{
  const c=structuredClone(input.checkpoint),db=getD1();
  delete c.notBefore;
+ const adapter=connectorProviderAdapter(input.connection.connectorId);
+ if(!adapter.configured())throw Object.assign(Error('Marketplace API connector is not configured.'),{code:'connector_not_configured'});
  const pageKey=await sha256([c.sliceStart,c.stage,c.cursor].join(':'));
  const seen=await db.prepare('SELECT 1 FROM connector_page_receipts WHERE job_id=?1 AND page_key=?2').bind(input.jobId,pageKey).first();
  if(seen)throw Error('pagination_cycle_detected');
- const stored=await loadCredential(input.connection.id),credential=await ensureFreshCredential(stored);
+ const stored=await loadCredential(input.connection.id),credential=await adapter.ensureCredential(stored);
  if(credential.accessToken!==stored.accessToken||credential.refreshToken!==stored.refreshToken)await storeCredential(input.connection.id,credential);
  let page;
- try{page=await fetchConnectorPage(credential,input.connection,c);}catch(error){
+ try{page=await adapter.fetchPage(credential,input.connection,c);}catch(error){
   if((error as {status?:number}).status!==401||credential.provider==='woocommerce')throw error;
-  const refreshed=await ensureFreshCredential({...credential,accessExpiresAt:0});
+  const refreshed=await adapter.ensureCredential({...credential,accessExpiresAt:0});
   await storeCredential(input.connection.id,refreshed);
-  page=await fetchConnectorPage(refreshed,input.connection,c);
+  page=await adapter.fetchPage(refreshed,input.connection,c);
  }
  const ledgerRecordCount=await persistLedger({userId:input.userId,connection:input.connection,coverageStart:c.sliceStart,coverageEnd:c.sliceEnd,data:page.data,syncRunId:input.jobId+':'+pageKey,jobId:input.jobId,lease:input.lease});
  c.rowCounts.orders+=page.data.events.length;c.rowCounts.finance+=page.data.evidence.length;c.rowCounts.payouts+=page.data.batches.length;c.page++;

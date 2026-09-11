@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { requestHasSameOrigin } from "@/server/admin";
 import { getSessionUser } from "@/server/auth";
-import { PlanAccessError, requirePaidCapability } from "@/server/plan-access";
 import { requireWorkspaceCapability, WorkspacePermissionError } from "@/server/workspace-access";
 import { normalizeShopifyShop, type OAuthApiConnectorId } from "@/core/connectors/api-runtime";
 import { connectorApiConfigured, connectorRedirectUri, providerAuthorizationUrl } from "@/server/connectors/providers";
@@ -21,7 +20,8 @@ export async function POST(request: Request) {
   if (!requestHasSameOrigin(request)) return Response.json({ error: "Cross-origin connection request blocked." }, { status: 403 });
 
   try {
-    await requirePaidCapability(user, "connectors");
+    // Connecting an account is free. Pro is enforced later when the seller
+    // requests marketplace sync / API-backed analysis.
     await requireWorkspaceCapability(user, "connector_manage");
     await enforceRateLimit(request, "connector-oauth-start", user.id, 12, 60 * 60);
     const input = inputSchema.parse(await request.json());
@@ -47,9 +47,8 @@ export async function POST(request: Request) {
     const redirectUri = connectorRedirectUri(request, connectorId);
     const authorizationUrl = providerAuthorizationUrl({ connectorId, state, redirectUri, shop });
 
-    return Response.json({ authorizationUrl, connectorId });
+    return Response.json({ authorizationUrl, connectorId, syncRequiresPlan: "pro" });
   } catch (error) {
-    if (error instanceof PlanAccessError) return Response.json({ error: error.message, requiredPlan: error.requiredPlan }, { status: 402 });
     if (error instanceof WorkspacePermissionError) return Response.json({ error: error.message }, { status: 403 });
     if (error instanceof RateLimitError) {
       return Response.json(
