@@ -20,7 +20,7 @@ jobs:
       - name: Checkout exact green production commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: 0a11795833fb5628e304b4d8bd4fc8c660701ead
+          ref: aed7c53cef46b95df049d641fd1d3d643a170729
           fetch-depth: 1
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -36,7 +36,7 @@ jobs:
       - name: Verify exact release source
         shell: bash
         run: |
-          test "$(git rev-parse HEAD)" = "0a11795833fb5628e304b4d8bd4fc8c660701ead"
+          test "$(git rev-parse HEAD)" = "aed7c53cef46b95df049d641fd1d3d643a170729"
           pnpm repo:check
           pnpm prod:check
 
