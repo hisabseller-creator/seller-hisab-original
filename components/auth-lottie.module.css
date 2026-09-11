@@ -36,6 +36,22 @@
   overflow: visible;
 }
 
+/* Tablet layouts previously left a large empty strip beside the auth copy.
+   Use that space for the full, uncropped animation while keeping the form below. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  :global(.website-editorial) > section > div:first-child {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, .8fr);
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  :global(.website-editorial) > section > div:first-child > div:nth-child(2) {
+    width: min(100%, 310px);
+    margin: 0 auto;
+  }
+}
+
 @media (min-width: 1024px) {
   :global(.website-editorial) > section > div:first-child > div:nth-child(2) {
     margin-top: 1.75rem;
