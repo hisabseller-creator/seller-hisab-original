@@ -1,6 +1,8 @@
 import { getSessionUser } from "@/server/auth";
+import { hasPaidCapability } from "@/server/plan-access";
 import { getD1 } from "@/server/runtime";
 import { listAccountConnectorReadiness, type ConnectorReadiness } from "@/core/connectors/health";
+import { ACTIVE_MARKETPLACE_API_PLATFORM_IDS, listMarketplaceApiPlatforms, marketplaceApiPlatformForConnector } from "@/core/connectors/platform";
 import { connectorApiConfigured } from "@/server/connectors/providers";
 import { findUserTenantId } from "@/server/connectors/store";
 import type { ApiConnectorId } from "@/core/connectors/api-runtime";
@@ -32,6 +34,14 @@ type ConnectionRow = {
   jobNextAttemptAt: string | null;
   jobAttemptCount: number | null;
   jobMaxAttempts: number | null;
+  jobTriggerKind: string | null;
+  autoSyncEnabled: number | null;
+  syncIntervalMinutes: number | null;
+  nextAutoSyncAt: string | null;
+  dataRevision: number | null;
+  reportRevision: number | null;
+  lastDataChangeAt: string | null;
+  lastReportRefreshAt: string | null;
 };
 
 function parseStringArray(value: string): string[] {
@@ -44,7 +54,16 @@ function parseStringArray(value: string): string[] {
 }
 
 function isApiConnectorId(value: string): value is ApiConnectorId {
-  return value === "amazon-in-v1" || value === "flipkart-v1" || value === "shopify-v1" || value === "woocommerce-v1";
+  return (ACTIVE_MARKETPLACE_API_PLATFORM_IDS as readonly string[]).includes(value);
+}
+
+function freshness(lastSuccessAt: string | null | undefined) {
+  if (!lastSuccessAt) return { state: "never-synced" as const, ageMinutes: null };
+  const ageMinutes = Math.max(0, Math.floor((Date.now() - Date.parse(lastSuccessAt)) / 60_000));
+  return {
+    state: ageMinutes <= 60 ? "fresh" as const : ageMinutes <= 24 * 60 ? "aging" as const : "stale" as const,
+    ageMinutes,
+  };
 }
 
 export async function GET(request: Request) {
@@ -52,8 +71,11 @@ export async function GET(request: Request) {
   if (!user) return Response.json({ error: "Sign in required." }, { status: 401 });
 
   // Connection discovery/status is available to every signed-in seller. Pro is
-  // required only when marketplace data is synced for API-backed analysis.
-  const tenantId = await findUserTenantId(user.id);
+  // required only when marketplace data is synced or connected reports refresh.
+  const [tenantId, syncEntitled] = await Promise.all([
+    findUserTenantId(user.id),
+    hasPaidCapability(user.id, "connectors"),
+  ]);
 
   const persisted = tenantId
     ? await getD1()
@@ -69,6 +91,13 @@ export async function GET(request: Request) {
             cc.last_success_at AS lastSuccessAt,
             cc.last_error_code AS lastErrorCode,
             cc.last_error_message AS lastErrorMessage,
+            cc.auto_sync_enabled AS autoSyncEnabled,
+            cc.sync_interval_minutes AS syncIntervalMinutes,
+            cc.next_auto_sync_at AS nextAutoSyncAt,
+            cc.data_revision AS dataRevision,
+            cc.report_revision AS reportRevision,
+            cc.last_data_change_at AS lastDataChangeAt,
+            cc.last_report_refresh_at AS lastReportRefreshAt,
             ca.external_account_id AS externalAccountId,
             ca.display_name AS displayName,
             csr.status AS syncStatus,
@@ -82,7 +111,8 @@ export async function GET(request: Request) {
             csj.status AS jobStatus,
             csj.next_attempt_at AS jobNextAttemptAt,
             csj.attempt_count AS jobAttemptCount,
-            csj.max_attempts AS jobMaxAttempts
+            csj.max_attempts AS jobMaxAttempts,
+            csj.trigger_kind AS jobTriggerKind
           FROM connector_connections cc
           LEFT JOIN channel_accounts ca ON ca.id = cc.channel_account_id
           LEFT JOIN connector_sync_runs csr ON csr.id = (
@@ -114,14 +144,27 @@ export async function GET(request: Request) {
   const connections = listAccountConnectorReadiness().map((item) => {
     const row = byConnector.get(item.connectorId);
     const apiConfigured = isApiConnectorId(item.connectorId) ? connectorApiConfigured(item.connectorId) : false;
+    const platform = isApiConnectorId(item.connectorId) ? marketplaceApiPlatformForConnector(item.connectorId) : null;
     if (!row) {
       return {
         ...item,
         apiConfigured,
+        apiPlatform: platform,
         connectionMode: null,
         externalAccountDisplayName: null,
         grantedScopes: [] as string[],
         latestSync: null,
+        retryJob: null,
+        syncEntitled,
+        autoSyncEnabled: false,
+        syncIntervalMinutes: platform?.defaultSyncIntervalMinutes ?? null,
+        nextAutoSyncAt: null,
+        dataRevision: 0,
+        reportRevision: 0,
+        reportFresh: true,
+        lastDataChangeAt: null,
+        lastReportRefreshAt: null,
+        freshness: freshness(null),
         syncRequiresPlan: "pro" as const,
       };
     }
@@ -139,6 +182,7 @@ export async function GET(request: Request) {
       ...item,
       accountStatus,
       apiConfigured,
+      apiPlatform: platform,
       connectionMode: row.mode,
       externalAccountDisplayName: row.displayName ?? row.externalAccountId,
       enabledCapabilities: parseStringArray(row.enabledCapabilitiesJson),
@@ -157,20 +201,39 @@ export async function GET(request: Request) {
       } : null,
       retryJob: row.jobStatus ? {
         status: row.jobStatus,
+        triggerKind: row.jobTriggerKind,
         nextAttemptAt: row.jobNextAttemptAt,
         attemptCount: row.jobAttemptCount ?? 0,
         maxAttempts: row.jobMaxAttempts ?? 5,
       } : null,
+      syncEntitled,
+      autoSyncEnabled: row.autoSyncEnabled === 1,
+      syncIntervalMinutes: row.syncIntervalMinutes ?? platform?.defaultSyncIntervalMinutes ?? null,
+      nextAutoSyncAt: row.nextAutoSyncAt,
+      dataRevision: row.dataRevision ?? 0,
+      reportRevision: row.reportRevision ?? 0,
+      reportFresh: (row.reportRevision ?? 0) === (row.dataRevision ?? 0),
+      lastDataChangeAt: row.lastDataChangeAt,
+      lastReportRefreshAt: row.lastReportRefreshAt,
+      freshness: freshness(row.lastSuccessAt),
       syncRequiresPlan: "pro" as const,
     };
   });
 
+  const apiPlatforms = listMarketplaceApiPlatforms().map((platform) => ({
+    ...platform,
+    apiConfigured: platform.connectorId ? connectorApiConfigured(platform.connectorId) : false,
+    connectAvailable: Boolean(platform.connectorId && connectorApiConfigured(platform.connectorId)),
+  }));
+
   return Response.json({
     connections,
+    apiPlatforms,
     rawCredentialStorage: false,
     encryptedTokenStorage: true,
     connectionRequiresPlan: null,
     syncRequiresPlan: "pro",
-    message: "SellerHisab never stores marketplace passwords. Official API access/refresh tokens are encrypted at rest and can be disconnected by the seller.",
+    syncEntitled,
+    message: "SellerHisab never stores marketplace passwords. Official API access/refresh tokens or read-only API credentials are encrypted at rest. Connecting is free; API sync and connected-data analysis require Pro.",
   });
 }
