@@ -1,0 +1,62 @@
+name: Refresh auth nav snapshots
+
+on:
+  push:
+    branches:
+      - marketplace-truth-auth-modern
+
+permissions:
+  contents: write
+
+jobs:
+  snapshots:
+    if: ${{ !contains(github.event.head_commit.message, 'Update visual baselines for auth/nav refresh') }}
+    runs-on: windows-2025
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
+      VISUAL_REGRESSION: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: marketplace-truth-auth-modern
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - run: npm install --global pnpm@11.19.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm fixtures
+      - run: pnpm exec playwright install chromium webkit
+      - name: Refresh intentional visual baselines
+        run: pnpm exec playwright test tests/e2e/critical-accessibility.spec.ts tests/e2e/mobile-accessibility.spec.ts tests/e2e/localized-article.spec.ts --project chromium --project webkit --update-snapshots
+      - name: Validate changed snapshot set
+        shell: pwsh
+        run: |
+          $expected = @(
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-640-chromium-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/analyze-empty-640-webkit-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-320-chromium-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-320-webkit-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-640-chromium-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-640-webkit-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-1280-chromium-win32.png',
+            'tests/e2e/critical-accessibility.spec.ts-snapshots/app-empty-1280-webkit-win32.png',
+            'tests/e2e/mobile-accessibility.spec.ts-snapshots/blog-768-chromium-win32.png',
+            'tests/e2e/mobile-accessibility.spec.ts-snapshots/blog-768-webkit-win32.png',
+            'tests/e2e/localized-article.spec.ts-snapshots/hindi-article-768-chromium-win32.png',
+            'tests/e2e/localized-article.spec.ts-snapshots/hindi-article-768-webkit-win32.png'
+          ) | Sort-Object
+          $actual = @(git diff --name-only) | Where-Object { $_ } | Sort-Object
+          Write-Host 'Changed files:'
+          $actual | ForEach-Object { Write-Host " - $_" }
+          if (($actual -join "`n") -ne ($expected -join "`n")) {
+            throw 'Snapshot refresh changed an unexpected file set; refusing to commit.'
+          }
+      - name: Commit refreshed baselines
+        shell: pwsh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tests/e2e/critical-accessibility.spec.ts-snapshots tests/e2e/mobile-accessibility.spec.ts-snapshots tests/e2e/localized-article.spec.ts-snapshots
+          git commit -m 'Update visual baselines for auth/nav refresh'
+          git push origin HEAD:marketplace-truth-auth-modern
