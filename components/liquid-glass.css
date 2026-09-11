@@ -1,0 +1,234 @@
+/* SellerHisab public-site liquid-glass layer.
+   Restrained by design: translucent surfaces, edge highlights, depth and soft motion
+   without turning the product into a decorative glass demo. */
+
+.website-public {
+  --glass-surface: rgba(255, 255, 255, 0.62);
+  --glass-surface-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.82);
+  --glass-edge: rgba(139, 173, 222, 0.26);
+  --glass-shadow: 0 20px 55px -34px rgba(36, 68, 112, 0.34), inset 0 1px 0 rgba(255,255,255,.92);
+  --glass-shadow-hover: 0 28px 68px -36px rgba(30, 75, 142, 0.42), inset 0 1px 0 rgba(255,255,255,.96);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(90, 148, 255, 0.15), transparent 31rem),
+    radial-gradient(circle at 94% 12%, rgba(105, 222, 228, 0.12), transparent 28rem),
+    radial-gradient(circle at 58% 72%, rgba(134, 111, 255, 0.08), transparent 36rem),
+    linear-gradient(180deg, #f9fbff 0%, #f5f8fc 48%, #f8fafc 100%);
+  background-attachment: fixed;
+}
+
+.website-header {
+  background: linear-gradient(180deg, rgba(248,250,252,.78), rgba(248,250,252,0));
+}
+
+.website-nav,
+.website-mobile-tabs,
+.website-mobile-menu {
+  border: 1px solid var(--glass-border) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.77), rgba(244,249,255,.56)) !important;
+  box-shadow: var(--glass-shadow), 0 0 0 1px rgba(83,124,181,.06) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+  backdrop-filter: blur(26px) saturate(180%);
+}
+
+.website-nav::after,
+.hero-marketplace-card::after,
+.website-capability::after,
+.confidence-board::after,
+.teaser-plan::after,
+.website-editorial > section::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 1px;
+  border-radius: inherit;
+  border-top: 1px solid rgba(255,255,255,.78);
+  opacity: .72;
+}
+
+.website-nav { position: relative; }
+
+.website-language,
+.website-mobile-tabs a,
+.website-public :is(.website-faq-list details, .confidence-board, .teaser-plan, .hero-marketplace-card, .website-capability) {
+  -webkit-backdrop-filter: blur(20px) saturate(165%);
+  backdrop-filter: blur(20px) saturate(165%);
+}
+
+.website-language {
+  border-color: rgba(255,255,255,.78) !important;
+  background: rgba(242,247,253,.56) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 6px 18px -14px rgba(29,78,216,.45);
+}
+
+.website-language button[aria-pressed="true"] {
+  background: rgba(255,255,255,.88) !important;
+  box-shadow: 0 6px 18px -14px rgba(31,78,146,.55), inset 0 1px 0 #fff !important;
+}
+
+.website-public .website-nav-actions > a {
+  border-color: rgba(49,115,235,.45) !important;
+  background: linear-gradient(145deg, rgba(55,128,255,.96), rgba(27,86,211,.94)) !important;
+  box-shadow: 0 12px 28px -16px rgba(20,83,210,.7), inset 0 1px 0 rgba(255,255,255,.38) !important;
+}
+
+.hero-marketplace-card,
+.website-capability,
+.confidence-board,
+.teaser-plan,
+.website-faq-list details {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(255,255,255,.76) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(241,247,255,.54)) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+.website-capability,
+.teaser-plan,
+.hero-marketplace-card,
+.website-faq-list details {
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease;
+}
+
+.website-capability:hover,
+.teaser-plan:hover,
+.hero-marketplace-card:hover,
+.website-faq-list details:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glass-shadow-hover) !important;
+  border-color: rgba(174,204,244,.72) !important;
+}
+
+.website-button {
+  border-color: rgba(72,139,255,.72) !important;
+  background: linear-gradient(145deg, rgba(55,130,255,.98), rgba(24,82,199,.94)) !important;
+  box-shadow: 0 14px 30px -18px rgba(24,85,211,.72), inset 0 1px 0 rgba(255,255,255,.42) !important;
+}
+
+/* Restore depth to the scroll story while keeping the animation itself unchanged. */
+.website-journey {
+  background:
+    radial-gradient(circle at 78% 42%, rgba(84,145,255,.12), transparent 30rem),
+    linear-gradient(180deg, rgba(248,250,252,.15), rgba(232,241,252,.68) 48%, rgba(248,250,252,.12)) !important;
+}
+
+.website-journey .profit-ledger {
+  border-color: rgba(255,255,255,.82);
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(247,250,255,.7));
+  box-shadow: 0 26px 70px -38px rgba(29,78,216,.42), inset 0 1px 0 rgba(255,255,255,.96);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+/* Auth page: remove the empty white strip by making the entire card one continuous
+   glass surface. The left hero still has a soft tint, but there is no separate blank band. */
+.website-editorial {
+  padding-top: 16px !important;
+}
+
+.website-editorial > section {
+  position: relative;
+  overflow: clip !important;
+  border-color: rgba(255,255,255,.82) !important;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(91,151,255,.14), transparent 24rem),
+    linear-gradient(145deg, rgba(255,255,255,.8), rgba(240,247,255,.58)) !important;
+  box-shadow: 0 26px 76px -42px rgba(25,66,126,.46), inset 0 1px 0 rgba(255,255,255,.96) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+  backdrop-filter: blur(28px) saturate(175%);
+}
+
+.website-editorial > section > div:first-child {
+  margin: 0 !important;
+  background:
+    radial-gradient(circle at 78% 32%, rgba(75,137,255,.13), transparent 19rem),
+    linear-gradient(145deg, rgba(241,247,255,.7), rgba(255,255,255,.42)) !important;
+}
+
+.website-editorial > section > div:nth-child(2) {
+  background: rgba(255,255,255,.42);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+/* PR #13 removed these visually. Keep the rule here so they stay gone even if the
+   component markup is later rearranged slightly. */
+.website-editorial > section > div:first-child > div:first-child > span,
+.website-editorial > section > div:first-child > div:nth-child(3) {
+  display: none !important;
+}
+
+/* The animation must keep its own source ratio and should never sit inside a fixed-height crop. */
+.website-editorial > section > div:first-child > div:nth-child(2) {
+  width: min(100%, 410px) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 429 / 444 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  align-self: center;
+}
+
+.website-editorial > section > div:first-child > div:nth-child(2) > div,
+.website-editorial > section > div:first-child > div:nth-child(2) svg {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.website-editorial input,
+.website-editorial [role="tablist"] {
+  border-color: rgba(255,255,255,.8) !important;
+  background: rgba(255,255,255,.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 12px 28px -24px rgba(37,73,122,.38) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+.website-editorial [role="tab"][aria-selected="true"] {
+  background: rgba(255,255,255,.9) !important;
+  box-shadow: 0 8px 20px -16px rgba(29,78,216,.42), inset 0 1px 0 #fff !important;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .website-editorial > section > div:first-child {
+    padding-top: 24px !important;
+  }
+
+  .website-editorial > section > div:first-child > div:nth-child(2) {
+    width: min(100%, 340px) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .website-header { padding-top: 10px; }
+  .website-editorial { padding-top: 10px !important; }
+  .website-editorial > section > div:first-child { padding-top: 22px !important; }
+  .website-editorial > section > div:first-child > div:nth-child(2) { width: min(82vw, 320px) !important; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .website-nav,
+  .website-mobile-tabs,
+  .website-mobile-menu,
+  .hero-marketplace-card,
+  .website-capability,
+  .confidence-board,
+  .teaser-plan,
+  .website-faq-list details,
+  .website-editorial > section {
+    background: rgba(255,255,255,.94) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .website-capability,
+  .teaser-plan,
+  .hero-marketplace-card,
+  .website-button {
+    transition: none !important;
+  }
+}
