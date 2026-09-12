@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.2 git /repo --config /repo/.gitleaks.toml --redact --exit-code 1
+      - run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.2 git /repo --config /repo/.gitleaks.toml --redact --verbose --exit-code 1
 # This workflow has no production credentials, migration apply or deployment.
 
   # Visual baselines are generated and validated on the same Windows runner/browser matrix used here.
