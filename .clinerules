@@ -1,0 +1,7 @@
+Before doing anything, read `AGENTS.md`, then `docs/PROJECT_STATE.md`, then `docs/AI_WORKLOG.md`.
+
+Treat the repository/current branch as the source of truth. Do not rely on stale chat history when it conflicts with repository evidence.
+
+At the end of meaningful work, update `docs/PROJECT_STATE.md` and append a concise entry to `docs/AI_WORKLOG.md` with changed files, tests actually run, commit/push/deploy status, unresolved items and the next action.
+
+Follow all production-safety and engineering rules in `AGENTS.md`.
