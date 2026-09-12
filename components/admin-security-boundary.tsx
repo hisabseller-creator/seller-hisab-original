@@ -17,10 +17,17 @@ type Status = {
   unlocked: boolean;
 };
 
+async function fetchAdminSecurityStatus(): Promise<Status> {
+  const response = await fetch("/api/admin/mfa", { cache: "no-store" });
+  const payload = await response.json() as Status & { error?: string };
+  if (!response.ok) throw new Error(payload.error ?? "Admin security status could not be loaded.");
+  return payload;
+}
+
 export function AdminSecurityBoundary({ children }: { children: React.ReactNode }) {
   const { user, loading: accountLoading } = useAccountStatus();
   const [status, setStatus] = useState<Status | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [secret, setSecret] = useState("");
@@ -28,28 +35,40 @@ export function AdminSecurityBoundary({ children }: { children: React.ReactNode 
   const [busy, setBusy] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!user?.isAdmin) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!user?.isAdmin) return;
     try {
-      const response = await fetch("/api/admin/mfa", { cache: "no-store" });
-      const payload = await response.json() as Status & { error?: string };
-      if (!response.ok) throw new Error(payload.error ?? "Admin security status could not be loaded.");
+      const payload = await fetchAdminSecurityStatus();
       setStatus(payload);
+      setLoadError("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Admin security status could not be loaded.");
-    } finally {
-      setLoading(false);
+      const message = error instanceof Error ? error.message : "Admin security status could not be loaded.";
+      setLoadError(message);
+      toast.error(message);
     }
   }, [user]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!user?.isAdmin) return;
+    let active = true;
+    fetchAdminSecurityStatus()
+      .then((payload) => {
+        if (!active) return;
+        setStatus(payload);
+        setLoadError("");
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        const message = error instanceof Error ? error.message : "Admin security status could not be loaded.";
+        setLoadError(message);
+        toast.error(message);
+      });
+    return () => { active = false; };
+  }, [user]);
 
-  if (accountLoading || loading) return <LoadingCard />;
+  if (accountLoading) return <LoadingCard />;
   if (!user?.isAdmin) return <>{children}</>;
-  if (!status) return <SecurityShell title="Security check unavailable" text="Reload the page and try again." />;
+  if (loadError && !status) return <SecurityShell title="Security check unavailable" text={loadError} />;
+  if (!status) return <LoadingCard />;
   if (recoveryCodes.length) {
     return (
       <SecurityShell title="Save your recovery codes" text="Each code works once. Store them in your password manager; SellerHisab will not show them again.">
