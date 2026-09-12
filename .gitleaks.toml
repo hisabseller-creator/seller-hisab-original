@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic unit-test key fixtures introduced by the Amazon security tests; these values are not production credentials."
+regexTarget = "match"
+regexes = [
+  '''session-secret-for-tests-0123456789abcdef''',
+  '''connector-key-for-tests-0123456789abcdef'''
+]
