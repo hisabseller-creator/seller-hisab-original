@@ -9,6 +9,7 @@ import { hashPassword, publicPasswordValidationMessage, validatePasswordForIdent
 import { enforceIpRateLimit, enforceRateLimit, RateLimitError } from "@/server/rate-limit";
 import { getD1 } from "@/server/runtime";
 import { recordAuthAuditEvent } from "@/server/auth-audit";
+import { assertAdminPasswordChangeAllowed, replaceAdminCredential } from "@/server/admin-security";
 
 export const dynamic = "force-dynamic";
 
@@ -53,8 +54,9 @@ export async function POST(request: Request) {
       "SELECT id, email, phone, password_hash AS passwordHash, name, city, terms_accepted_at AS termsAcceptedAt, created_at AS createdAt FROM users WHERE phone = ?1 AND deleted_at IS NULL",
     ).bind(phone).first<DbUser>();
 
+    const adminIdentity = isAdminUser(user?.email ?? input.email, user?.phone ?? phone);
     // Resolve both allowlists BEFORE every credential creation/recovery path.
-    validatePasswordForIdentity(input.password, isAdminUser(user?.email ?? input.email, user?.phone ?? phone));
+    validatePasswordForIdentity(input.password, adminIdentity);
     let createdNewUser = false;
     if (input.mode === "register") {
       if (!user) {
@@ -84,24 +86,19 @@ export async function POST(request: Request) {
         ).bind(user.id, user.email, user.phone, user.passwordHash, user.name, user.city, user.termsAcceptedAt, user.createdAt).run();
         createdNewUser = true;
       } else {
-        // A verified OTP proves control of this phone. Treat a repeated
-        // registration attempt as account recovery instead of trapping the
-        // seller behind an existing row from an earlier interrupted attempt.
         const previousHash=user.passwordHash;
+        if (adminIdentity) await assertAdminPasswordChangeAllowed(user.id, input.password, previousHash);
         user.passwordHash = await hashPassword(input.password);
-        await replaceCredential(user.id,previousHash,user.passwordHash);
-        // This path is account recovery after fresh OTP proof. Invalidate older
-        // sessions just like an explicit password reset.
-        // Revocation is atomic with credential replacement.
+        if (adminIdentity) await replaceAdminCredential(user.id, previousHash, user.passwordHash);
+        else await replaceCredential(user.id,previousHash,user.passwordHash);
       }
     } else {
       if (!user) return Response.json({ error: "No account exists for this mobile number." }, { status: 404 });
       const previousHash=user.passwordHash;
-        user.passwordHash = await hashPassword(input.password);
-      await replaceCredential(user.id,previousHash,user.passwordHash);
-
-      // A successful password reset invalidates every older browser/session.
-      // Revocation is atomic with credential replacement.
+      if (adminIdentity) await assertAdminPasswordChangeAllowed(user.id, input.password, previousHash);
+      user.passwordHash = await hashPassword(input.password);
+      if (adminIdentity) await replaceAdminCredential(user.id, previousHash, user.passwordHash);
+      else await replaceCredential(user.id,previousHash,user.passwordHash);
     }
 
     try {
@@ -121,9 +118,6 @@ export async function POST(request: Request) {
       );
     } catch (error) {
       if (createdNewUser) {
-        // Keep registration atomic from the user's perspective. If a session
-        // cannot be issued, remove the just-created account so the next OTP
-        // attempt is not trapped behind an orphaned registration row.
         await getD1().prepare("DELETE FROM users WHERE id = ?1 AND password_hash=?2 AND NOT EXISTS(SELECT 1 FROM sessions WHERE user_id=?1)").bind(user.id,user.passwordHash).run().catch(() => undefined);
       }
       throw error;
@@ -134,6 +128,7 @@ export async function POST(request: Request) {
     const passwordMessage = publicPasswordValidationMessage(error);
     if (passwordMessage) return Response.json({ error: passwordMessage }, { status: 400 });
     const message = error instanceof Error ? error.message : "";
+    if (/last 10 passwords|24 hours|reuse the current password/i.test(message)) return Response.json({ error: message }, { status: 400 });
     if (/valid 10-digit|did not match|invalid|expired/i.test(message)) {
       return Response.json({ error: "The verification request is invalid or expired. Please request a new OTP." }, { status: 400 });
     }
