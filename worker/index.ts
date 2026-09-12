@@ -35,12 +35,6 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-// Image security config. SVG sources with .svg extension auto-skip the
-// optimization endpoint on the client side (served directly, no proxy).
-// To route SVGs through the optimizer (with security headers), set
-// dangerouslyAllowSVG: true in next.config.js and uncomment below:
-// const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
-
 const worker = {
   async queue(batch: MessageBatch<{kind: string; id: string}>): Promise<void> {
     for (const message of batch.messages) {
@@ -119,6 +113,11 @@ const worker = {
   },
 };
 
+const ADMIN_BOOTSTRAP_PATHS = new Set([
+  "/api/admin/mfa",
+  "/api/admin/step-up",
+  "/api/admin/change-password",
+]);
 
 async function dispatchRequest(request: Request, env: Env, ctx: ExecutionContext, url: URL): Promise<Response> {
   if (url.pathname === "/_vinext/image") {
@@ -131,14 +130,22 @@ async function dispatchRequest(request: Request, env: Env, ctx: ExecutionContext
       },
     }, allowedWidths);
   }
+
   if (['POST','PUT','PATCH','DELETE'].includes(request.method) && /^\/api\/(admin|account)\//.test(url.pathname)) {
     try { await enforceIpRateLimit(request,'private-mutation',120,60); }
     catch(error){if(error instanceof RateLimitError)return Response.json({error:error.message},{status:429,headers:{'retry-after':'60'}});throw error;}
-    if(url.pathname.startsWith('/api/admin/')&&!['/api/admin/step-up','/api/admin/change-password'].includes(url.pathname)){
-      const user=await getSessionUser(request);
-      if(user&&!await hasAdminStepUp(request,user))return Response.json({error:'Reconfirm admin access, then retry this action.',code:'admin_step_up_required'},{status:401});
+  }
+
+  if (url.pathname.startsWith('/api/admin/') && !ADMIN_BOOTSTRAP_PATHS.has(url.pathname)) {
+    const user = await getSessionUser(request);
+    if (!user || !await hasAdminStepUp(request, user)) {
+      return Response.json({
+        error: 'Admin password and authenticator verification are required.',
+        code: 'admin_mfa_step_up_required',
+      }, { status: 401, headers: { 'cache-control': 'no-store' } });
     }
   }
+
   const internalHeaders=new Headers(request.headers);
   internalHeaders.delete("x-sellerhisab-locale");
   const locale=/^\/(hi|en)\/blog\//.exec(url.pathname)?.[1];
