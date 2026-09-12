@@ -1,5 +1,5 @@
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { users } from "./schema";
+import { users } from "./schema.ts";
 
 export const adminMfaSettings = sqliteTable("admin_mfa_settings", {
   userId: text("user_id").primaryKey().notNull().references(() => users.id, { onDelete: "cascade" }),
