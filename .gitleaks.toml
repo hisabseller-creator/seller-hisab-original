@@ -1,7 +1,7 @@
 [extend]
 useDefault = true
 
-[allowlist]
+[[allowlists]]
 description = "Synthetic unit-test key fixtures introduced by the Amazon security tests; these values are not production credentials."
 regexTarget = "match"
 regexes = [
