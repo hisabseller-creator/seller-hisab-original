@@ -58,7 +58,7 @@ export function AdminSecurityBoundary({ children }: { children: React.ReactNode 
       </SecurityShell>
     );
   }
-  if (status.passwordExpired) return <ExpiredPassword onComplete={refresh} />;
+  if (status.passwordExpired) return <ExpiredPassword mfaEnabled={status.enabled} onComplete={refresh} />;
   if (!status.enabled) {
     return (
       <SecurityShell title="Set up admin MFA" text="Admin access requires your password plus a code from an authenticator app.">
@@ -123,10 +123,11 @@ export function AdminSecurityBoundary({ children }: { children: React.ReactNode 
   return <>{children}</>;
 }
 
-function ExpiredPassword({ onComplete }: { onComplete: () => Promise<void> }) {
+function ExpiredPassword({ mfaEnabled, onComplete }: { mfaEnabled: boolean; onComplete: () => Promise<void> }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   return (
     <SecurityShell title="Change expired admin password" text="Admin passwords have a 365-day maximum age. Use a new password that has not been used in the last 10 changes.">
@@ -135,18 +136,20 @@ function ExpiredPassword({ onComplete }: { onComplete: () => Promise<void> }) {
         if (newPassword !== confirm) { toast.error("New password and confirmation do not match."); return; }
         setBusy(true);
         try {
-          const response = await fetch("/api/admin/change-password", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ currentPassword, newPassword }) });
+          const response = await fetch("/api/admin/change-password", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ currentPassword, newPassword, code: mfaEnabled ? code : undefined }) });
           const payload = await response.json() as { ok?: boolean; error?: string };
           if (!response.ok || !payload.ok) throw new Error(payload.error ?? "Password could not be changed.");
           toast.success("Password changed. Verify MFA again to unlock admin tools.");
+          setCurrentPassword(""); setNewPassword(""); setConfirm(""); setCode("");
           await onComplete();
         } catch (error) { toast.error(error instanceof Error ? error.message : "Password could not be changed."); }
         finally { setBusy(false); }
       }}>
         <Field label="Current password" type="password" value={currentPassword} onChange={setCurrentPassword} autoComplete="current-password" />
+        {mfaEnabled && <Field label="Authenticator or recovery code" value={code} onChange={setCode} autoComplete="one-time-code" />}
         <Field label="New password" type="password" value={newPassword} onChange={setNewPassword} autoComplete="new-password" />
         <Field label="Confirm new password" type="password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
-        <Button type="submit" className="w-full" disabled={busy || !currentPassword || !newPassword || !confirm}>{busy && <Loader2 className="mr-2 size-4 animate-spin" />}Change password</Button>
+        <Button type="submit" className="w-full" disabled={busy || !currentPassword || !newPassword || !confirm || (mfaEnabled && code.trim().length < 6)}>{busy && <Loader2 className="mr-2 size-4 animate-spin" />}Change password</Button>
       </form>
     </SecurityShell>
   );
