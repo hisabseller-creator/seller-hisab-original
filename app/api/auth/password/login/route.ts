@@ -7,6 +7,7 @@ import { hashPassword, passwordNeedsRehash, passwordResetRequired, verifyPasswor
 import { enforceIpRateLimit, enforceRateLimit, RateLimitError } from "@/server/rate-limit";
 import { getD1 } from "@/server/runtime";
 import { recordAuthAuditEvent } from "@/server/auth-audit";
+import { clearPasswordFailures, getLoginLockState, recordPasswordFailure } from "@/server/admin-security";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,14 @@ export async function POST(request: Request) {
       ? await getD1().prepare("SELECT id, email, phone, password_hash AS passwordHash, created_at AS createdAt FROM users WHERE phone = ?1 AND deleted_at IS NULL").bind(phone).first<DbUser>()
       : await getD1().prepare("SELECT id, email, phone, password_hash AS passwordHash, created_at AS createdAt FROM users WHERE email = ?1 AND deleted_at IS NULL").bind(email).first<DbUser>();
 
+    if (user) {
+      const lock = await getLoginLockState(user.id);
+      if (lock.locked) {
+        // Keep the public response indistinguishable from other invalid credentials.
+        return Response.json({ error: "Mobile/email or password is incorrect." }, { status: 401, headers: { "cache-control": "no-store" } });
+      }
+    }
+
     if (user && passwordResetRequired(user.passwordHash)) {
       return Response.json({
         error: "This password needs a one-time security reset before sign-in. Use ‘Forgot your password?’ and verify the mobile number linked to this account.",
@@ -42,9 +51,11 @@ export async function POST(request: Request) {
     }
 
     if (!user || !await verifyPassword(input.password, user.passwordHash)) {
+      if (user) await recordPasswordFailure(user.id);
       return Response.json({ error: "Mobile/email or password is incorrect." }, { status: 401 });
     }
 
+    await clearPasswordFailures(user.id);
     if (passwordNeedsRehash(user.passwordHash)) {
       // Compare-and-swap: a concurrent reset must never be overwritten by rehash.
       const upgraded = await hashPassword(input.password);
