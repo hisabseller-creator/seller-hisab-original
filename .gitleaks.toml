@@ -1,9 +1,12 @@
 [extend]
 useDefault = true
 
-[[allowlists]]
-description = "Synthetic unit-test key fixtures introduced by the Amazon security tests; these values are not production credentials."
-regexTarget = "match"
+[allowlist]
+description = "Only synthetic Amazon-remediation test fixtures and this configuration file are allowlisted."
+regexTarget = "line"
+paths = [
+  '''(^|/)\.gitleaks\.toml$'''
+]
 regexes = [
   '''session-secret-for-tests-0123456789abcdef''',
   '''connector-key-for-tests-0123456789abcdef'''
