@@ -1,0 +1,44 @@
+name: Refresh browser E2E baselines
+
+on:
+  push:
+    branches: [fix/browser-e2e-baselines]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: windows-2025
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
+      VISUAL_REGRESSION: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: npm install --global pnpm@11.19.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm fixtures
+      - run: pnpm exec playwright install chromium webkit
+      - name: Regenerate only the stale browser baselines
+        run: pnpm exec playwright test tests/e2e/critical-accessibility.spec.ts tests/e2e/localized-article.spec.ts tests/e2e/mobile-accessibility.spec.ts --project chromium --project webkit --update-snapshots
+      - name: Commit refreshed baselines and remove one-time workflow
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/e2e/critical-accessibility.spec.ts-snapshots/*.png
+          git add tests/e2e/localized-article.spec.ts-snapshots/*.png
+          git add tests/e2e/mobile-accessibility.spec.ts-snapshots/*.png
+          git rm .github/workflows/refresh-browser-baselines.yml
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "test: refresh Windows browser visual baselines"
+            git push origin "HEAD:${{ github.ref_name }}"
+          }
