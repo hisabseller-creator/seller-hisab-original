@@ -21,13 +21,15 @@ export function buildTotpUri(secret: string, accountLabel: string, issuer = "Sel
 
 export async function totpCodeForStep(secret: string, step: number): Promise<string> {
   if (!Number.isSafeInteger(step) || step < 0) throw new Error("Invalid TOTP step.");
-  const keyBytes = base32Decode(secret);
-  const key = await crypto.subtle.importKey("raw", keyBytes, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]);
+  const decoded = base32Decode(secret);
+  const keyBuffer = new ArrayBuffer(decoded.byteLength);
+  new Uint8Array(keyBuffer).set(decoded);
+  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]);
   const counter = new Uint8Array(8);
-  let value = BigInt(step);
+  let value = step;
   for (let index = 7; index >= 0; index -= 1) {
-    counter[index] = Number(value & 0xffn);
-    value >>= 8n;
+    counter[index] = value % 256;
+    value = Math.floor(value / 256);
   }
   const signature = new Uint8Array(await crypto.subtle.sign("HMAC", key, counter));
   const offset = signature[signature.length - 1] & 0x0f;
