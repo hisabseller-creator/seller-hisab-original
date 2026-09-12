@@ -8,16 +8,17 @@ This file is the short current checkpoint for any coding agent working on Seller
 
 - Repository: `hisabseller-creator/seller-hisab-original`
 - Primary branch: `main`
-- Current `main` checkpoint: `0a12c131d533e4e865e42dbaa8543d4383ff4bc4` (`Add Copilot continuity pointer`).
 - Amazon remediation branch: `security/amazon-remediation-0024`.
-- Draft pull request: `#19` — `Amazon SP-API security remediation: MFA, lockout, password lifecycle and evidence`.
-- Production safety rule remains in force: do not deploy, modify production data, merge to `main`, or execute production migrations without separate explicit approval.
+- PR `#19` — `Amazon SP-API security remediation: MFA, lockout, password lifecycle and evidence` — has been merged to `main`.
+- Production application release commit: `507e5d5cfbc34a01f8a0363b3ba00fe86b1a56c2` (`Merge Amazon SP-API security remediation`).
+- Production Worker version: `b9894ccb-2349-49de-8d04-19a620dfca21`.
+- Production domain: `https://sellerhisab.com`.
 
 ## Amazon SP-API security remediation status
 
 **Repository/source remediation: COMPLETE.**
 
-The source implementation, schema/migration work, focused security tests, policy corrections and repository evidence templates required by this workstream are implemented on the remediation branch.
+The source implementation, schema/migration work, focused security tests, policy corrections and repository evidence templates required by this workstream are complete and merged to `main`.
 
 ### Implemented source controls
 
@@ -46,7 +47,7 @@ The source implementation, schema/migration work, focused security tests, policy
 
 ## Validation checkpoint
 
-Full GitHub-hosted source gates passed on remediation commit `0e87c0e6992462ec4ab8a013a40b87a6dffae425` in workflow run `34703358445`:
+Full GitHub-hosted source gates passed on remediation branch head `770e9e747f5503ac1ed8af029fd5dd9738579326` in workflow run `34703808959`:
 
 - repository hygiene: PASS
 - production source check: PASS
@@ -69,19 +70,27 @@ Full GitHub-hosted source gates passed on remediation commit `0e87c0e6992462ec4a
 Two CI regressions discovered during finalization were fixed rather than bypassed:
 
 1. The legacy admin step-up test was updated to exercise the new MFA-enabled security boundary instead of expecting password-only privileged access.
-2. `db/schema-security.ts` now uses the explicit `.ts` ESM import required by the schema verification runtime.
+2. `db/schema-security.ts` uses the explicit `.ts` ESM import required by the schema verification runtime.
 
-## Migration checkpoint
+## Production deployment checkpoint
 
-- `drizzle/0023_connector_live_platform.sql` remains intact.
-- New security migration is exactly `drizzle/0024_admin_security_controls.sql`.
-- Migration 0024 has **not** been applied to production.
-- Do not apply it remotely until the release/deployment step is explicitly approved.
+- PR #19 merged to `main`: **YES**.
+- Production application release commit: `507e5d5cfbc34a01f8a0363b3ba00fe86b1a56c2`.
+- `drizzle/0023_connector_live_platform.sql`: preserved/intact.
+- `drizzle/0024_admin_security_controls.sql`: **APPLIED TO PRODUCTION**.
+- Production D1 database: `seller-margin-guard` (`220bab03-28c2-40c6-8f5a-7010c49ca21b`).
+- Production verification confirmed these security tables exist: `admin_mfa_settings`, `admin_mfa_recovery_codes`, `user_security_state`, `user_password_history`.
+- Cloudflare Worker `seller-margin-guard`: **DEPLOYED**.
+- Worker version: `b9894ccb-2349-49de-8d04-19a620dfca21`.
+- `https://sellerhisab.com/`: HTTP 200 after deployment.
+- `https://sellerhisab.com/api/health`: HTTP 200 with `{"status":"ok"}` after deployment.
+- The initial smoke-test script stopped only because PowerShell treats `$home` and built-in read-only `$HOME` as the same variable; deployment and migration had already succeeded. A corrected verification using different variable names subsequently passed both live checks.
 
 ## External verification still required before Amazon re-application
 
 These are operational/account/device controls and are not provable from repository code alone. They are **not source-development gaps** and must remain marked `EXTERNAL VERIFICATION REQUIRED` until actual evidence is collected:
 
+- Enroll and verify TOTP MFA on the real production admin account; securely retain one-time recovery codes.
 - Cloudflare account-level WAF/firewall rules and equivalent threat-detection controls actually enabled for the production zone/account.
 - Network/administrative segmentation and access-control evidence at the provider/account level where applicable.
 - Endpoint anti-malware/OS-security controls on administrative devices.
@@ -94,12 +103,12 @@ Do not answer Amazon security-profile questions `Yes` solely because a policy do
 ## Release status
 
 - Repository-side Amazon security remediation: **COMPLETE**.
-- Feature branch pushed: **YES**.
-- Draft PR #19: **OPEN**.
-- Merge to `main`: **NONE**.
-- Production deployment: **NONE**.
-- Production migration 0024: **NONE**.
-- Amazon Developer Profile re-application: **NOT YET**; collect the external operational evidence above first.
+- Merge to `main`: **COMPLETE**.
+- Production migration 0024: **COMPLETE**.
+- Production deployment: **COMPLETE**.
+- Live homepage/health verification: **PASS**.
+- Production admin TOTP enrollment/evidence: **NEXT**.
+- Amazon Developer Profile re-application: **NOT YET**; complete the external operational evidence above first.
 
 ## Preserve
 
@@ -111,4 +120,4 @@ Do not answer Amazon security-profile questions `Yes` solely because a policy do
 
 ## End-of-session handoff
 
-The repository remediation workstream is source-complete. The next distinct phase is release/operations: review PR #19, collect external security evidence, then separately approve merge, production migration/deploy and Amazon re-application. Do not collapse those operational approvals into this source-completion checkpoint.
+Source remediation, merge, migration and production deployment are complete and live-verified. The next distinct phase is operational evidence collection: enroll production admin TOTP MFA, collect account/network/device/access/training/incident-response evidence, then update the Amazon Developer Profile and submit a new re-application/case. Do not recreate or reapply migration 0024 and do not redeploy merely to collect evidence unless a concrete defect is found.
