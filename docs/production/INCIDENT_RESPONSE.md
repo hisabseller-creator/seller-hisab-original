@@ -34,3 +34,28 @@ Evidence log: UTC timeline, severity changes, redacted request/version IDs, affe
 Customer update template: incident time, confirmed impact, affected operation, workaround, next update time, support contact. Breach notification decision record: facts known, categories, jurisdictions, counsel consulted, applicable obligation/deadline, responsible sender, approval and transmission evidence. DPDP and CERT-In applicability, deadlines, retention and log location are **external legal verification**, not determined here.
 
 Within the owner-approved postmortem window: document trigger, blast radius, detection/recovery times, root causes, failed controls, corrective actions with owners/dates, and regression/drill evidence. Conduct a quarterly tabletop covering an admin compromise plus provider outage; record attendance and actual outcomes. Tabletop/VAPT performed in this task: NO.
+
+## Amazon SP-API data incident notification
+
+If any incident involves Amazon SP-API data (seller orders, settlements, financial events, API credentials), the following additional steps apply:
+
+1. Notify Amazon at `security@amazon.com` **within 24 hours** of confirmed exposure, per the Amazon SP-API Acceptable Use Policy and Data Protection Policy.
+2. Include in the notification: incident description, categories of data affected, estimated number of affected sellers, containment actions taken, remediation timeline and SellerHisab contact for follow-up.
+3. Immediately rotate the affected Amazon LWA client secret and connector encryption key. Revoke and re-encrypt all affected Amazon refresh tokens.
+4. Suspend automatic SP-API sync for affected connections until the encryption key rotation is verified and Amazon acknowledges the notification.
+5. Preserve redacted evidence of the Amazon-related portion separately from general incident evidence, referencing Amazon's data handling requirements.
+6. Do not disclose raw Amazon API tokens, seller IDs or order data in any public or third-party incident communication.
+
+| Amazon data scenario | Containment |
+|---|---|
+| LWA token exposure | Rotate LWA client secret via Amazon Developer Console; rotate CONNECTOR_ENCRYPTION_KEY; re-encrypt all connector credentials; revoke and reauthorize affected seller connections; notify `security@amazon.com` within 24h. |
+| Unauthorized Amazon order data access | Gate affected tenant; preserve audit evidence; determine blast radius from audit_events; notify `security@amazon.com` within 24h; notify affected sellers. |
+| Connector encryption key leak | Rotate to CONNECTOR_ENCRYPTION_KEY_V2; re-encrypt all credentials; verify decrypt; revoke old key; audit all connections; notify `security@amazon.com` if Amazon data was at risk. |
+
+## Review schedule
+
+- **Incident response plan review:** every 6 months, or immediately after any SEV-1/SEV-2 incident.
+- **Security governance review:** every 6 months (see SECURITY_GOVERNANCE_POLICY.md).
+- **Access review:** quarterly (see SECURITY_GOVERNANCE_POLICY.md).
+- **Tabletop drill:** quarterly, covering at least one admin-compromise and one provider-outage scenario.
+- Record review date, reviewer, findings and any policy changes in this document's revision history.
