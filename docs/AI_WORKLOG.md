@@ -32,7 +32,7 @@ Append concise session handoffs here. Do not erase useful previous entries. Repo
 - Fixed final CI regressions rather than weakening controls:
   - updated `tests/unit/hardening-recovery.test.ts` so the legacy step-up test seeds an enabled MFA state and verifies the new MFA-bound proof semantics;
   - fixed `db/schema-security.ts` to use the explicit `.ts` ESM import required by schema verification.
-- Full source validation passed on commit `0e87c0e6992462ec4ab8a013a40b87a6dffae425`, GitHub Actions run `34703358445`:
+- Full source validation passed on remediation branch head `770e9e747f5503ac1ed8af029fd5dd9738579326`, GitHub Actions run `34703808959`:
   - repo/prod/SEO source gates PASS;
   - typecheck PASS;
   - lint PASS with warnings only and zero errors;
@@ -54,3 +54,21 @@ Append concise session handoffs here. Do not erase useful previous entries. Repo
 - Production D1 migration 0024: not applied.
 - Amazon Developer Profile re-application: not submitted; do not answer operational security controls `Yes` until the external evidence is actually collected.
 - Repository-side Amazon security remediation is complete. The next phase is separate release/operations approval and evidence collection, not additional source remediation.
+
+## 2026-09-12 — Amazon security remediation released to production
+
+- Agent: ChatGPT + user-operated PowerShell deployment.
+- PR #19 was marked ready and merged into `main`.
+- Production application merge commit: `507e5d5cfbc34a01f8a0363b3ba00fe86b1a56c2`.
+- Production D1 migration `0024_admin_security_controls.sql`: applied successfully to database `seller-margin-guard` (`220bab03-28c2-40c6-8f5a-7010c49ca21b`).
+- Production schema verification confirmed `admin_mfa_settings`, `admin_mfa_recovery_codes`, `user_security_state`, and `user_password_history` exist.
+- Production build: PASS.
+- Cloudflare Worker `seller-margin-guard` deployed successfully.
+- Production Worker version: `b9894ccb-2349-49de-8d04-19a620dfca21`.
+- Custom-domain/trigger deployment completed for `sellerhisab.com`, `www.sellerhisab.com`, scheduled triggers and existing queue producers/consumers.
+- Initial post-deploy smoke script stopped because Windows PowerShell treats `$home` as the built-in read-only `$HOME` variable; this occurred after the migration and Worker deployment had already completed and did not indicate a deployment failure.
+- Corrected live verification subsequently passed: `https://sellerhisab.com/` HTTP 200 and `https://sellerhisab.com/api/health` HTTP 200 with `{"status":"ok"}`.
+- `docs/PROJECT_STATE.md` updated on `main` to record the completed production release and the remaining operational-evidence phase.
+- Production rollback: not required.
+- Remaining next action: enroll/verify TOTP MFA on the real production admin account and securely retain recovery codes, then collect Cloudflare/network/device/external-account/access-review/training/incident-response evidence before Amazon re-application.
+- Do not rerun migration 0024 or redeploy solely for evidence collection unless an actual defect is found.
