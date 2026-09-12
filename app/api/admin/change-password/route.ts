@@ -4,13 +4,20 @@ import { createSession, getSessionUser } from "@/server/auth";
 import { hashPassword, passwordResetRequired, publicPasswordValidationMessage, validateAdminPassword, verifyPassword } from "@/server/password";
 import { enforceIpRateLimit, enforceRateLimit, RateLimitError } from "@/server/rate-limit";
 import { getD1 } from "@/server/runtime";
-import { assertAdminPasswordChangeAllowed, replaceAdminCredential } from "@/server/admin-security";
+import { hasAdminStepUp } from "@/server/admin-step-up";
+import {
+  assertAdminPasswordChangeAllowed,
+  getAdminMfaStatus,
+  replaceAdminCredential,
+  verifyAdminSecondFactor,
+} from "@/server/admin-security";
 
 export const dynamic = "force-dynamic";
 
 const schema = z.object({
   currentPassword: z.string().min(1).max(128),
   newPassword: z.string().min(1).max(128),
+  code: z.string().trim().min(6).max(32).optional(),
 });
 
 type PasswordRow = { passwordHash: string | null };
@@ -47,6 +54,16 @@ export async function POST(request: Request) {
       return Response.json({ error: "Current password is incorrect." }, { status: 401 });
     }
 
+    const mfa = await getAdminMfaStatus(user.id);
+    if (mfa.enabled && !await hasAdminStepUp(request, user)) {
+      if (!input.code || !await verifyAdminSecondFactor(user.id, input.code)) {
+        return Response.json({
+          error: "Authenticator or recovery code is required to change the admin password.",
+          code: "admin_mfa_required",
+        }, { status: 401, headers: { "cache-control": "no-store" } });
+      }
+    }
+
     await assertAdminPasswordChangeAllowed(user.id, input.newPassword, row.passwordHash);
     const newHash = await hashPassword(input.newPassword);
     await replaceAdminCredential(user.id, row.passwordHash, newHash);
@@ -66,7 +83,7 @@ export async function POST(request: Request) {
         },
       );
     }
-    if (error instanceof z.ZodError) return Response.json({ error: "Enter both the current and new password." }, { status: 400 });
+    if (error instanceof z.ZodError) return Response.json({ error: "Enter the current password, a valid new password and any required MFA code." }, { status: 400 });
     const passwordMessage = publicPasswordValidationMessage(error);
     if (passwordMessage) return Response.json({ error: passwordMessage }, { status: 400 });
     const message = error instanceof Error ? error.message : "";
