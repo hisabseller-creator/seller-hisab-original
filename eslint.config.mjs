@@ -39,10 +39,10 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["components/marketplace-hub-experience.tsx"],
+    files: ["components/marketplace-hub-experience.tsx", "components/marketplace-connections-workspace.tsx"],
     rules: {
-      // Marketplace connection status is fetched immediately when the tab mounts.
-      // The refresh function updates loading/result state around an external fetch;
+      // Marketplace connection status is fetched immediately when these views mount.
+      // Their refresh functions update loading/result state around external fetches;
       // keep this React 19 advisory visible without making it a release blocker.
       "react-hooks/set-state-in-effect": "warn",
     },

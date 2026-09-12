@@ -3,7 +3,7 @@ import fs from "node:fs";
 import {createHash} from "node:crypto";
 import assert from "node:assert/strict";
 import { getTableConfig } from "drizzle-orm/sqlite-core";
-import * as schema from "../db/schema.ts";
+import * as schema from "../db/schema-all.ts";
 const migrations=fs.readdirSync("drizzle").filter(f=>f.endsWith(".sql")).sort();
 export function replay(until=migrations.length) {
   const db=new DatabaseSync(":memory:"); db.exec("PRAGMA foreign_keys=ON");
@@ -24,7 +24,12 @@ for(const table of configs){
  assert.deepEqual(table.indexes.map(i=>i.config.name).sort(),indexes.map(i=>i.name).sort(),table.name+" indexes");
  for(const i of table.indexes){const a=indexes.find(a=>a.name===i.config.name);assert.equal(Boolean(i.config.unique),Boolean(a.unique));assert.deepEqual(i.config.columns.map(c=>c.name),db.prepare(`PRAGMA index_info('${a.name}')`).all().map(c=>c.name));}
 }
-const governed=JSON.parse(fs.readFileSync('db/sql-governance.json','utf8'));
+const governedBase=JSON.parse(fs.readFileSync('db/sql-governance.json','utf8'));
+const governedLive=JSON.parse(fs.readFileSync('db/sql-governance-live.json','utf8'));
+const governed={
+ foreignKeys:{...governedBase.foreignKeys,...governedLive.foreignKeys},
+ objects:[...new Map([...governedBase.objects,...governedLive.objects].map(item=>[`${item.type}:${item.name}`,item])).values()].sort((a,b)=>a.type.localeCompare(b.type)||a.name.localeCompare(b.name)),
+};
 assert.deepEqual(Object.fromEntries(tables.map(name=>[name,db.prepare("PRAGMA foreign_key_list('"+name+"')").all().map(r=>({...r}))])),governed.foreignKeys,'Foreign-key manifest drift');
 assert.deepEqual(db.prepare("SELECT type,name,tbl_name AS tableName,sql FROM sqlite_master WHERE type='trigger' OR (type='table' AND sql LIKE '%CHECK%') ORDER BY type,name").all().map(r=>({...r})),governed.objects);
 // Representative populated 0014 upgrade; execute later migrations exactly once

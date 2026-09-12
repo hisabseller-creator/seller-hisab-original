@@ -6,6 +6,7 @@ import { requireWorkspaceCapability, WorkspacePermissionError } from "@/server/w
 import { getOwnedApiConnection } from "@/server/connectors/store";
 import { enqueueConnectorSyncJob } from "@/server/connectors/jobs";
 import { enforceRateLimit, RateLimitError } from "@/server/rate-limit";
+import { runtimeEnv } from "@/server/runtime";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,12 @@ export async function POST(request: Request) {
     if (!connection || connection.status === "disabled") {
       return Response.json({ error: "Connect this marketplace before syncing." }, { status: 409 });
     }
-    const jobId = await enqueueConnectorSyncJob({ tenantId: connection.tenantId, connectionId: connection.id, requestedByUserId: user.id, days: input.days });
+    const jobId = await enqueueConnectorSyncJob({ tenantId: connection.tenantId, connectionId: connection.id, requestedByUserId: user.id, days: input.days, triggerKind: "manual" });
+    // Fast path: dispatch immediately. The durable D1 job remains the source of
+    // truth, so the five-minute cron can recover it if queue delivery fails.
+    await runtimeEnv().CONNECTOR_QUEUE?.send({ kind: "connector", id: jobId }).catch(() => {
+      console.error(JSON.stringify({ event: "connector.manual_queue.failed", jobId }));
+    });
     return Response.json({ status: "queued", jobId, statusUrl: `/api/account/connections/jobs?id=${encodeURIComponent(jobId)}` }, { status: 202, headers: { "retry-after": "5" } });
   } catch (error) {
     if (error instanceof PlanAccessError) return Response.json({ error: error.message, requiredPlan: error.requiredPlan }, { status: 402 });

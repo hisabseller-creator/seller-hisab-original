@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { requestHasSameOrigin } from "@/server/admin";
 import { getSessionUser } from "@/server/auth";
-import { PlanAccessError, requirePaidCapability } from "@/server/plan-access";
 import { requireWorkspaceCapability, WorkspacePermissionError } from "@/server/workspace-access";
 import { enforceRateLimit, RateLimitError } from "@/server/rate-limit";
 import { connectorApiConfigured, woocommerceApiGet } from "@/server/connectors/providers";
@@ -27,7 +26,6 @@ export async function POST(request: Request) {
   if (!requestHasSameOrigin(request)) return Response.json({ error: "Cross-origin connection request blocked." }, { status: 403 });
 
   try {
-    await requirePaidCapability(user, "connectors");
     const access = await requireWorkspaceCapability(user, "connector_manage");
     await enforceRateLimit(request, "connector-woocommerce-connect", user.id, 8, 60 * 60);
     if (!connectorApiConfigured("woocommerce-v1")) return Response.json({ error: "Connector encryption is not configured on SellerHisab yet." }, { status: 503 });
@@ -61,9 +59,8 @@ export async function POST(request: Request) {
       grantedScopes: ["read"],
       credential,
     });
-    return Response.json({ connected: true, connectorId: "woocommerce-v1", displayName: connection.displayName });
+    return Response.json({ connected: true, connectorId: "woocommerce-v1", displayName: connection.displayName, syncRequiresPlan: "pro" });
   } catch (error) {
-    if (error instanceof PlanAccessError) return Response.json({ error: error.message, requiredPlan: error.requiredPlan }, { status: 402 });
     if (error instanceof WorkspacePermissionError) return Response.json({ error: error.message }, { status: 403 });
     if (error instanceof RateLimitError) return Response.json({ error: error.message }, { status: 429, headers: { "retry-after": String(Math.max(1, Math.ceil((error.resetAt - Date.now()) / 1000))) } });
     if (error instanceof z.ZodError) return Response.json({ error: "Enter a valid store URL and WooCommerce read-only API key pair." }, { status: 400 });

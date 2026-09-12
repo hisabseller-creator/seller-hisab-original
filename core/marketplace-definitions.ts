@@ -83,7 +83,7 @@ export const MARKETPLACE_DEFINITIONS: Record<MarketplaceExperienceId, Marketplac
     connection: {
       state: "activation-required",
       label: "Official connection supported",
-      detail: "SP-API read sync is implemented but requires SellerHisab app configuration, approved roles/scopes and seller authorization.",
+      detail: "Seller authorization is free. API sync and analysis require Pro after the SellerHisab SP-API app credentials and approved roles/scopes are active.",
       href: "/app/connections",
     },
     guides: {
@@ -107,7 +107,7 @@ export const MARKETPLACE_DEFINITIONS: Record<MarketplaceExperienceId, Marketplac
       "amazon-ads-break-even-roas",
     ],
     primaryCta: { href: "/analyze", label: "Analyze Amazon files" },
-    secondaryCta: { href: "/app/connections", label: "Open Connections" },
+    secondaryCta: { href: "/app/connections", label: "Connect Amazon India" },
   },
   flipkart: {
     id: "flipkart",
