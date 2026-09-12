@@ -1,6 +1,24 @@
-﻿# SellerHisab Engineering Instructions
+# SellerHisab Engineering Instructions
 SellerHisab is a multi-marketplace financial and operational intelligence
 platform for Indian online sellers.
+
+## Mandatory Continuity Protocol
+Before doing any work, read in this order:
+1. `AGENTS.md`
+2. `docs/PROJECT_STATE.md`
+3. `docs/AI_WORKLOG.md`
+
+Treat the repository and current branch as the source of truth. If chat history,
+a prior agent summary, or an old handoff conflicts with repository evidence,
+follow the repository and record the discrepancy.
+
+At the end of every meaningful work session:
+- update `docs/PROJECT_STATE.md` to the new current checkpoint;
+- append a concise entry to `docs/AI_WORKLOG.md`;
+- record changed files, tests actually run, commit/push/deploy status,
+  unresolved items, and the exact next action;
+- never erase useful previous worklog history.
+
 ## Primary Agent Responsibility
 Frontend/UI work is handled separately.
 Focus on:
