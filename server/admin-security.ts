@@ -23,13 +23,6 @@ type MfaRow = {
   lastTotpStep: number | null;
 };
 
-type SecurityState = {
-  failedPasswordAttempts: number;
-  lockedUntil: number | null;
-  passwordChangedAt: string | null;
-  securityVersion: number;
-};
-
 function mfaKeyForVersion(version: string): string {
   const env = runtimeEnv();
   const root = version === "v2" ? env.CONNECTOR_ENCRYPTION_KEY_V2 : env.CONNECTOR_ENCRYPTION_KEY;
@@ -243,14 +236,15 @@ export async function replaceAdminCredential(userId: string, previousHash: strin
   const db = getD1();
   await ensureSecurityState(userId);
   const now = new Date().toISOString();
-  const priorTime = new Date(Date.now() - 1).toISOString();
   const statements = [
     db.prepare("DELETE FROM sessions WHERE user_id=?1 AND EXISTS(SELECT 1 FROM users WHERE id=?1 AND password_hash IS ?2 AND deleted_at IS NULL)").bind(userId, previousHash),
     db.prepare("UPDATE users SET password_hash=?3 WHERE id=?1 AND password_hash IS ?2 AND deleted_at IS NULL").bind(userId, previousHash, newHash),
   ];
-  if (previousHash) statements.push(db.prepare("INSERT INTO user_password_history (id,user_id,password_hash,created_at) VALUES (?1,?2,?3,?4)").bind(randomId("pwh"), userId, previousHash, priorTime));
+  if (previousHash) {
+    statements.push(db.prepare("INSERT INTO user_password_history (id,user_id,password_hash,created_at) VALUES (?1,?2,?3,?4)")
+      .bind(randomId("pwh"), userId, previousHash, now));
+  }
   statements.push(
-    db.prepare("INSERT INTO user_password_history (id,user_id,password_hash,created_at) VALUES (?1,?2,?3,?4)").bind(randomId("pwh"), userId, newHash, now),
     db.prepare(`
       UPDATE user_security_state SET password_changed_at=?2,failed_password_attempts=0,locked_until=NULL,last_password_failure_at=NULL,security_version=security_version+1,updated_at=?2 WHERE user_id=?1
     `).bind(userId, now),
