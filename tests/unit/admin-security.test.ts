@@ -73,18 +73,24 @@ describe("admin security controls", () => {
     expect((await getLoginLockState(user.id)).locked).toBe(false);
   });
 
-  it("enforces one-day minimum age, 365-day maximum age and last-ten password history", async () => {
+  it("enforces one-day minimum age, 365-day maximum age and last-ten prior password history", async () => {
     const user = await seedUser();
     const nextPassword = "NextAdminPassword456!";
     await assertAdminPasswordChangeAllowed(user.id, nextPassword, user.passwordHash);
     const nextHash = await hashPassword(nextPassword);
     await replaceAdminCredential(user.id, user.passwordHash, nextHash);
 
+    const storedHistory = await state.db!.prepare("SELECT password_hash AS passwordHash FROM user_password_history WHERE user_id=?1")
+      .bind(user.id).all<{ passwordHash: string }>();
+    expect(storedHistory.results).toHaveLength(1);
+    expect(storedHistory.results[0]?.passwordHash).toBe(user.passwordHash);
+
     await expect(assertAdminPasswordChangeAllowed(user.id, "AnotherAdmin789!", nextHash)).rejects.toThrow(/24 hours/i);
 
     const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
     await state.db!.prepare("UPDATE user_security_state SET password_changed_at=?2 WHERE user_id=?1").bind(user.id, twoDaysAgo).run();
     await expect(assertAdminPasswordChangeAllowed(user.id, "CurrentAdmin123!", nextHash)).rejects.toThrow(/last 10 passwords/i);
+    await expect(assertAdminPasswordChangeAllowed(user.id, nextPassword, nextHash)).rejects.toThrow(/current password/i);
 
     const tooOld = new Date(Date.now() - 366 * 24 * 60 * 60 * 1000).toISOString();
     await state.db!.prepare("UPDATE user_security_state SET password_changed_at=?2 WHERE user_id=?1").bind(user.id, tooOld).run();
