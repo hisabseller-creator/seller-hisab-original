@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Only documented public/synthetic unit-test vectors and this configuration file are allowlisted."
+regexTarget = "line"
+paths = [
+  '''(^|/)\.gitleaks\.toml$'''
+]
+regexes = [
+  '''session-secret-for-tests-0123456789abcdef''',
+  '''connector-key-for-tests-0123456789abcdef''',
+  '''GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ''',
+  '''abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'''
+]

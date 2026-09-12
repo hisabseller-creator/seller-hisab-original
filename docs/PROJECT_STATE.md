@@ -1,83 +1,114 @@
 # SellerHisab — Current Project State
 
-Last reconstructed: 2026-09-12
+Last updated: 2026-09-12
 
-This file is the short, current checkpoint for any coding agent working on SellerHisab. The repository and current branch always override stale chat history.
+This file is the short current checkpoint for any coding agent working on SellerHisab. Repository evidence and the current branch always override stale chat history.
 
 ## Repository
 
 - Repository: `hisabseller-creator/seller-hisab-original`
 - Primary branch: `main`
-- Last verified main checkpoint before this continuity file was added: `59dfb9cba08132cf53c9dbc4612a4f9ce9563a58` (`Add Amazon SP-API security governance documentation`).
-- Production safety rule: do not deploy, modify production data, or execute production migrations without separate explicit approval.
+- Current `main` checkpoint: `0a12c131d533e4e865e42dbaa8543d4383ff4bc4` (`Add Copilot continuity pointer`).
+- Amazon remediation branch: `security/amazon-remediation-0024`.
+- Draft pull request: `#19` — `Amazon SP-API security remediation: MFA, lockout, password lifecycle and evidence`.
+- Production safety rule remains in force: do not deploy, modify production data, merge to `main`, or execute production migrations without separate explicit approval.
 
-## Current workstream
+## Amazon SP-API security remediation status
 
-Amazon SP-API Developer Profile security remediation.
+**Repository/source remediation: COMPLETE.**
 
-### Completed
+The source implementation, schema/migration work, focused security tests, policy corrections and repository evidence templates required by this workstream are implemented on the remediation branch.
 
-- Amazon SP-API/LWA connector architecture already exists with encrypted connector credentials, callback/state handling, token refresh, read-oriented sync and tenant scoping.
-- Amazon Phase 1A governance documentation was committed on `main` in `59dfb9c`:
-  - `docs/production/INCIDENT_RESPONSE.md`
-  - `docs/production/AMAZON_DATA_HANDLING_POLICY.md`
-  - `docs/production/SECURITY_GOVERNANCE_POLICY.md`
-  - `docs/production/ACCESS_REVIEW_PROCEDURE.md`
-- Hosted GitHub Actions production source gates were successfully executed in run `34680928859` on commit `6a75427068b86b342735ae94b6eb6a3644664293`.
+### Implemented source controls
 
-### Important correction to Phase 1A docs
+- True RFC 6238 TOTP MFA for privileged/admin access.
+- MFA secret storage encrypted using the existing application encryption/key-versioning pattern.
+- Recovery codes are shown once, stored as hashes and consumed once.
+- TOTP replay prevention through last-consumed time-step tracking.
+- Admin step-up requires password plus MFA/recovery code and is bound to the current session, credential hash and security version.
+- Privileged proof expires after the configured short step-up window and becomes invalid after credential/security-state changes or logout/session removal.
+- Durable failed-password tracking and account lockout after 10 failed attempts, while preserving the existing request/identity rate-limit layers.
+- Admin password lifecycle controls: minimum 12-character policy at the password validator boundary, previous-password history for the last 10 changes, minimum password age of 24 hours and maximum password age of 365 days.
+- MFA-protected admin password changes and security-version/session invalidation on sensitive credential changes.
+- Admin UI boundary for MFA enrollment, one-time recovery-code display, expired-password handling and MFA step-up.
+- Migration `drizzle/0024_admin_security_controls.sql` plus Drizzle/schema-governance updates.
+- Existing Amazon connector behavior, tenant scoping and read-oriented sync semantics preserved.
 
-The current Phase 1A policies contain present-tense statements that admin TOTP MFA is already enforced. Repository code does **not** currently implement true TOTP/FIDO2 MFA. Existing `server/admin-step-up.ts` is password/session re-authentication and must not be represented as a second factor. Correct these policy claims before Amazon re-application.
+### Governance/evidence completed in repository
 
-## Remaining Amazon security source work
+- Amazon 24-hour security-incident notification language is represented in the incident-response procedure.
+- Amazon data-handling policy is aligned to implemented application behavior without claiming unsupported certifications.
+- Access-review procedure is present.
+- Network/external-control responsibility document is present and explicitly separates repository evidence from provider/account/device controls.
+- Security training/review evidence template is present without fabricating completed training.
+- Amazon re-application checklist is present.
+- Unsupported earlier statements that password-only step-up was true MFA were corrected by implementing actual TOTP MFA and aligning the policies to the implementation.
 
-Status is based on current repository code, not intended future design.
+## Validation checkpoint
 
-- True TOTP/FIDO2 MFA for privileged/admin access: **MISSING**.
-- Persistent account lockout after repeated failed password attempts: **MISSING**; current login protection is rate limiting only.
-- Password history (last 10): **MISSING**.
-- Minimum password age (1 day): **MISSING**.
-- Maximum password age (365 days): **MISSING**.
-- Privileged/admin idle-session timeout: **MISSING**.
-- Network security policy documenting Cloudflare responsibility boundaries: **MISSING**.
-- Security training/review evidence template: **MISSING**.
-- Cloudflare WAF/IDS/IPS/account-level controls remain **EXTERNAL VERIFICATION REQUIRED** and must not be claimed from repository code alone.
+Full GitHub-hosted source gates passed on remediation commit `0e87c0e6992462ec4ab8a013a40b87a6dffae425` in workflow run `34703358445`:
+
+- repository hygiene: PASS
+- production source check: PASS
+- SEO source check: PASS
+- TypeScript typecheck: PASS
+- ESLint: PASS (warnings only; zero errors)
+- generated fixtures: PASS
+- unit test suite: PASS — 84 files / 364 tests
+- schema verification: PASS
+- password runtime check: PASS
+- source-secret check: PASS
+- security check: PASS
+- compatibility check: PASS
+- production build: PASS
+- performance budget: PASS
+- SBOM generation: PASS
+- gitleaks full-history scan: PASS
+- Playwright browser E2E on Chromium + WebKit: PASS
+
+Two CI regressions discovered during finalization were fixed rather than bypassed:
+
+1. The legacy admin step-up test was updated to exercise the new MFA-enabled security boundary instead of expecting password-only privileged access.
+2. `db/schema-security.ts` now uses the explicit `.ts` ESM import required by the schema verification runtime.
 
 ## Migration checkpoint
 
-- `drizzle/0023_connector_live_platform.sql` already exists.
-- The next new migration number is **0024**.
-- Do not create another `0023` migration.
-- Do not execute 0024 or any other migration against production without separate approval.
+- `drizzle/0023_connector_live_platform.sql` remains intact.
+- New security migration is exactly `drizzle/0024_admin_security_controls.sql`.
+- Migration 0024 has **not** been applied to production.
+- Do not apply it remotely until the release/deployment step is explicitly approved.
 
-## Current task
+## External verification still required before Amazon re-application
 
-Implement the remaining repository-level Amazon security remediation without unrelated redesign:
+These are operational/account/device controls and are not provable from repository code alone. They are **not source-development gaps** and must remain marked `EXTERNAL VERIFICATION REQUIRED` until actual evidence is collected:
 
-1. Correct unsupported TOTP/MFA claims in current policy docs.
-2. Implement true privileged/admin TOTP MFA with encrypted secret storage, hashed single-use recovery codes, rate limiting and audit events.
-3. Implement durable failed-login lockout while preserving existing IP/identity rate limits and non-enumerating login responses.
-4. Implement applicable password history/age controls without breaking legacy password verification/reset behavior.
-5. Add privileged-session idle protection and invalidate stale privileged/MFA state after credential/security changes.
-6. Add migration `0024_...`, focused tests, network-security documentation and security-training/review template.
-7. Run repository CI/tests before considering merge/release.
+- Cloudflare account-level WAF/firewall rules and equivalent threat-detection controls actually enabled for the production zone/account.
+- Network/administrative segmentation and access-control evidence at the provider/account level where applicable.
+- Endpoint anti-malware/OS-security controls on administrative devices.
+- MFA and access-control evidence for relevant external administrative accounts.
+- Completed access-review and security-training records according to the documented cadence.
+- Incident-response review/approval evidence according to the documented six-month cadence.
+
+Do not answer Amazon security-profile questions `Yes` solely because a policy document exists. A `Yes` requires the control to be actually implemented and evidenced.
+
+## Release status
+
+- Repository-side Amazon security remediation: **COMPLETE**.
+- Feature branch pushed: **YES**.
+- Draft PR #19: **OPEN**.
+- Merge to `main`: **NONE**.
+- Production deployment: **NONE**.
+- Production migration 0024: **NONE**.
+- Amazon Developer Profile re-application: **NOT YET**; collect the external operational evidence above first.
 
 ## Preserve
 
 - Existing multi-tenant/tenant-scoped access controls.
 - Existing connector encryption/key-versioning patterns.
-- Existing CSRF, SSRF, rate-limit, session, webhook and payment verification controls.
+- Existing CSRF, SSRF, rate-limit, session, webhook and payment-verification controls.
 - Existing financial evidence/confidence semantics.
-- Existing Amazon connector architecture unless a concrete security gap requires a narrowly scoped change.
-
-## Do not do
-
-- Do not deploy.
-- Do not run production migrations.
-- Do not expose or commit credentials/secrets.
-- Do not claim WAF, IDS/IPS, anti-malware, VAPT, training completion, certifications or external account controls without evidence.
-- Do not mark Amazon re-application ready until source controls plus required external evidence are actually complete.
+- Existing Amazon connector architecture unless a concrete reviewed security gap requires a narrowly scoped change.
 
 ## End-of-session handoff
 
-Every agent should update this file to the new current checkpoint and append a concise entry to `docs/AI_WORKLOG.md` with changed files, tests actually run, commit/push/deploy status, unresolved items and the next action.
+The repository remediation workstream is source-complete. The next distinct phase is release/operations: review PR #19, collect external security evidence, then separately approve merge, production migration/deploy and Amazon re-application. Do not collapse those operational approvals into this source-completion checkpoint.
