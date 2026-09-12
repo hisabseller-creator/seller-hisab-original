@@ -1,10 +1,10 @@
-import {replaceCredential} from '@/server/credential-reset';
 import { z } from "zod";
 import { isAdminUser, requestHasSameOrigin } from "@/server/admin";
 import { createSession, getSessionUser } from "@/server/auth";
 import { hashPassword, passwordResetRequired, publicPasswordValidationMessage, validateAdminPassword, verifyPassword } from "@/server/password";
 import { enforceIpRateLimit, enforceRateLimit, RateLimitError } from "@/server/rate-limit";
 import { getD1 } from "@/server/runtime";
+import { assertAdminPasswordChangeAllowed, replaceAdminCredential } from "@/server/admin-security";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +31,6 @@ export async function POST(request: Request) {
     const input = schema.parse(await request.json());
     validateAdminPassword(input.newPassword);
 
-    if (input.currentPassword === input.newPassword) {
-      return Response.json({ error: "Choose a new password that is different from the current password." }, { status: 400 });
-    }
-
     const row = await getD1()
       .prepare("SELECT password_hash AS passwordHash FROM users WHERE id = ?1")
       .bind(user.id)
@@ -51,13 +47,14 @@ export async function POST(request: Request) {
       return Response.json({ error: "Current password is incorrect." }, { status: 401 });
     }
 
+    await assertAdminPasswordChangeAllowed(user.id, input.newPassword, row.passwordHash);
     const newHash = await hashPassword(input.newPassword);
-    await replaceCredential(user.id,row.passwordHash,newHash);
-    const session = await createSession(user.id,newHash);
+    await replaceAdminCredential(user.id, row.passwordHash, newHash);
+    const session = await createSession(user.id, newHash);
 
     return Response.json(
       { ok: true },
-      { headers: { "set-cookie": session.cookie } },
+      { headers: { "set-cookie": session.cookie, "cache-control": "no-store" } },
     );
   } catch (error) {
     if (error instanceof RateLimitError) {
@@ -72,6 +69,8 @@ export async function POST(request: Request) {
     if (error instanceof z.ZodError) return Response.json({ error: "Enter both the current and new password." }, { status: 400 });
     const passwordMessage = publicPasswordValidationMessage(error);
     if (passwordMessage) return Response.json({ error: passwordMessage }, { status: 400 });
+    const message = error instanceof Error ? error.message : "";
+    if (/last 10 passwords|24 hours|reuse the current password/i.test(message)) return Response.json({ error: message }, { status: 400 });
     console.error(JSON.stringify({ event: "admin.password_change.error", errorType: error instanceof Error ? error.name : "UnknownError" }));
     return Response.json({ error: "Password could not be changed right now. Please retry." }, { status: 503 });
   }
