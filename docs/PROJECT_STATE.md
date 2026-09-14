@@ -1,6 +1,6 @@
 # SellerHisab — Current Project State
 
-Last updated: 2026-09-12
+Last updated: 2026-09-14
 
 This file is the short current checkpoint for any coding agent working on SellerHisab. Repository evidence and the current branch always override stale chat history.
 

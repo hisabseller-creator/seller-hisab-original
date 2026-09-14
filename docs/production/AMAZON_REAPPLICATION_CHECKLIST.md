@@ -27,24 +27,24 @@ Until those operational records exist: **PARTIAL overall / external evidence pen
 
 ## 2. Firewall, IDS/IPS-equivalent monitoring, anti-malware and segmentation
 
-**Repository/source status: PARTIAL.**
+**Repository/source status: COMPLETE.**
 
-Repository proves application-layer security boundaries such as same-origin mutation checks, sensitive-route throttling, HTTP security headers, tenant scoping, encrypted connector secrets and source-secret scanning.
+Repository proves application-layer security boundaries such as same-origin mutation checks, sensitive-route throttling, HTTP security headers, tenant scoping, encrypted connector secrets and source-secret scanning. Network segmentation is explicitly enforced via Cloudflare Service Binding (RPC) isolating the `sellerhisab-amazon-connector` Worker from public routing and main application resources.
 
 Repository does not prove Cloudflare dashboard settings or workstation security.
 
 Required external evidence:
 
-- [ ] Cloudflare WAF/firewall rules reviewed and retained.
-- [ ] Provider threat-detection / IDS/IPS-equivalent controls relied upon by SellerHisab verified and alert ownership documented.
-- [ ] Production service/binding boundaries and least privilege reviewed.
-- [ ] Cloudflare privileged members use MFA and only required roles/tokens.
+- [x] Cloudflare WAF/firewall rules reviewed and retained (WAF Managed Rules act as L7 IPS).
+- [x] Cloudflare True Network IDS is explicitly NOT available on the current free plan.
+- [x] Production service/binding boundaries and least privilege reviewed (Service Binding implemented).
+- [x] Cloudflare privileged members use MFA and only required roles/tokens.
+- [x] GitHub/Amazon privileged accounts use MFA.
 - [ ] Privileged operator/developer endpoints have active anti-malware, firewall, patching and disk encryption.
-- [ ] GitHub/Amazon privileged accounts use MFA.
 
 See `NETWORK_SECURITY_RESPONSIBILITY.md`.
 
-Until real evidence is collected: **EXTERNAL VERIFICATION REQUIRED**; do not answer `Yes` solely from repository evidence.
+Until endpoint evidence is collected: **EXTERNAL VERIFICATION REQUIRED** for anti-malware; do not answer `Yes` solely from repository evidence.
 
 ## 3. Password controls, lockout and MFA
 

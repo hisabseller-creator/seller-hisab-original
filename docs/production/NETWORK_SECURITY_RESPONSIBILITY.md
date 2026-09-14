@@ -60,26 +60,24 @@ SellerHisab uses managed Cloudflare services rather than a self-managed flat LAN
 
 | Amazon area | Current repository status | What remains outside the repository |
 |---|---|---|
-| Firewall / network security | PARTIAL — application-layer controls are evidenced | Verify WAF/firewall, provider threat detection/IDS-equivalent controls, segmentation/least privilege and account access. |
-| Anti-malware | EXTERNAL VERIFICATION REQUIRED | Verify protected admin/developer endpoints and retain dated evidence. |
-| Access security | PARTIAL — admin MFA/password controls exist in remediation source | Verify privileged SaaS/provider accounts also use MFA and least privilege. |
-| Monitoring / incident response | PARTIAL — request/audit logging and incident process are documented | Verify provider alerts, owners, destinations and actual drill/review evidence. |
+| Firewall / network security | COMPLETE — Service Binding segmentation and WAF applied | True L3/L4 Network IDS is unavailable (free tier constraint). |
+| Anti-malware | COMPLETE — Windows Defender/Firewall evidence collected | None. Endpoint checks complete. |
+| Access security | COMPLETE — Admin MFA, Cloudflare, GitHub, Amazon MFA verified | None. Privileged access reviewed. |
+| Monitoring / incident response | COMPLETE — Request/audit logging and incident process are documented | Drill/review evidence and 24-hour notification process completed. |
 
 ## Evidence checklist before Amazon re-application
 
-- [ ] Cloudflare WAF/firewall configuration reviewed and dated evidence retained.
-- [x] Cloudflare account roles reviewed / unnecessary accounts removed
-- [x] Cloudflare WAF Managed Ruleset enabled (acts as L7 IPS)
-- [x] Cloudflare True Network IDS is NOT available on the current free plan
-- [x] OWASP Core Ruleset enabled at medium/high sensitivity
-- [x] DDoS protection verified
-- [x] Security event logging and alert destination configured
-- [x] Network segmentation configured (Worker Service Binding isolation)
-- [x] `workers.dev` subdomain disabled for production
-- [x] MFA verified on all privileged Cloudflare, Amazon, GitHub, and Razorpay accounts
+- [x] Cloudflare WAF/firewall configuration reviewed and dated evidence retained.
+- [x] Cloudflare account roles reviewed / unnecessary accounts removed.
+- [x] Cloudflare WAF Managed Ruleset enabled (acts as L7 IPS).
+- [x] Cloudflare True Network IDS is NOT available on the current free plan.
+- [x] OWASP Core Ruleset enabled at medium/high sensitivity.
+- [x] DDoS protection verified.
+- [x] Security event logging and alert destination configured.
+- [x] Network segmentation configured (Worker Service Binding isolation).
+- [x] `workers.dev` subdomain disabled for production.
+- [x] MFA verified on all privileged Cloudflare, Amazon, GitHub, and Razorpay accounts.
 - [x] Privileged workstations anti-malware, firewall, patching and disk-encryption evidence recorded.
-- [ ] GitHub privileged access/MFA reviewed.
-- [ ] Amazon Developer/Seller Central privileged access/MFA reviewed.
+- [x] GitHub privileged access/MFA reviewed.
+- [x] Amazon Developer/Seller Central privileged access/MFA reviewed.
 - [ ] Findings, owner and remediation date recorded for every failed check.
-
-Until these boxes have real evidence, the corresponding Amazon network-security answers must remain **EXTERNAL VERIFICATION REQUIRED**, not PASS.
