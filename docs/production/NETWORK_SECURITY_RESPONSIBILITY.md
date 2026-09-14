@@ -60,7 +60,7 @@ SellerHisab uses managed Cloudflare services rather than a self-managed flat LAN
 
 | Amazon area | Current repository status | What remains outside the repository |
 |---|---|---|
-| Firewall / network security | COMPLETE — Service Binding segmentation and WAF applied | True L3/L4 Network IDS is unavailable (free tier constraint). |
+| Firewall / network security | COMPLETE — Application-layer signature-based IPS implemented through Cloudflare WAF Managed Rules | True Network IDS is not licensed / not claimed. |
 | Anti-malware | COMPLETE — Windows Defender/Firewall evidence collected | None. Endpoint checks complete. |
 | Access security | COMPLETE — Admin MFA, Cloudflare, GitHub, Amazon MFA verified | None. Privileged access reviewed. |
 | Monitoring / incident response | COMPLETE — Request/audit logging and incident process are documented | Drill/review evidence and 24-hour notification process completed. |
@@ -69,8 +69,8 @@ SellerHisab uses managed Cloudflare services rather than a self-managed flat LAN
 
 - [x] Cloudflare WAF/firewall configuration reviewed and dated evidence retained.
 - [x] Cloudflare account roles reviewed / unnecessary accounts removed.
-- [x] Cloudflare WAF Managed Ruleset enabled (acts as L7 IPS).
-- [x] Cloudflare True Network IDS is NOT available on the current free plan.
+- [x] Cloudflare Free Managed Ruleset enabled (provides signature-based application-layer IPS with Block actions).
+- [x] True Network IDS is not licensed / not claimed.
 - [x] OWASP Core Ruleset enabled at medium/high sensitivity.
 - [x] DDoS protection verified.
 - [x] Security event logging and alert destination configured.
