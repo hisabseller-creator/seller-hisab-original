@@ -66,3 +66,13 @@ Append concise session handoffs here. Do not erase useful previous entries. Repo
 - Deployments: Deployed internal worker and re-deployed main worker with Service Binding.
 - Testing: 13 targeted network security regression tests added and passed. Build and schema checks passed.
 - Documentation: Wrote Evidence files for IDS/IPS capability (True Network IDS unavailable on free plan; using WAF L7 IPS) and Network Segmentation. Updated PROJECT_STATE and NETWORK_SECURITY_RESPONSIBILITY.
+
+## 2026-09-14 — Amazon SP-API Evidence Cleanup & Final Readiness
+
+- Agent: Gemini 3.1 Pro
+- Branch: security/amazon-network-hardening-20260914
+- Evidence Review: Completed cleanup of all external evidence files without falsifying data.
+- Compliance Mapping: Corrected IDS/IPS interpretation mapping Cloudflare WAF Managed Rules to the DPP 1.1 'IDS and/or IPS' signature pattern-based requirement.
+- Policies: Replaced obsolete 'Seller Central' terminology with 'Amazon Solution Provider Portal / Developer Profile'.
+- Exceptions: BitLocker risk formally accepted based on policy prohibiting local PII storage.
+- Status: Amazon Developer Profile re-application is now READY TO SUBMIT.

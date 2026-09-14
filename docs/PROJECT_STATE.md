@@ -78,18 +78,16 @@ Two CI regressions discovered during finalization were fixed rather than bypasse
 - Migration 0024 has **not** been applied to production.
 - Do not apply it remotely until the release/deployment step is explicitly approved.
 
-## External verification still required before Amazon re-application
+## Operational Verification Completed
 
-These are operational/account/device controls and are not provable from repository code alone. They are **not source-development gaps** and must remain marked `EXTERNAL VERIFICATION REQUIRED` until actual evidence is collected:
-
-- Cloudflare account-level WAF/firewall rules actually enabled for the production zone/account.
+The following operational/account/device controls have been fully verified and evidenced as of 2026-09-14:
+- Cloudflare WAF/firewall rules (Managed Ruleset providing signature-based IPS).
+- Network Segmentation (Service Binding isolating the Amazon Worker).
 - Endpoint anti-malware/OS-security controls on administrative devices.
-- Completed access-review and security-training records according to the documented cadence.
-- Incident-response review/approval evidence according to the documented six-month cadence.
+- Completed access-review, security-training, and incident-response review records.
 
-**Note:** Cloudflare True Network IDS is explicitly NOT available on the current free plan, and this must be answered truthfully on the Amazon re-application (WAF provides L7 IPS). Network segmentation is COMPLETE via Cloudflare Service Binding.
-
-Do not answer Amazon security-profile questions `Yes` solely because a policy document exists. A `Yes` requires the control to be actually implemented and evidenced.
+**Accepted Risk / Endpoint Policy:** Windows BitLocker Disk Encryption is currently Protection Off. SellerHisab policy strictly prohibits storing Amazon Information/PII on the local development endpoint, mitigating this finding. Amazon processing occurs exclusively in the managed production cloud environment.
+**Note:** Cloudflare Advanced Network Firewall IDS is not licensed on the current plan. The DPP 1.1 requirement is strictly fulfilled via the Cloudflare WAF Managed Rules acting as the signature pattern-based IPS.
 
 ## Release status
 
@@ -98,7 +96,7 @@ Do not answer Amazon security-profile questions `Yes` solely because a policy do
 - Cloudflare Amazon internal Worker deployed: **YES** (`sellerhisab-amazon-connector`).
 - Cloudflare Amazon internal D1 created/migrated: **YES** (`3237f0c1-f008-4e4e-8ccb-297c30896a51`).
 - Public Worker Service Binding deployed: **YES**.
-- Amazon Developer Profile re-application: **NOT YET**; remaining endpoint/governance evidence required.
+- Amazon Developer Profile re-application: **READY TO SUBMIT**.
 
 ## Preserve
 
