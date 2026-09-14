@@ -74,7 +74,7 @@ For Amazon specifically:
 - verify Developer Profile/application status;
 - verify requested roles/scopes match SellerHisab's current read-only reporting/reconciliation purpose;
 - remove unused roles/scopes;
-- verify privileged Amazon Developer/Seller Central accounts use MFA;
+- verify privileged Amazon Solution Provider Portal / Developer Profile accounts use MFA;
 - review active seller connections and investigate stale/unknown connections;
 - verify connector encryption key version/rotation state;
 - verify no raw Amazon credential is exposed in UI, logs, source or evidence records.

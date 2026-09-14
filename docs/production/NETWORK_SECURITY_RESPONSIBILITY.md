@@ -49,7 +49,7 @@ Repository code cannot prove the security posture of laptops/desktops used by ad
 - disk encryption enabled where supported;
 - screen lock and strong local authentication;
 - no shared privileged operating-system accounts;
-- browser/account MFA for GitHub, Cloudflare, Amazon Seller Central/Developer Console, payment provider and email accounts;
+- browser/account MFA for GitHub, Cloudflare, Amazon Solution Provider Portal / Developer Profile, payment provider and email accounts;
 - removal of unnecessary local administrator privileges where practical.
 
 ## Segmentation and least privilege
@@ -79,5 +79,5 @@ SellerHisab uses managed Cloudflare services rather than a self-managed flat LAN
 - [x] MFA verified on all privileged Cloudflare, Amazon, GitHub, and Razorpay accounts.
 - [x] Privileged workstations anti-malware, firewall, patching and disk-encryption evidence recorded.
 - [x] GitHub privileged access/MFA reviewed.
-- [x] Amazon Developer/Seller Central privileged access/MFA reviewed.
+- [x] Amazon Solution Provider Portal / Developer Profile privileged access/MFA reviewed.
 - [ ] Findings, owner and remediation date recorded for every failed check.

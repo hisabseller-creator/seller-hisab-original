@@ -61,7 +61,7 @@ Date: `[YYYY-MM-DD]`
 Result: `[pass/findings]`  
 Restricted evidence reference: `[location/id]`
 
-The review must cover admin allowlists, active admin MFA enrollment, GitHub access, Cloudflare members/tokens, Amazon Developer/Seller Central access, marketplace scopes/connections, privileged sessions and production secrets inventory.
+The review must cover admin allowlists, active admin MFA enrollment, GitHub access, Cloudflare members/tokens, Amazon Solution Provider Portal / Developer Profile access, marketplace scopes/connections, privileged sessions and production secrets inventory.
 
 ## 4. Network / endpoint control evidence
 
