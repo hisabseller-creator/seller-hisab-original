@@ -82,24 +82,23 @@ Two CI regressions discovered during finalization were fixed rather than bypasse
 
 These are operational/account/device controls and are not provable from repository code alone. They are **not source-development gaps** and must remain marked `EXTERNAL VERIFICATION REQUIRED` until actual evidence is collected:
 
-- Cloudflare account-level WAF/firewall rules and equivalent threat-detection controls actually enabled for the production zone/account.
-- Network/administrative segmentation and access-control evidence at the provider/account level where applicable.
+- Cloudflare account-level WAF/firewall rules actually enabled for the production zone/account.
 - Endpoint anti-malware/OS-security controls on administrative devices.
-- MFA and access-control evidence for relevant external administrative accounts.
 - Completed access-review and security-training records according to the documented cadence.
 - Incident-response review/approval evidence according to the documented six-month cadence.
+
+**Note:** Cloudflare True Network IDS is explicitly NOT available on the current free plan, and this must be answered truthfully on the Amazon re-application (WAF provides L7 IPS). Network segmentation is COMPLETE via Cloudflare Service Binding.
 
 Do not answer Amazon security-profile questions `Yes` solely because a policy document exists. A `Yes` requires the control to be actually implemented and evidenced.
 
 ## Release status
 
-- Repository-side Amazon security remediation: **COMPLETE**.
-- Feature branch pushed: **YES**.
-- Draft PR #19: **OPEN**.
-- Merge to `main`: **NONE**.
-- Production deployment: **NONE**.
-- Production migration 0024: **NONE**.
-- Amazon Developer Profile re-application: **NOT YET**; collect the external operational evidence above first.
+- Repository-side Amazon network security remediation: **COMPLETE**.
+- Feature branch pushed: `security/amazon-network-hardening-20260914`.
+- Cloudflare Amazon internal Worker deployed: **YES** (`sellerhisab-amazon-connector`).
+- Cloudflare Amazon internal D1 created/migrated: **YES** (`3237f0c1-f008-4e4e-8ccb-297c30896a51`).
+- Public Worker Service Binding deployed: **YES**.
+- Amazon Developer Profile re-application: **NOT YET**; remaining endpoint/governance evidence required.
 
 ## Preserve
 

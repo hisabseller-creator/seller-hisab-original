@@ -54,3 +54,15 @@ Append concise session handoffs here. Do not erase useful previous entries. Repo
 - Production D1 migration 0024: not applied.
 - Amazon Developer Profile re-application: not submitted; do not answer operational security controls `Yes` until the external evidence is actually collected.
 - Repository-side Amazon security remediation is complete. The next phase is separate release/operations approval and evidence collection, not additional source remediation.
+
+## 2026-09-14 — Amazon SP-API network security remediation completed
+
+- Agent: Gemini 3.1 Pro
+- Branch: security/amazon-network-hardening-20260914
+- Architecture: Created sellerhisab-amazon-connector internal worker with Service Binding (RPC) isolation.
+- Network Segmentation: Public worker has no access to Amazon LWA secrets or Amazon token store. The internal worker has no public route and workers.dev is disabled.
+- Cloudflare Resources Created: D1 database (sellerhisab-amazon-connector).
+- Migrations: Applied 0001_amazon_connector_schema.sql to new internal database.
+- Deployments: Deployed internal worker and re-deployed main worker with Service Binding.
+- Testing: 13 targeted network security regression tests added and passed. Build and schema checks passed.
+- Documentation: Wrote Evidence files for IDS/IPS capability (True Network IDS unavailable on free plan; using WAF L7 IPS) and Network Segmentation. Updated PROJECT_STATE and NETWORK_SECURITY_RESPONSIBILITY.
