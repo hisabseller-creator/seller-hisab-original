@@ -6,6 +6,13 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "workers_dev": false,
+  "services": [
+    {
+      "binding": "AMAZON_SERVICE",
+      "service": "sellerhisab-amazon-connector"
+    }
+  ],
   "routes": [
     {
       "pattern": "sellerhisab.com",

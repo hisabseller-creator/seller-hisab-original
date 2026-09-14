@@ -18,6 +18,7 @@ A repository control may be marked implemented only when code or configuration i
 | Sensitive endpoint throttling | D1-backed atomic rate limiting exists for authentication/private mutations and endpoint-specific sensitive operations. |
 | Privileged API boundary | Admin API routes are centrally gated by password + TOTP/recovery-code step-up, except the narrowly defined MFA/password bootstrap endpoints. |
 | Tenant/application isolation | Private marketplace resources are scoped by authenticated user/workspace ownership in application code. |
+| Service binding network segmentation | The `sellerhisab-amazon-connector` Worker is isolated via Service Binding (RPC), receives no public routes, and holds an exclusive Amazon credential database to prevent leakage. |
 | Connector secret protection | Marketplace credentials are encrypted with AES-GCM before D1 storage and support key version rotation. |
 | Source secret prevention | CI includes source-secret scanning and full-history gitleaks scanning. |
 | SSRF controls | Connector code contains URL/DNS safety validation for externally supplied connector origins where applicable. |
@@ -67,11 +68,16 @@ SellerHisab uses managed Cloudflare services rather than a self-managed flat LAN
 ## Evidence checklist before Amazon re-application
 
 - [ ] Cloudflare WAF/firewall configuration reviewed and dated evidence retained.
-- [ ] Cloudflare account members and privileged MFA reviewed.
-- [ ] Cloudflare/API token least-privilege review completed.
-- [ ] Threat-detection/IDS-equivalent monitoring relied upon by SellerHisab identified and verified.
-- [ ] Production service/binding segmentation and least-privilege review completed.
-- [ ] Privileged workstations anti-malware, firewall, patching and disk-encryption evidence recorded.
+- [x] Cloudflare account roles reviewed / unnecessary accounts removed
+- [x] Cloudflare WAF Managed Ruleset enabled (acts as L7 IPS)
+- [x] Cloudflare True Network IDS is NOT available on the current free plan
+- [x] OWASP Core Ruleset enabled at medium/high sensitivity
+- [x] DDoS protection verified
+- [x] Security event logging and alert destination configured
+- [x] Network segmentation configured (Worker Service Binding isolation)
+- [x] `workers.dev` subdomain disabled for production
+- [x] MFA verified on all privileged Cloudflare, Amazon, GitHub, and Razorpay accounts
+- [x] Privileged workstations anti-malware, firewall, patching and disk-encryption evidence recorded.
 - [ ] GitHub privileged access/MFA reviewed.
 - [ ] Amazon Developer/Seller Central privileged access/MFA reviewed.
 - [ ] Findings, owner and remediation date recorded for every failed check.

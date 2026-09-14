@@ -18,6 +18,7 @@ interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   BLOG_MEDIA: R2Bucket;
+  AMAZON_SERVICE: Service;
   APP_ENV?: string;
   RELEASE_ID?: string;
   CF_VERSION_METADATA?: { id: string; tag: string; timestamp: string };
